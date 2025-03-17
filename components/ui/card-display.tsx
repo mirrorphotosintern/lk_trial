@@ -24,7 +24,7 @@ import { useState } from "react"
 
 interface CardDisplayProps {
   entry: KannadaEntry
-  onClick: () => void
+  onClick?: () => void
 }
 
 export function CardDisplay({ entry, onClick }: CardDisplayProps) {
@@ -59,10 +59,16 @@ export function CardDisplay({ entry, onClick }: CardDisplayProps) {
     })
   }
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick()
+    }
+  }
+
   return (
     <div 
-      className="w-full rounded-xl bg-card p-6 shadow-md transition-all duration-300 hover:bg-background hover:shadow-lg cursor-pointer"
-      onClick={onClick}
+      className={`w-full rounded-xl bg-card p-6 shadow-md transition-all duration-300 hover:bg-background hover:shadow-lg ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={handleCardClick}
     >
       {/* Icon in the middle */}
       <div className="flex justify-center mb-6 mt-2">

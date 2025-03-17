@@ -3,18 +3,16 @@
 /**
  * @description
  * CardGrid component fetches CSV data and renders it as a grid of cards.
- * It provides category filtering and expanded card view functionality.
+ * It provides category filtering and displays cards from the updated CSV file.
  *
  * Key features:
  * - Data Fetching: Loads Kannada entries from CSV using loadCsvAction.
  * - Category Filtering: Allows users to filter cards by category.
- * - Expanded View: Shows a detailed modal when a card is clicked.
  * - Grid Rendering: Displays entries in a responsive Tailwind grid.
  *
  * @dependencies
  * - @/actions/csv-actions: Provides loadCsvAction for CSV data.
  * - @/components/ui/card-display: Renders individual Kannada entries.
- * - @/components/ui/expanded-card: Shows expanded view when a card is clicked.
  * - @/components/ui/category-filter: Displays category filter buttons.
  * - @/types: Imports KannadaEntry interface for type safety.
  * - react: For state management and effects.
@@ -23,16 +21,13 @@
 import { useEffect, useState } from "react"
 import { loadCsvAction } from "@/actions/csv-actions"
 import { CardDisplay } from "@/components/ui/card-display"
-import { ExpandedCard } from "@/components/ui/expanded-card"
 import { CategoryFilter } from "@/components/ui/category-filter"
 import { KannadaEntry } from "@/types"
-import { AnimatePresence } from "framer-motion"
 
 export function CardGrid() {
   const [entries, setEntries] = useState<KannadaEntry[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [selectedEntry, setSelectedEntry] = useState<KannadaEntry | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -71,16 +66,6 @@ export function CardGrid() {
     ? entries.filter(entry => entry.category === activeCategory)
     : entries
 
-  // Handle card click
-  const handleCardClick = (entry: KannadaEntry) => {
-    setSelectedEntry(entry)
-  }
-
-  // Handle close of expanded card
-  const handleCloseExpanded = () => {
-    setSelectedEntry(null)
-  }
-
   // Handle category selection
   const handleCategorySelect = (category: string | null) => {
     setActiveCategory(category)
@@ -116,20 +101,9 @@ export function CardGrid() {
           <CardDisplay 
             key={index} 
             entry={entry} 
-            onClick={() => handleCardClick(entry)}
           />
         ))}
       </div>
-
-      {/* Expanded Card Modal */}
-      <AnimatePresence>
-        {selectedEntry && (
-          <ExpandedCard 
-            entry={selectedEntry} 
-            onClose={handleCloseExpanded} 
-          />
-        )}
-      </AnimatePresence>
     </div>
   )
 } 

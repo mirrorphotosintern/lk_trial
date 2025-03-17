@@ -2,11 +2,10 @@
 
 /**
  * @description
- * CardClientWrapper is a client component that wraps the CardDisplay component
- * to handle interactive elements like click events.
+ * CardClientWrapper is a client component that wraps the CardDisplay component.
+ * Simple wrapper to handle client-side rendering of cards.
  *
  * Key features:
- * - Interactivity: Handles card click events
  * - Client-Side Logic: Contains the client-side logic needed for CardDisplay
  *
  * @dependencies
@@ -22,15 +21,7 @@ interface CardClientWrapperProps {
 }
 
 export function CardClientWrapper({ entry }: CardClientWrapperProps) {
-  const handleCardClick = () => {
-    // Handle card click - can be expanded later for navigation or detail view
-    console.log(`Card clicked: ${entry.english}`);
-  }
-
   return (
-    <CardDisplay 
-      entry={entry} 
-      onClick={handleCardClick} 
-    />
+    <CardDisplay entry={entry} />
   )
 } 

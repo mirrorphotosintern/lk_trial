@@ -14,7 +14,7 @@
  * - @/types: Imports ActionState and KannadaEntry for type safety.
  *
  * @notes
- * - The CSV file path is hardcoded to `public/data/kannada-kali.csv` for simplicity.
+ * - The CSV file path is updated to `public/data/kannada-kali-updated.csv`.
  * - Errors are logged and returned in the ActionState format for consistent error handling.
  * - Assumes `papaparse` is installed and configured for parsing.
  */
@@ -42,7 +42,7 @@ export async function loadCsvAction(): Promise<ActionState<KannadaEntry[]>> {
 
   try {
     // Read the CSV file from the public directory
-    const csvPath = process.cwd() + "/public/data/kannada-kali.csv"
+    const csvPath = process.cwd() + "/public/data/kannada-kali-updated.csv"
     const csvData = await readFile(csvPath, "utf-8")
 
     // Parse the CSV data into an array of KannadaEntry objects
