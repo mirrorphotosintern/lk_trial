@@ -185,7 +185,7 @@ export async function getWordStatsAction(
     // Fall back to mock data if no database records exist
     // This allows the UI to display something even if the table hasn't been created yet
     // Read the CSV data
-    const csvPath = path.join(process.cwd(), "/public/data/kannada-kali.csv")
+    const csvPath = path.join(process.cwd(), "/public/data/kannada-kali-updated.csv")
     const csvData = await readFile(csvPath, "utf-8")
     
     // Parse the CSV data

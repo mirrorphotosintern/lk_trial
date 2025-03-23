@@ -1,25 +1,19 @@
 /**
  * @description
- * This component renders interactive quiz games for learning Kannada, supporting three types:
- * matching (word-to-icon), multiple-choice (audio-to-word), and sequence (sentence ordering).
- * It adjusts difficulty based on user progress and provides visual/audio feedback.
+ * This component renders interactive quiz games for learning Kannada.
+ * It shows Kanglish words (transliterated Kannada) as questions and presents icon options to select from.
  *
  * Key features:
- * - Dynamic Difficulty: Scales options (2-4) based on stars earned.
- * - Quiz Types: Matching, multiple-choice, and sequence with unique interactions.
- * - Feedback: Visual animations and sounds for correct/incorrect answers.
- * - Progress Saving: Updates DB via server action on quiz completion.
+ * - Configurable: Adapts to user-selected question count and categories
+ * - Kanglish to Icons: Questions show Kanglish words, options show icons
+ * - Feedback: Visual animations and sounds for correct/incorrect answers
+ * - Progress Saving: Updates DB via server action on quiz completion
  *
  * @dependencies
- * - Framer Motion: For drag-and-drop and feedback animations.
- * - Lucide-react: For icons like Play and Check.
- * - Sonner: For toast notifications (feedback).
- * - Server Actions: For saving progress.
- *
- * @notes
- * - Timer is optional (30s default) and forgiving (no penalty).
- * - Audio playback requires browser support; falls back to text if unavailable.
- * - Progress is saved only on successful completion.
+ * - Framer Motion: For animations and feedback
+ * - Lucide-react: For icons like Play and Check
+ * - Sonner: For toast notifications (feedback)
+ * - Server Actions: For saving progress
  */
 
 "use client"
@@ -29,44 +23,25 @@ import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { saveProgressAction } from "@/actions/db/progress-actions"
+import { updateModuleProgressAction } from "@/actions/db/progress-actions"
 import { saveQuizResultAction } from "@/actions/db/quiz-results-actions"
-import { KannadaEntry } from "@/types/kannada-types"
+import { KannadaEntry } from "@/types"
 import { cn } from "@/lib/utils"
 import { recordWordAttemptAction } from "@/actions/db/word-stats-actions"
-import { Timer, CheckCircle, XCircle } from "lucide-react"
+import { Timer, CheckCircle, XCircle, ArrowLeft } from "lucide-react"
+import Image from "next/image"
+import QuizSetup from "@/app/quiz/_components/quiz-setup"
 
 // Constants
-const QUESTION_TIME = 30; // Time per question in seconds
-const QUESTIONS_PER_QUIZ = 10 // questions per quiz
+const QUESTION_TIME = 10; // Time per question in seconds
 
-// Props for the component
-interface QuizComponentProps {
-  entries: KannadaEntry[] // Array of Kannada entries from CSV
+// Function to load sound
+function loadSound(url: string) {
+  if (typeof Audio !== 'undefined') {
+    return new Audio(url);
+  }
+  return null;
 }
-
-// Sound effects with fallback handling
-const loadSound = (path: string) => {
-  const audio = new Audio(path);
-  
-  // Add error handling to prevent issues if sound file doesn't exist
-  audio.addEventListener('error', () => {
-    console.warn(`Failed to load sound: ${path}`);
-  });
-  
-  return {
-    play: () => {
-      // Only try to play if the browser supports audio
-      if (typeof window !== 'undefined' && window.Audio) {
-        audio.currentTime = 0; // Reset to start
-        return audio.play().catch(err => {
-          console.warn(`Failed to play sound: ${err.message}`);
-        });
-      }
-      return Promise.resolve();
-    }
-  };
-};
 
 const correctSound = loadSound("/sounds/correct.mp3");
 const incorrectSound = loadSound("/sounds/incorrect.mp3");
@@ -76,15 +51,24 @@ type QuizResult = {
   question: KannadaEntry
   isCorrect: boolean
   selectedOption: string
+  correctOption: string
+}
+
+// Props for the component
+interface QuizComponentProps {
+  entries: KannadaEntry[] // Array of Kannada entries from CSV
 }
 
 export default function QuizComponent({ entries }: QuizComponentProps) {
+  // State for quiz configuration
+  const [isConfiguring, setIsConfiguring] = useState(true);
+  
   // State for quiz management
   const [isStarted, setIsStarted] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [quizQuestions, setQuizQuestions] = useState<{
     question: KannadaEntry,
-    options: { text: string, isCorrect: boolean }[]
+    options: { icon: string | null, isCorrect: boolean }[]
   }[]>([])
   const [timer, setTimer] = useState(QUESTION_TIME)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
@@ -95,37 +79,56 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
   // Add additional state to track when to save results
   const [shouldSaveResults, setShouldSaveResults] = useState(false)
 
-  // Initialize the quiz
+  // Complete the quiz and save results
+  const completeQuiz = () => {
+    setIsComplete(true)
+    setIsStarted(false)
+    
+    // Play finish sound
+    finishSound?.play()
+    
+    // Mark results as ready to save
+    setShouldSaveResults(true)
+    
+    // Display toast
+    const correctAnswers = results.filter(r => r.isCorrect).length
+    const score = Math.round((correctAnswers / results.length) * 100)
+    
+    toast.success(`Quiz completed! Your score: ${score}%`)
+  }
+
+  // Save quiz results to the database when complete
   useEffect(() => {
-    if (isStarted && quizQuestions.length === 0) {
-      // Shuffle entries
-      const shuffled = [...entries].sort(() => Math.random() - 0.5);
-      const quizEntries = shuffled.slice(0, QUESTIONS_PER_QUIZ); // Take 10 random entries for the quiz
+    if (shouldSaveResults && results.length > 0) {
+      const saveResults = async () => {
+        try {
+          // Get score
+          const correctAnswers = results.filter(r => r.isCorrect).length
+          const score = Math.round((correctAnswers / results.length) * 100)
+          
+          // Save overall progress
+          await updateModuleProgressAction("quiz", score)
+          
+          // Save detailed results for this quiz attempt
+          await saveQuizResultAction({
+            quizType: "standard", 
+            score: correctAnswers,
+            totalQuestions: results.length,
+            timeSpent: undefined,
+            categories: undefined
+          })
+          
+          setShouldSaveResults(false)
+        } catch (error) {
+          console.error("Error saving quiz results:", error)
+          toast.error("Failed to save your results")
+        }
+      }
       
-      // Create quiz questions
-      const questions = quizEntries.map(entry => {
-        // Get incorrect options (3 other entries)
-        const otherOptions = shuffled
-          .filter(e => e.english !== entry.english)
-          .slice(0, 3)
-          .map(e => ({ text: e.english || "Unknown", isCorrect: false }));
-        
-        // Add correct option
-        const correctOption = { text: entry.english || "Unknown", isCorrect: true };
-        
-        // Shuffle all options
-        const options = [correctOption, ...otherOptions].sort(() => Math.random() - 0.5);
-        
-        return {
-          question: entry,
-          options
-        };
-      });
-      
-      setQuizQuestions(questions);
+      saveResults()
     }
-  }, [isStarted, entries, quizQuestions.length]);
-  
+  }, [shouldSaveResults, results])
+
   // Timer countdown
   useEffect(() => {
     if (!isStarted || isComplete || answeredQuestion || !quizQuestions.length) return;
@@ -151,7 +154,7 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
     setAnsweredQuestion(true);
     
     const currentQuestion = quizQuestions[currentQuestionIndex];
-    const correctOption = currentQuestion.options.find(opt => opt.isCorrect)?.text || "";
+    const correctOption = currentQuestion.options.find(opt => opt.isCorrect)?.icon || "";
     
     // Add to results
     setResults(prev => [
@@ -159,7 +162,8 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
       {
         question: currentQuestion.question,
         isCorrect: false,
-        selectedOption: correctOption
+        selectedOption: "",
+        correctOption
       }
     ]);
     
@@ -170,13 +174,14 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
   }
 
   // Handle user selection
-  const handleSelectOption = async (option: string, isCorrect: boolean) => {
+  const handleSelectOption = async (optionIcon: string | null, isCorrect: boolean) => {
     if (answeredQuestion) return
     
-    setSelectedOption(option)
+    setSelectedOption(optionIcon)
     setAnsweredQuestion(true)
     
     const currentQuestion = quizQuestions[currentQuestionIndex]
+    const correctOption = currentQuestion.options.find(opt => opt.isCorrect)?.icon || "";
     
     // Add to results
     setResults(prev => [
@@ -184,7 +189,8 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
       {
         question: currentQuestion.question,
         isCorrect: isCorrect,
-        selectedOption: option
+        selectedOption: optionIcon || "",
+        correctOption
       }
     ])
     
@@ -194,8 +200,8 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
       (async () => {
         try {
           await recordWordAttemptAction(
-            currentQuestion.question.english || "",
             currentQuestion.question.kanglish || "",
+            currentQuestion.question.english || "",
             currentQuestion.question.kannada || null,
             currentQuestion.question.icon || null,
             currentQuestion.question.category || null,
@@ -216,256 +222,365 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
       incorrectSound?.play()
     }
     
-    // Wait before moving to next question
-    setTimeout(() => {
-      moveToNextQuestion()
-    }, 1000)
+    moveToNextQuestion();
   }
 
-  // Use an effect to handle saving results outside of render
-  useEffect(() => {
-    if (shouldSaveResults && isComplete) {
-      const correctAnswers = results.filter(r => r.isCorrect).length;
-      
-      // Save quiz result
-      const saveResults = async () => {
-        try {
-          // Save detailed quiz result
-          await saveQuizResultAction({
-            quizType: "standard",
-            score: correctAnswers,
-            totalQuestions: quizQuestions.length
-          });
-          
-          // Save progress
-          await saveProgressAction({
-            stars: Math.ceil(correctAnswers / 2), // 1 star per 2 correct answers
-            wordsLearned: correctAnswers,
-            quizzesPlayed: 1
-          });
-        } catch (error) {
-          console.error("Failed to save quiz data:", error);
-        }
-      };
-      
-      saveResults();
-      
-      // Reset the flag to prevent multiple saves
-      setShouldSaveResults(false);
-    }
-  }, [shouldSaveResults, isComplete, results, quizQuestions.length]);
-
-  // Move to next question or end quiz
+  // Move to next question or complete the quiz
   const moveToNextQuestion = () => {
-    if (currentQuestionIndex + 1 >= quizQuestions.length) {
-      // End of quiz - use the separate function to handle completion
-      completeQuiz()
-      return
-    }
-    
-    // Move to next question
-    setCurrentQuestionIndex(prev => prev + 1)
-    setTimer(QUESTION_TIME)
-    setAnsweredQuestion(false)
-    setSelectedOption(null)
+    // Short delay to show the answer
+    setTimeout(() => {
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1)
+        setTimer(QUESTION_TIME)
+        setSelectedOption(null)
+        setAnsweredQuestion(false)
+      } else {
+        completeQuiz()
+      }
+    }, 1500)
   }
 
-  // Start the quiz
+  // Handle starting the quiz
   const handleStartQuiz = () => {
     setIsStarted(true)
-    setIsComplete(false)
     setCurrentQuestionIndex(0)
-    setResults([])
     setQuizQuestions([])
     setTimer(QUESTION_TIME)
-    setAnsweredQuestion(false)
     setSelectedOption(null)
+    setResults([])
+    setIsComplete(false)
+    setAnsweredQuestion(false)
   }
 
-  // Add the completeQuiz function back
-  // Update the completeQuiz function to just set state flags
-  const completeQuiz = () => {
-    if (finishSound) finishSound.play();
-    setIsComplete(true);
-    setIsStarted(false);
-    // Set flag to trigger the effect that saves results
-    setShouldSaveResults(true);
-  };
+  // Handle quiz configuration from setup component
+  const onStartQuiz = (numQuestions: number, categories: string[]) => {
+    // Filter entries by selected categories - allow case-insensitive matching
+    let filteredEntries = entries;
+    
+    if (categories && categories.length > 0) {
+      filteredEntries = entries.filter(entry => 
+        entry.category && categories.some(cat => 
+          entry.category?.toLowerCase() === cat.toLowerCase()
+        )
+      );
+    }
+    
+    console.log(`Total entries: ${entries.length}`);
+    console.log(`After category filter: ${filteredEntries.length}`);
+    
+    // We need entries with valid icons and Kanglish - ensure no undefined or empty values
+    const entriesWithIconsAndKanglish = filteredEntries.filter(e => 
+      e.icon && // Make sure icon exists
+      e.kanglish && e.kanglish.trim() !== "" // Make sure kanglish exists and is not empty
+    );
+    
+    console.log(`Entries with valid icons and Kanglish: ${entriesWithIconsAndKanglish.length}`);
+    
+    if (entriesWithIconsAndKanglish.length < 4) { // We need at least 4 entries for each quiz question (1 correct, 3 incorrect)
+      // Fallback to English if no Kanglish entries available
+      console.log("Not enough entries with Kanglish found, falling back to English");
+      const entriesWithIconsAndEnglish = filteredEntries.filter(e => 
+        e.icon && e.english && e.english.trim() !== ""
+      );
+      
+      if (entriesWithIconsAndEnglish.length >= 4) {
+        // Use English entries as fallback
+        const shuffled = [...entriesWithIconsAndEnglish].sort(() => Math.random() - 0.5);
+        const quizEntries = shuffled.slice(0, Math.min(numQuestions, shuffled.length));
+        createQuizWithEntries(quizEntries, shuffled);
+        return;
+      } else {
+        toast.error("Not enough valid entries found for quiz. Please try different categories.");
+        return;
+      }
+    }
+    
+    // Shuffle entries
+    const shuffled = [...entriesWithIconsAndKanglish].sort(() => Math.random() - 0.5);
+    
+    // Take the configured number of random entries for the quiz, but don't exceed available entries
+    const quizEntries = shuffled.slice(0, Math.min(numQuestions, shuffled.length));
+    console.log(`Creating quiz with ${quizEntries.length} questions`);
+    
+    createQuizWithEntries(quizEntries, shuffled);
+  }
+  
+  // Helper function to create quiz questions from entries
+  const createQuizWithEntries = (quizEntries: KannadaEntry[], allShuffledEntries: KannadaEntry[]) => {
+    // Create quiz questions with icon options
+    const questionsList = quizEntries.map(entry => {
+      // Get incorrect options (3 other entries with icons)
+      // Filter out entries without icons and those matching the current entry's icon
+      const incorrectEntriesPool = allShuffledEntries
+        .filter(e => e.icon && e.icon !== entry.icon);
+        
+      // If we don't have enough incorrect options, use duplicates as a fallback
+      let incorrectEntries = [];
+      if (incorrectEntriesPool.length >= 3) {
+        // Take 3 random entries from the pool
+        incorrectEntries = incorrectEntriesPool
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+      } else {
+        // Use whatever we have and duplicate if necessary
+        incorrectEntries = [...incorrectEntriesPool];
+        while (incorrectEntries.length < 3) {
+          incorrectEntries.push(incorrectEntriesPool[0] || quizEntries[0]);
+        }
+      }
+        
+      // Map to option objects with explicit non-undefined icons
+      const incorrectOptions = incorrectEntries.map(e => ({
+        icon: e.icon as string | null, // We've already filtered out undefined
+        isCorrect: false 
+      }));
+      
+      // Add correct option (we know entry.icon exists because we filtered for it)
+      const correctOption = { 
+        icon: entry.icon as string | null, // We've already filtered out undefined
+        isCorrect: true 
+      };
+      
+      // Shuffle all options
+      const options = [correctOption, ...incorrectOptions].sort(() => Math.random() - 0.5);
+      
+      return {
+        question: entry,
+        options
+      };
+    });
+    
+    console.log(`Created ${questionsList.length} quiz questions`);
+    
+    // Type assertion to ensure TypeScript understands we've eliminated undefined
+    setQuizQuestions(questionsList);
+    
+    setIsConfiguring(false);
+    setIsStarted(true);
+    setCurrentQuestionIndex(0);
+    setTimer(QUESTION_TIME);
+    setSelectedOption(null);
+    setResults([]);
+    setIsComplete(false);
+    setAnsweredQuestion(false);
+  }
 
-  // Render start screen
-  if (!isStarted && !isComplete) {
+  // Return to setup
+  const backToSetup = () => {
+    setIsConfiguring(true)
+    setIsComplete(false)
+  }
+
+  // If configuring, show quiz setup screen
+  if (isConfiguring) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-6 p-6 text-center">
-        <h1 className="text-2xl font-bold">Kannada Vocabulary Quiz</h1>
-        <p className="text-muted-foreground">
-          Test your Kannada vocabulary knowledge!
-        </p>
-        <button 
-          onClick={handleStartQuiz}
-          className="rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Start Quiz
-        </button>
+      <div className="w-full max-w-3xl mx-auto">
+        <QuizSetup entries={entries} onStartQuiz={onStartQuiz} />
       </div>
     )
   }
 
-  // Render quiz results
+  // Show results
   if (isComplete) {
     const correctAnswers = results.filter(r => r.isCorrect).length
     const score = Math.round((correctAnswers / results.length) * 100)
     
     return (
-      <div className="space-y-6 p-4">
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold">Quiz Results</h2>
-          <p className="text-xl">
-            You got {correctAnswers} out of {results.length} correct ({score}%)
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {results.map((result, index) => (
-            <div 
-              key={index}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="w-full max-w-3xl mx-auto"
+      >
+        <div className="bg-card rounded-lg p-6 shadow-md">
+          <h2 className="text-2xl font-bold mb-4 text-center">Quiz Results</h2>
+          
+          <div className="mb-6 text-center">
+            <p className="text-lg">
+              You scored <span className="font-bold">{correctAnswers}</span> out of{" "}
+              <span className="font-bold">{results.length}</span> questions
+            </p>
+            <p className="text-2xl font-bold mt-2">
+              {score}%
+            </p>
+            <Progress 
+              value={score} 
               className={cn(
-                "rounded-lg p-4 shadow transition-colors",
-                result.isCorrect ? "bg-green-50" : "bg-red-50"
+                "h-4 mt-2",
+                score >= 80 ? "bg-green-500/20" : 
+                score >= 60 ? "bg-yellow-500/20" : 
+                "bg-red-500/20"
               )}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="shrink-0">
-                  {result.question.icon && (
-                    <img 
-                      src={result.question.icon} 
-                      alt="Icon" 
-                      className="h-12 w-12 object-contain"
-                    />
-                  )}
+            />
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Question Summary:</h3>
+            {results.map((result, index) => (
+              <div 
+                key={index}
+                className={cn(
+                  "border p-3 rounded flex items-center",
+                  result.isCorrect ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
+                )}
+              >
+                <div className="mr-3">
+                  {result.isCorrect ? 
+                    <CheckCircle className="h-6 w-6 text-green-500" /> : 
+                    <XCircle className="h-6 w-6 text-red-500" />
+                  }
                 </div>
-                <div>
-                  <p className={cn(
-                    "font-medium",
-                    result.isCorrect ? "text-green-700" : "text-red-700"
-                  )}>
-                    {result.question.kanglish}
-                  </p>
-                  <p className="text-sm">
-                    {result.isCorrect ? (
-                      <span className="flex items-center gap-1">
-                        <CheckCircle className="h-4 w-4" />
-                        Correct: {result.selectedOption}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <XCircle className="h-4 w-4" />
-                        Wrong: {result.selectedOption}
-                      </span>
+                
+                <div className="flex-1">
+                  <p className="font-medium">{result.question.kanglish}</p>
+                  <div className="flex mt-2 gap-2">
+                    <div className="flex items-center">
+                      <span className="text-sm mr-2">Correct:</span>
+                      {result.correctOption && (
+                        <div className="w-8 h-8 rounded-full border border-green-500 overflow-hidden">
+                          <Image 
+                            src={result.correctOption} 
+                            alt="Correct option"
+                            width={32}
+                            height={32}
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {!result.isCorrect && result.selectedOption && (
+                      <div className="flex items-center">
+                        <span className="text-sm mr-2">Your choice:</span>
+                        <div className="w-8 h-8 rounded-full border border-red-500 overflow-hidden">
+                          <Image 
+                            src={result.selectedOption} 
+                            alt="Your choice"
+                            width={32}
+                            height={32}
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          
+          <div className="mt-6 flex justify-center gap-3">
+            <Button 
+              onClick={backToSetup}
+              variant="outline"
+              className="flex items-center"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Setup
+            </Button>
+            
+            <Button 
+              onClick={handleStartQuiz}
+              className="flex items-center"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  // If quiz is in progress
+  return (
+    <div className="w-full max-w-3xl mx-auto">
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Question {currentQuestionIndex + 1} of {quizQuestions.length}
+          </p>
+          <Progress 
+            value={(currentQuestionIndex / quizQuestions.length) * 100} 
+            className="h-2 mt-1 w-32"
+          />
         </div>
         
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleStartQuiz}
-            className="rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Play Again
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Get current question
-  const currentQuestion = quizQuestions[currentQuestionIndex]
-  
-  // If no questions yet, show loading
-  if (!currentQuestion) {
-    return (
-      <div className="flex h-[300px] items-center justify-center">
-        <p>Preparing quiz questions...</p>
-      </div>
-    )
-  }
-
-  // Render active quiz
-  return (
-    <div className="space-y-6 p-4">
-      {/* Progress tracker */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Question {currentQuestionIndex + 1} of {quizQuestions.length}
-        </p>
-        <div className="flex items-center gap-1">
-          <Timer className="h-4 w-4" />
+        <div className="flex items-center">
+          <Timer className="h-4 w-4 mr-1 text-muted-foreground" />
           <span className={cn(
-            "text-sm", 
-            timer <= 5 ? "text-red-500 font-bold" : ""
+            "font-mono text-sm",
+            timer <= 5 ? "text-red-500 font-bold" : "text-muted-foreground"
           )}>
             {timer}s
           </span>
         </div>
       </div>
       
-      {/* Question display */}
-      <div className="text-center">
-        <div className="mb-4">
-          {currentQuestion.question.icon && (
-            <img 
-              src={currentQuestion.question.icon}
-              alt={currentQuestion.question.english || "Question"}
-              className="mx-auto h-24 w-24 object-contain"
-            />
+      {quizQuestions.length > 0 && currentQuestionIndex < quizQuestions.length && (
+        <div className="bg-card rounded-lg p-6 shadow-md">
+          <motion.div
+            key={currentQuestionIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <h2 className="text-xl font-bold mb-2 text-center">
+              {quizQuestions[currentQuestionIndex].question.kanglish || 
+               quizQuestions[currentQuestionIndex].question.english || 
+               "Question"}
+            </h2>
+            <p className="text-center text-muted-foreground">
+              Select the matching icon
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {quizQuestions[currentQuestionIndex].options.map((option, index) => (
+              <motion.button
+                key={index}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={answeredQuestion}
+                onClick={() => handleSelectOption(option.icon, option.isCorrect)}
+                className={cn(
+                  "flex flex-col items-center justify-center p-4 rounded-lg border-2 hover:border-primary transition-all",
+                  answeredQuestion && option.isCorrect ? "border-green-500 bg-green-50" :
+                  answeredQuestion && option.icon === selectedOption ? "border-red-500 bg-red-50" :
+                  answeredQuestion ? "opacity-50" : "border-muted",
+                )}
+                style={{ minHeight: "120px" }}
+              >
+                {option.icon ? (
+                  <Image 
+                    src={option.icon} 
+                    alt="option"
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                    onError={(e) => {
+                      // Fallback if image doesn't load
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/placeholder.png'; // Make sure you have this placeholder
+                      target.onerror = null; // Prevent infinite error loop
+                    }}
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                    <span className="text-muted-foreground text-xs">No image</span>
+                  </div>
+                )}
+              </motion.button>
+            ))}
+          </div>
+          
+          {answeredQuestion && (
+            <div className="mt-6 text-center text-muted-foreground">
+              <p>
+                Moving to next question...
+              </p>
+            </div>
           )}
         </div>
-        
-        <h2 className="mb-2 text-2xl font-bold">
-          {currentQuestion.question.kanglish}
-        </h2>
-        
-        {currentQuestion.question.kannada && (
-          <p className="text-lg" lang="kn">
-            {currentQuestion.question.kannada}
-          </p>
-        )}
-      </div>
-      
-      {/* Answer options */}
-      <div className="grid grid-cols-1 gap-3">
-        {currentQuestion.options.map((option, idx) => (
-          <motion.button
-            key={idx}
-            onClick={() => handleSelectOption(option.text, option.isCorrect)}
-            disabled={answeredQuestion}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={cn(
-              "p-4 rounded-lg border-2 text-left transition-all",
-              answeredQuestion && option.isCorrect 
-                ? "border-green-500 bg-green-50" 
-                : answeredQuestion && selectedOption === option.text && !option.isCorrect
-                  ? "border-red-500 bg-red-50"
-                  : answeredQuestion
-                    ? "border-transparent opacity-50"
-                    : "border-border hover:border-primary hover:bg-accent/50"
-            )}
-          >
-            {option.text}
-            {answeredQuestion && option.isCorrect && (
-              <CheckCircle className="ml-2 inline h-5 w-5 text-green-500" />
-            )}
-            {answeredQuestion && selectedOption === option.text && !option.isCorrect && (
-              <XCircle className="ml-2 inline h-5 w-5 text-red-500" />
-            )}
-          </motion.button>
-        ))}
-      </div>
+      )}
     </div>
   )
 }
