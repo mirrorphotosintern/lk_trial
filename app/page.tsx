@@ -3,27 +3,36 @@
 /**
  * @description
  * Home page for KannadaKali, serving as the main entry point for all users.
- * Uses the same HeroSection component as the landing page for consistency.
+ * Includes a welcome hero section and a leaderboard for top quiz performers.
  *
  * Key features:
  * - Entry Point: Provides a welcoming UI for kids and parents.
- * - Server-Side: Renders static content with no async data fetching.
+ * - Leaderboard: Shows top performers by quiz accuracy percentage.
+ * - Server-Side: Renders static content with client components for interactivity.
  *
  * @dependencies
  * - HeroSection: Client component for interactive landing content.
- *
+ * - LeaderboardContainer: Server component for the leaderboard.
+ * 
  * @notes
  * - No Suspense needed as there's no asynchronous logic at this stage.
  * - Relies on root layout for navigation, theme support, and authentication.
- * - This page replaces the separate landing page for a more consistent experience.
  */
 
 import { HeroSection } from "@/components/landing/hero"
+import { SignedIn } from "@clerk/nextjs"
+import LeaderboardContainer from "./_components/leaderboard-container"
 
 export default async function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
+    <div className="flex min-h-screen flex-col items-center">
       <HeroSection />
+      
+      <SignedIn>
+        <div className="my-8 w-full max-w-screen-xl px-4">
+          <LeaderboardContainer />
+        </div>
+      </SignedIn>
     </div>
   )
 } 

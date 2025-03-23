@@ -1,17 +1,16 @@
 /**
  * @description
- * This server component fetches Kannada quiz data and user progress,
- * then renders the QuizComponent with the appropriate props.
- * It ensures authenticated access and handles loading states.
+ * This server component fetches Kannada quiz data and passes it to the QuizComponent.
+ * It retrieves CSV data of Kannada words to use in the quiz.
  *
  * Key features:
- * - Data Fetching: Loads CSV data and user progress from DB.
+ * - Data Fetching: Loads CSV data for the quiz.
  * - Auth Check: Redirects unauthenticated users.
- * - Difficulty Prop: Passes stars to QuizComponent for scaling.
+ * - Quiz Component: Passes CSV data to the client-side quiz component.
  *
  * @dependencies
  * - Clerk: For authentication.
- * - Server Actions: For CSV and progress data fetching.
+ * - Server Actions: For CSV data fetching.
  * - QuizComponent: Client component for quiz rendering.
  *
  * @notes

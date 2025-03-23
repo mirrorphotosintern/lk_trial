@@ -18,7 +18,7 @@
  * - Additional tables can be added to the schema object as needed.
  */
 
-import { profilesTable, progressTable, quizResultsTable, wordStatsTable } from "@/db/schema"
+import { leaderboardTable, profilesTable, progressTable, quizResultsTable, wordStatsTable } from "@/db/schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
@@ -31,7 +31,8 @@ const schema = {
   profiles: profilesTable,
   progress: progressTable,
   quizResults: quizResultsTable,
-  wordStats: wordStatsTable
+  wordStats: wordStatsTable,
+  leaderboard: leaderboardTable
 }
 
 // Create the PostgreSQL client and Drizzle ORM instance

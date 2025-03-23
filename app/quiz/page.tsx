@@ -52,7 +52,7 @@ export default async function QuizPage() {
       {/* Header */}
       <header className="p-4">
         <h1 className="text-2xl font-bold text-foreground font-montserrat">Kannada Quiz</h1>
-        <p className="text-muted-foreground font-montserrat">Match the icon to the correct Kanglish word</p>
+        <p className="text-muted-foreground font-montserrat">Match the Kanglish words to the correct Kannada icon</p>
       </header>
 
       {/* Main content with suspense */}

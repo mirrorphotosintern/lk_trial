@@ -131,3 +131,31 @@ export async function getProgressAction(): Promise<ActionState<SelectProgress | 
     return { isSuccess: false, message: "Failed to retrieve progress" }
   }
 }
+
+/**
+ * A simplified action for updating progress from a specific module completion.
+ * 
+ * @param module - The module name (e.g., "quiz", "flashcards")
+ * @param score - The score achieved (used to calculate stars)
+ * @returns Promise<ActionState<SelectProgress>> - The updated progress record or an error
+ */
+export async function updateModuleProgressAction(
+  module: string,
+  score: number
+): Promise<ActionState<SelectProgress>> {
+  // Calculate stars based on score (1-3 stars)
+  let stars = 0;
+  if (score >= 80) stars = 3;
+  else if (score >= 60) stars = 2;
+  else if (score >= 40) stars = 1;
+  
+  // Set appropriate increments based on module
+  const increments = {
+    stars,
+    wordsLearned: module === "flashcards" ? 1 : 0,
+    quizzesPlayed: module === "quiz" ? 1 : 0
+  };
+  
+  // Call the main progress action
+  return saveProgressAction(increments);
+}

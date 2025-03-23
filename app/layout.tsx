@@ -12,12 +12,14 @@ import "./globals.css"
  * - Navigation: Responsive nav with buttons (desktop) and navbar (mobile).
  * - Theming: Supports light/dark modes via next-themes.
  * - Font Support: Applies Poppins and Noto Sans Kannada for Kannada script rendering.
+ * - Profile Sync: Automatically syncs user profiles to the leaderboard.
  * 
  * @dependencies
  * - ClerkProvider: Provides authentication context from @clerk/nextjs.
  * - ThemeProvider: Manages light/dark mode from next-themes.
  * - ThemeToggle: Custom component for toggling themes.
  * - Lucide-react: Icons for navigation and UI elements.
+ * - ProfileSync: Syncs user profile data with the leaderboard.
  * 
  * @notes
  * - Uses server component directive for server-side rendering.
@@ -31,6 +33,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Home, Book, Gamepad2, Users } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
+import { ProfileSync } from "@/components/profile-sync"
 
 export default async function RootLayout({
   children,
@@ -159,6 +162,11 @@ export default async function RootLayout({
             <main className="container flex-1 py-6">
               <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
             </main>
+
+            {/* Profile sync component */}
+            <SignedIn>
+              <ProfileSync />
+            </SignedIn>
 
             {/* Footer */}
             <footer className="border-t border-border bg-background py-4">
