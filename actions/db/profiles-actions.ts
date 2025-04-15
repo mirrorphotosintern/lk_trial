@@ -97,6 +97,8 @@ export async function syncUserProfileAction(): Promise<ActionState<SelectProfile
   try {
     // Get authenticated user
     const session = await auth()
+    console.log("Auth session:", session?.userId ? "exists" : "missing")
+    
     if (!session?.userId) {
       return {
         isSuccess: false,
@@ -106,6 +108,8 @@ export async function syncUserProfileAction(): Promise<ActionState<SelectProfile
 
     // Get current user details from Clerk
     const user = await currentUser()
+    console.log("Current user:", user ? "found" : "not found")
+    
     if (!user) {
       return {
         isSuccess: false,
@@ -130,20 +134,24 @@ export async function syncUserProfileAction(): Promise<ActionState<SelectProfile
     
     // Get profile image URL and email
     const profileImageUrl = user.imageUrl
-    const email = user.emailAddresses.length > 0 ? user.emailAddresses[0].emailAddress : null
+    const email = user.emailAddresses.length > 0 ? user.emailAddresses[0].emailAddress : ""
+    
+    console.log("Profile sync data:", { userId, displayName, hasImage: !!profileImageUrl, hasEmail: !!email })
 
     // Call the database function to sync profile
     await db.execute(sql`
       SELECT sync_clerk_profile(
         ${userId},
         ${displayName},
-        ${profileImageUrl},
-        ${email}
+        ${profileImageUrl || ""},
+        ${email || ""}
       )
     `)
 
     // Get the updated profile
     const [profile] = await db.select().from(profilesTable).where(eq(profilesTable.userId, userId))
+    
+    console.log("Profile synced successfully:", profile ? "profile retrieved" : "profile missing")
 
     return {
       isSuccess: true,
@@ -151,10 +159,14 @@ export async function syncUserProfileAction(): Promise<ActionState<SelectProfile
       data: profile
     }
   } catch (error) {
-    console.error("Error syncing user profile:", error)
+    console.error("Error syncing user profile:", error instanceof Error ? error.message : String(error))
+    if (error instanceof Error && error.stack) {
+      console.error("Stack trace:", error.stack)
+    }
+    
     return {
       isSuccess: false,
-      message: "Failed to sync user profile"
+      message: error instanceof Error ? error.message : "Failed to sync user profile"
     }
   }
 }
