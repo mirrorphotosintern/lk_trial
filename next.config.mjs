@@ -8,7 +8,8 @@ const nextConfig = {
     remotePatterns: [
       { hostname: "localhost" },
       { hostname: "upcdn.io" },
-      { hostname: "i.postimg.cc" }
+      { hostname: "i.postimg.cc" },
+      { hostname: "replicate.delivery" }
     ] 
   } 
 }
