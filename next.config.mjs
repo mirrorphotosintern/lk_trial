@@ -9,7 +9,8 @@ const nextConfig = {
       { hostname: "localhost" },
       { hostname: "upcdn.io" },
       { hostname: "i.postimg.cc" },
-      { hostname: "replicate.delivery" }
+      { hostname: "replicate.delivery" },
+      { hostname: "*.supabase.co" }
     ] 
   } 
 }
