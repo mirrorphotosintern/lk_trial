@@ -2,7 +2,7 @@
 
 /**
  * @description
- * Home page for KannadaKali, serving as the main entry point for all users.
+ * Home page for LearnKannada, serving as the main entry point for all users.
  * Includes a welcome hero section and a leaderboard for top quiz performers.
  *
  * Key features:

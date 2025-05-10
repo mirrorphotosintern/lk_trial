@@ -4,7 +4,7 @@ import "./globals.css"
 
 /**
  * @description
- * Root layout component for the KannadaKali application.
+ * Root layout component for the LearnKannada application.
  * Sets up the base HTML structure, authentication, theming, and navigation.
  * 
  * Key features:
@@ -46,7 +46,7 @@ export default async function RootLayout({
         <head>
           <meta charSet="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>KannadaKali - Learn Kannada with Fun!</title>
+          <title>LearnKannada - Learn Kannada with Fun!</title>
           {/* Importing Noto Sans Kannada for Kannada script rendering */}
           <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600&family=Poppins:wght@400;600&display=swap"
@@ -67,12 +67,12 @@ export default async function RootLayout({
                 <Link href="/" className="flex items-center space-x-2">
                   <img
                     src="/logo.png"
-                    alt="KannadaKali Logo"
+                    alt="LearnKannada Logo"
                     width={40}
                     height={40}
                     className="h-10 w-10"
                   />
-                  <span className="text-xl font-semibold">KannadaKali</span>
+                  <span className="text-xl font-semibold">LearnKannada</span>
                 </Link>
 
                 {/* Navigation - Desktop: Buttons, Mobile: Hidden */}
@@ -171,7 +171,7 @@ export default async function RootLayout({
             {/* Footer */}
             <footer className="border-t border-border bg-background py-4">
               <div className="container text-center text-sm text-muted-foreground">
-                &copy; 2025 KannadaKali. All rights reserved.
+                &copy; 2025 LearnKannada. All rights reserved.
               </div>
             </footer>
           </ThemeProvider>
