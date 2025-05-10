@@ -1,6 +1,6 @@
 /**
  * @description
- * This server component serves as the entry point for the Quiz page in KannadaKali.
+ * This server component serves as the entry point for the Quiz page in LearnKannada.
  * It enforces authentication via Clerk, fetches CSV data containing Kannada learning content,
  * and renders the QuizFetcher component within a Suspense boundary to handle loading states.
  * 

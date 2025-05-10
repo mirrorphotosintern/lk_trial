@@ -1,6 +1,6 @@
 /**
  * @description
- * This is the hero section of the KannadaKali landing page.
+ * This is the hero section of the LearnKannada landing page.
  * It serves as the entry point, welcoming users with a tagline, logo placeholder,
  * and a call-to-action to sign in or start exploring the app.
  *
@@ -62,7 +62,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
           className="text-balance text-6xl font-bold"
         >
-          KannadaKali
+          LearnKannada
         </motion.div>
 
         <motion.div
@@ -106,7 +106,7 @@ export const HeroSection = () => {
         <div className="relative h-[240px] w-[240px]">
           <Image 
             src="/kannadakali.png" 
-            alt="KannadaKali Logo" 
+            alt="LearnKannada Logo" 
             fill
             className="object-contain"
             priority

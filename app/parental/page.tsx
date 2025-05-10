@@ -1,6 +1,6 @@
 /**
  * @description
- * This server component serves as the entry point for the Parental Progress page in KannadaKali.
+ * This server component serves as the entry point for the Parental Progress page in LearnKannada.
  * It enforces authentication via Clerk, fetches progress data from the database,
  * and renders the ProgressDisplay component within a Suspense boundary to handle loading states.
  * 

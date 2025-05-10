@@ -29,12 +29,12 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
             <div className="relative h-8 w-8">
               <Image 
                 src="/kannadakali.png" 
-                alt="KannadaKali Logo" 
+                alt="LearnKannada Logo" 
                 fill
                 className="object-contain"
               />
             </div>
-            <span className="text-xl font-bold">KannadaKali</span>
+            <span className="text-xl font-bold">LearnKannada</span>
           </Link>
         </motion.div>
 

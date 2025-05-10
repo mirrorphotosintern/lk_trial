@@ -2,7 +2,7 @@
 
 /**
  * @description
- * Cards page for KannadaKali, displaying a grid of Kannada words and sentences.
+ * Cards page for LearnKannada, displaying a grid of Kannada words and sentences.
  * Fetches CSV data server-side and ensures user authentication before rendering.
  *
  * Key features:

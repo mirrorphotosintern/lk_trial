@@ -2,7 +2,7 @@
 
 /**
  * @description
- * Hero component for the KannadaKali landing page, providing an engaging entry point.
+ * Hero component for the LearnKannada landing page, providing an engaging entry point.
  * Features a logo, tagline, authentication prompt via SignInButton, and an animation.
  *
  * Key features:
@@ -51,7 +51,7 @@ export function Hero() {
       >
         <img
           src="/logo.png"
-          alt="KannadaKali Logo"
+          alt="LearnKannada Logo"
           width={240}
           height={240}
           className="h-60 w-60"
@@ -67,7 +67,7 @@ export function Hero() {
         Learn Kannada with Fun!
       </h1>
       <p className="mb-8 max-w-md text-lg text-muted-foreground">
-        Play games, learn words, and enjoy Kannada with KannadaKali!
+        Play games, learn words, and enjoy Kannada with LearnKannada!
       </p>
 
       {/* Start Button with Auth Prompt */}
