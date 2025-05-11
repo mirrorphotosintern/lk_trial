@@ -23,6 +23,7 @@ import { parseCsv } from "@/lib/csv-parser"
 import { db } from "@/db/db"
 import { InsertWordStat, SelectWordStat, wordStatsTable } from "@/db/schema/word-stats-schema"
 import { eq, and, desc } from "drizzle-orm"
+import { evaluateUserBadgesAction } from "@/actions/badge-evaluation-actions"
 
 export interface WordStatistics {
   icon: string | null
@@ -76,11 +77,13 @@ export async function recordWordAttemptAction(
         )
       )
     
+    let updatedStat: SelectWordStat;
+    
     // If the word exists, update its statistics
     if (existingStats.length > 0) {
       const existingStat = existingStats[0]
       
-      const [updatedStat] = await db
+      const [result] = await db
         .update(wordStatsTable)
         .set({
           totalAttempts: existingStat.totalAttempts + 1,
@@ -90,34 +93,40 @@ export async function recordWordAttemptAction(
         .where(eq(wordStatsTable.id, existingStat.id))
         .returning()
       
-      return {
-        isSuccess: true,
-        message: "Word attempt recorded successfully",
-        data: updatedStat
+      updatedStat = result;
+    } else {
+      // If the word doesn't exist, create a new record
+      const newWordStat: InsertWordStat = {
+        userId,
+        word,
+        kanglish,
+        kannada,
+        icon,
+        category,
+        totalAttempts: 1,
+        correctCount: correct ? 1 : 0
       }
+      
+      const [result] = await db
+        .insert(wordStatsTable)
+        .values(newWordStat)
+        .returning()
+      
+      updatedStat = result;
     }
     
-    // If the word doesn't exist, create a new record
-    const newWordStat: InsertWordStat = {
-      userId,
-      word,
-      kanglish,
-      kannada,
-      icon,
-      category,
-      totalAttempts: 1,
-      correctCount: correct ? 1 : 0
-    }
-    
-    const [createdStat] = await db
-      .insert(wordStatsTable)
-      .values(newWordStat)
-      .returning()
+    // Evaluate badges after recording word attempt
+    // We don't await this to avoid making the user wait
+    evaluateUserBadgesAction().catch(error => {
+      console.error("Error evaluating badges after word attempt:", error)
+    })
     
     return {
       isSuccess: true,
-      message: "New word statistic created successfully",
-      data: createdStat
+      message: existingStats.length > 0 
+        ? "Word attempt recorded successfully" 
+        : "New word statistic created successfully",
+      data: updatedStat
     }
   } catch (error) {
     console.error("Error recording word attempt:", error)
