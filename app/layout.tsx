@@ -30,7 +30,7 @@ import "./globals.css"
 import { ClerkProvider, UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/utilities/providers"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { Home, Book, Gamepad2, Users } from "lucide-react"
+import { Home, Book, Gamepad2, Users, Award } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
@@ -99,11 +99,11 @@ export default async function RootLayout({
                     Quiz
                   </Link>
                   <Link
-                    href="/parental"
+                    href="/badges"
                     className="flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                   >
-                    <Users className="mr-2 h-4 w-4" />
-                    Parental
+                    <Award className="mr-2 h-4 w-4" />
+                    Badges
                   </Link>
                 </nav>
 
@@ -149,11 +149,11 @@ export default async function RootLayout({
                   Quiz
                 </Link>
                 <Link
-                  href="/parental"
+                  href="/badges"
                   className="flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                 >
-                  <Users className="mr-2 h-4 w-4" />
-                  Parental
+                  <Award className="mr-2 h-4 w-4" />
+                  Badges
                 </Link>
               </nav>
             </header>
@@ -171,7 +171,7 @@ export default async function RootLayout({
             {/* Footer */}
             <footer className="border-t border-border bg-background py-4">
               <div className="container text-center text-sm text-muted-foreground">
-                &copy; 2025 LearnKannada. All rights reserved.
+                &copy; 2025 <Link href="https://mirrorphotos.io" className="hover:text-foreground transition">MirrorPhotos</Link>. All rights reserved.
               </div>
             </footer>
           </ThemeProvider>

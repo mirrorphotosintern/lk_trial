@@ -26,6 +26,7 @@ import { and, desc, eq } from "drizzle-orm"
 import { db } from "@/db/db"
 import { quizResultsTable, InsertQuizResult, SelectQuizResult } from "@/db/schema/quiz-results-schema"
 import { ActionState } from "@/types"
+import { evaluateUserBadgesAction } from "@/actions/badge-evaluation-actions"
 
 /**
  * Saves quiz results to the database.
@@ -61,6 +62,12 @@ export async function saveQuizResultAction(result: {
     }
 
     const [savedResult] = await db.insert(quizResultsTable).values(newQuizResult).returning()
+
+    // Evaluate badges after saving quiz result
+    // We don't await this to avoid making the user wait
+    evaluateUserBadgesAction().catch(error => {
+      console.error("Error evaluating badges after quiz:", error)
+    })
 
     return {
       isSuccess: true,
