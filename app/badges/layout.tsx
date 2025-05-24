@@ -7,12 +7,6 @@ interface BadgesLayoutProps {
 /**
  * Layout component for the badges pages
  */
-export default async function BadgesLayout({
-  children,
-}: BadgesLayoutProps) {
-  return (
-    <div className="min-h-[calc(100vh-16rem)] w-full">
-      {children}
-    </div>
-  )
-} 
+export default async function BadgesLayout({ children }: BadgesLayoutProps) {
+  return <div className="min-h-[calc(100vh-16rem)] w-full">{children}</div>
+}

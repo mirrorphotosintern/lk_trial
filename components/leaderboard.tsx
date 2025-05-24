@@ -32,7 +32,9 @@ export default function Leaderboard({
   onCategoryChange
 }: LeaderboardProps) {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>(initialLeaders)
-  const [currentUserRank, setCurrentUserRank] = useState<LeaderboardEntry | undefined>(initialUserRank)
+  const [currentUserRank, setCurrentUserRank] = useState<
+    LeaderboardEntry | undefined
+  >(initialUserRank)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -57,9 +59,9 @@ export default function Leaderboard({
   }
 
   return (
-    <div className="bg-white dark:bg-slate-950 rounded-lg shadow p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold flex items-center gap-2">
+    <div className="rounded-lg bg-white p-5 shadow dark:bg-slate-950">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="flex items-center gap-2 text-xl font-bold">
           <Trophy className="text-yellow-500" size={20} />
           Leaderboard
         </h2>
@@ -73,7 +75,7 @@ export default function Leaderboard({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((category) => (
+            {categories.map(category => (
               <SelectItem key={category} value={category}>
                 {category}
               </SelectItem>
@@ -84,28 +86,28 @@ export default function Leaderboard({
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="flex items-center p-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-4 w-40 ml-4" />
-              <Skeleton className="h-4 w-20 ml-auto" />
+              <Skeleton className="size-8 rounded-full" />
+              <Skeleton className="ml-4 h-4 w-40" />
+              <Skeleton className="ml-auto h-4 w-20" />
             </div>
           ))}
         </div>
       ) : (
         <div className="space-y-1">
-          {leaders.map((user) => (
+          {leaders.map(user => (
             <LeaderboardRow key={user.userId} user={user} />
           ))}
 
           {currentUserRank && (
             <>
-              <div className="relative py-2 my-2">
+              <div className="relative my-2 py-2">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-white dark:bg-slate-950 px-2 text-muted-foreground text-xs">
+                  <span className="text-muted-foreground bg-white px-2 text-xs dark:bg-slate-950">
                     • • •
                   </span>
                 </div>
@@ -116,7 +118,7 @@ export default function Leaderboard({
           )}
 
           {leaders.length === 0 && (
-            <div className="text-center py-4 text-muted-foreground">
+            <div className="text-muted-foreground py-4 text-center">
               No data available yet. Complete some quizzes to appear on the
               leaderboard!
             </div>
@@ -144,26 +146,26 @@ function LeaderboardRow({ user, highlighted = false }: LeaderboardRowProps) {
   return (
     <div
       className={cn(
-        "flex items-center p-2 rounded-md",
+        "flex items-center rounded-md p-2",
         highlighted
-          ? "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900"
+          ? "border border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950/20"
           : "hover:bg-slate-50 dark:hover:bg-slate-900"
       )}
     >
-      <div className="flex items-center justify-center w-8 font-bold">
+      <div className="flex w-8 items-center justify-center font-bold">
         {getMedal(user.rank)}
       </div>
 
-      <div className="flex items-center flex-1 min-w-0">
-        <div className="h-8 w-8 rounded-full bg-slate-300 overflow-hidden mr-3 flex-shrink-0">
+      <div className="flex min-w-0 flex-1 items-center">
+        <div className="mr-3 size-8 shrink-0 overflow-hidden rounded-full bg-slate-300">
           {user.profileImageUrl ? (
             <img
               src={user.profileImageUrl}
               alt={user.displayName}
-              className="h-full w-full object-cover"
+              className="size-full object-cover"
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center text-xs font-medium text-slate-600">
+            <div className="flex size-full items-center justify-center text-xs font-medium text-slate-600">
               {user.displayName.substring(0, 2).toUpperCase()}
             </div>
           )}
@@ -182,10 +184,10 @@ function LeaderboardRow({ user, highlighted = false }: LeaderboardRowProps) {
         <div className="font-semibold">
           {user.accuracyPercentage.toFixed(1)}%
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           {user.correctAnswers} / {user.totalAttempts} correct
         </div>
       </div>
     </div>
   )
-} 
+}

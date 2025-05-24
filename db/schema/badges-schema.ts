@@ -29,7 +29,9 @@ export const badgesTable = pgTable("badges", {
   badgeId: text("badge_id").notNull(), // Badge identifier matching badges-logic.csv
   currentLevel: integer("current_level").default(1).notNull(), // Current badge level (1-5)
   progress: integer("progress").default(0).notNull(), // Progress toward next level
-  earnedAt: timestamp("earned_at", { withTimezone: true }).defaultNow().notNull(), // When badge was first earned
+  earnedAt: timestamp("earned_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(), // When badge was first earned
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .notNull()
@@ -38,4 +40,4 @@ export const badgesTable = pgTable("badges", {
 
 // Export types for use in actions
 export type InsertBadge = typeof badgesTable.$inferInsert
-export type SelectBadge = typeof badgesTable.$inferSelect 
+export type SelectBadge = typeof badgesTable.$inferSelect

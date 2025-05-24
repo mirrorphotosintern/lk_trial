@@ -7,7 +7,11 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog"
-import { BadgeDefinition, formatBadgeProgress, getLevelRequirement } from "@/lib/utils/badge-utils"
+import {
+  BadgeDefinition,
+  formatBadgeProgress,
+  getLevelRequirement
+} from "@/lib/utils/badge-utils"
 import { SelectBadge } from "@/db/schema"
 import Image from "next/image"
 
@@ -31,13 +35,13 @@ export default function BadgeDetail({
   const currentLevel = userBadge?.currentLevel || 0
   const progress = userBadge?.progress || 0
   const maxLevel = definition.hasLevels ? 5 : 1
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md flex flex-col items-center text-center">
+      <DialogContent className="flex flex-col items-center text-center sm:max-w-md">
         <DialogHeader className="w-full">
-          <DialogTitle className="text-center flex flex-col items-center gap-2">
-            <div className="relative h-24 w-24">
+          <DialogTitle className="flex flex-col items-center gap-2 text-center">
+            <div className="relative size-24">
               <Image
                 src={definition.imageUrl}
                 alt={definition.englishName}
@@ -51,29 +55,29 @@ export default function BadgeDetail({
             {definition.englishName} - {definition.displayText}
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 w-full flex flex-col items-center">
+
+        <div className="flex w-full flex-col items-center space-y-4">
           <div className="text-center font-medium">
-            {isEarned 
+            {isEarned
               ? `Earned on ${new Date(userBadge.earnedAt).toLocaleDateString()}`
               : "Not yet earned"}
           </div>
-          
+
           {/* Progress section */}
           {isEarned && (
             <div className="space-y-2 text-center">
-              <h4 className="font-medium text-sm">Progress</h4>
+              <h4 className="text-sm font-medium">Progress</h4>
               <div className="text-sm">
                 <div className="mb-1 font-medium text-emerald-700">
                   Level {currentLevel} out of {maxLevel}
                 </div>
-                
+
                 {definition.hasLevels && currentLevel < maxLevel && (
                   <div className="text-blue-600">
                     {formatBadgeProgress(definition, currentLevel, progress)}
                   </div>
                 )}
-                
+
                 {(currentLevel >= maxLevel || !definition.hasLevels) && (
                   <div className="text-emerald-700">
                     Maximum level achieved!
@@ -82,15 +86,13 @@ export default function BadgeDetail({
               </div>
             </div>
           )}
-          
-          <div className="space-y-2 text-center w-full">
-            <h4 className="font-medium text-sm">How to earn</h4>
-            <p className="text-sm text-gray-600">
-              {definition.tableLogic}
-            </p>
+
+          <div className="w-full space-y-2 text-center">
+            <h4 className="text-sm font-medium">How to earn</h4>
+            <p className="text-sm text-gray-600">{definition.tableLogic}</p>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   )
-} 
+}

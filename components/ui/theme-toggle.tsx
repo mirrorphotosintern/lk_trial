@@ -4,15 +4,15 @@
  * @description
  * ThemeToggle component allows users to switch between light and dark modes.
  * Displays a moon icon for dark mode and a sun icon for light mode.
- * 
+ *
  * Key features:
  * - Theme Switching: Toggles between light and dark modes using next-themes.
  * - Icon Display: Shows appropriate icon based on current theme.
- * 
+ *
  * @dependencies
  * - next-themes: Provides theme management with useTheme hook.
  * - lucide-react: Supplies Sun and Moon icons.
- * 
+ *
  * @notes
  * - Client component due to useTheme requiring client-side state.
  * - Handles edge case where theme hasn’t loaded yet (system default).
@@ -45,14 +45,10 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="rounded-full p-2 hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      className="hover:bg-accent hover:text-accent-foreground focus:ring-ring rounded-full p-2 focus:outline-none focus:ring-2"
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {isDark ? (
-        <Sun className="h-5 w-5" />
-      ) : (
-        <Moon className="h-5 w-5" />
-      )}
+      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
     </button>
   )
 }

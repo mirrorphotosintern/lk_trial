@@ -17,9 +17,29 @@
  */
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -60,36 +80,40 @@ interface QuizSetupProps {
 
 export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
   // State to store available categories from data
-  const [availableCategories, setAvailableCategories] = useState<{id: string, label: string}[]>(PREDEFINED_CATEGORIES);
+  const [availableCategories, setAvailableCategories] = useState<
+    { id: string; label: string }[]
+  >(PREDEFINED_CATEGORIES)
 
   // Extract actual categories from entries on component mount
   useEffect(() => {
     if (entries && entries.length > 0) {
       // Get unique categories from data
-      const uniqueCategories = new Set<string>();
-      
+      const uniqueCategories = new Set<string>()
+
       entries.forEach(entry => {
         if (entry.category && entry.category.trim() !== "") {
-          uniqueCategories.add(entry.category);
+          uniqueCategories.add(entry.category)
         }
-      });
-      
+      })
+
       // Map to category objects
       const categoriesFromData = Array.from(uniqueCategories).map(category => ({
         id: category,
         label: category.charAt(0).toUpperCase() + category.slice(1) // Capitalize first letter
-      }));
-      
+      }))
+
       if (categoriesFromData.length > 0) {
         // Use categories from data if available
-        setAvailableCategories(categoriesFromData);
-        
+        setAvailableCategories(categoriesFromData)
+
         // Update form default values with first three categories or all if less than three
-        const defaultCategories = categoriesFromData.slice(0, Math.min(3, categoriesFromData.length)).map(c => c.id);
-        form.setValue('categories', defaultCategories);
+        const defaultCategories = categoriesFromData
+          .slice(0, Math.min(3, categoriesFromData.length))
+          .map(c => c.id)
+        form.setValue("categories", defaultCategories)
       }
     }
-  }, [entries]);
+  }, [entries])
 
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -102,14 +126,11 @@ export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
 
   // Handle form submission
   function onSubmit(values: FormValues) {
-    onStartQuiz(
-      parseInt(values.numQuestions, 10),
-      values.categories
-    )
+    onStartQuiz(parseInt(values.numQuestions, 10), values.categories)
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Configure Your Quiz</CardTitle>
         <CardDescription>
@@ -125,8 +146,8 @@ export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Number of Questions</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
+                  <Select
+                    onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -160,7 +181,7 @@ export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
                       Select which categories to include in the quiz
                     </FormDescription>
                   </div>
-                  {availableCategories.map((category) => (
+                  {availableCategories.map(category => (
                     <FormField
                       key={category.id}
                       control={form.control}
@@ -174,12 +195,15 @@ export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
                             <FormControl>
                               <Checkbox
                                 checked={field.value?.includes(category.id)}
-                                onCheckedChange={(checked) => {
+                                onCheckedChange={checked => {
                                   return checked
-                                    ? field.onChange([...field.value, category.id])
+                                    ? field.onChange([
+                                        ...field.value,
+                                        category.id
+                                      ])
                                     : field.onChange(
                                         field.value?.filter(
-                                          (value) => value !== category.id
+                                          value => value !== category.id
                                         )
                                       )
                                 }}
@@ -198,10 +222,12 @@ export default function QuizSetup({ entries, onStartQuiz }: QuizSetupProps) {
               )}
             />
 
-            <Button type="submit" className="w-full">Start Quiz</Button>
+            <Button type="submit" className="w-full">
+              Start Quiz
+            </Button>
           </form>
         </Form>
       </CardContent>
     </Card>
   )
-} 
+}

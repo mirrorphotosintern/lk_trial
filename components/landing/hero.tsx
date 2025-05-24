@@ -42,10 +42,10 @@ export const HeroSection = () => {
       >
         <span
           className={cn(
-            "animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:200%_100%] bg-clip-text text-transparent text-sm font-medium"
+            "animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:200%_100%] bg-clip-text text-sm font-medium text-transparent"
           )}
         >
-          Learn Kannada with Fun!
+          Learn to speak and understand Kannada!
         </span>
       </motion.div>
 
@@ -62,7 +62,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
           className="text-balance text-6xl font-bold"
         >
-          LearnKannada
+          Learn Kannada
         </motion.div>
 
         <motion.div
@@ -71,7 +71,8 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
           className="max-w-xl text-balance text-xl"
         >
-          A fun way for kids to learn Kannada through games and quizzes!
+          LearnKannada combines bite-sized quizzes with AI based Kannada
+          speaking and listening games.
         </motion.div>
 
         {/* Call to Action */}
@@ -83,13 +84,13 @@ export const HeroSection = () => {
         >
           <SignedOut>
             <SignInButton>
-              <Button className="bg-accent text-lg hover:bg-accent/90">
+              <Button className="bg-accent hover:bg-accent/90 text-lg">
                 Sign In
               </Button>
             </SignInButton>
           </SignedOut>
           <Link href="/cards">
-            <Button className="bg-accent text-lg hover:bg-accent/90">
+            <Button className="bg-accent hover:bg-accent/90 text-lg">
               Start <ChevronRight className="ml-2 size-5" />
             </Button>
           </Link>
@@ -101,12 +102,12 @@ export const HeroSection = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1, ease: "easeOut" }}
-        className="mt-20 w-full max-w-screen-lg flex items-center justify-center"
+        className="mt-20 flex w-full max-w-screen-lg items-center justify-center"
       >
-        <div className="relative h-[240px] w-[240px]">
-          <Image 
-            src="/kannadakali.png" 
-            alt="LearnKannada Logo" 
+        <div className="relative size-[240px]">
+          <Image
+            src="/kannadakali.png"
+            alt="LearnKannada Logo"
             fill
             className="object-contain"
             priority

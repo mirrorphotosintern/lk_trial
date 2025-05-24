@@ -32,13 +32,15 @@ export default async function QuizFetcher() {
   const { userId } = await auth()
   if (!userId) {
     redirect("/sign-in?redirect_url=/quiz")
-    return null;
+    return null
   }
 
   // Fetch CSV data
   const csvResult = await loadCsvAction()
   if (!csvResult.isSuccess || !csvResult.data) {
-    return <div className="text-center text-red-500">Failed to load quiz data.</div>
+    return (
+      <div className="text-center text-red-500">Failed to load quiz data.</div>
+    )
   }
 
   // Render QuizComponent with fetched data

@@ -43,7 +43,7 @@ export function parseCsv(csvData: string): KannadaEntry[] {
     throw new Error(`CSV parsing failed: ${parsed.errors[0].message}`)
   }
 
-  return parsed.data.map((entry) => ({
+  return parsed.data.map(entry => ({
     kannada: entry.kannada,
     english: entry.english,
     category: entry.category,

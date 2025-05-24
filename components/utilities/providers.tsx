@@ -4,21 +4,24 @@
  * @description
  * ThemeProvider component wraps the app to provide light/dark mode functionality.
  * Uses next-themes to manage theme state across the application.
- * 
+ *
  * Key features:
  * - Theme Management: Applies light/dark/system themes to the app.
  * - Consistency: Ensures theme is propagated to all child components.
- * 
+ *
  * @dependencies
  * - next-themes: Provides ThemeProvider and theme management utilities.
- * 
+ *
  * @notes
  * - Marked as client component due to next-themes requiring client-side rendering.
  * - Disables transition on change to avoid flickers for young users.
  * - Supports system theme by default for accessibility.
  */
 
-import { ThemeProvider as NextThemesProvider, type Attribute } from "next-themes"
+import {
+  ThemeProvider as NextThemesProvider,
+  type Attribute
+} from "next-themes"
 import { ReactNode } from "react"
 
 interface ThemeProviderProps {
@@ -34,7 +37,7 @@ export function ThemeProvider({
   attribute = "class",
   defaultTheme = "system",
   enableSystem = true,
-  disableTransitionOnChange = true,
+  disableTransitionOnChange = true
 }: ThemeProviderProps) {
   return (
     <NextThemesProvider

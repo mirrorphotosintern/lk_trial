@@ -16,7 +16,7 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-background shadow-sm">
+    <header className="bg-background sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto flex items-center justify-between p-4">
         {/* Logo and Home Link */}
         <motion.div
@@ -26,10 +26,10 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
           className="flex items-center space-x-2"
         >
           <Link href="/" className="flex items-center space-x-2">
-            <div className="relative h-8 w-8">
-              <Image 
-                src="/kannadakali.png" 
-                alt="LearnKannada Logo" 
+            <div className="relative size-8">
+              <Image
+                src="/kannadakali.png"
+                alt="LearnKannada Logo"
                 fill
                 className="object-contain"
               />
@@ -39,8 +39,8 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
         </motion.div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-4">
-          {navLinks.map((link) => (
+        <nav className="hidden items-center space-x-4 md:flex">
+          {navLinks.map(link => (
             <motion.div
               key={link.href}
               whileHover={{ scale: 1.05 }}
@@ -48,7 +48,7 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
             >
               <Link
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground px-3 py-1 rounded-full transition"
+                className="text-muted-foreground hover:text-foreground rounded-full px-3 py-1 transition"
               >
                 {link.label}
               </Link>
@@ -85,7 +85,7 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
               aria-label="Toggle menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="size-6" />
             </button>
           </motion.div>
         </div>
@@ -97,11 +97,11 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-background border-t"
+          className="bg-background border-t md:hidden"
         >
           <div className="container mx-auto py-4">
             <nav className="flex flex-col space-y-4">
-              {navLinks.map((link) => (
+              {navLinks.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -117,4 +117,4 @@ export function HeaderWithMotion({ navLinks }: HeaderWithMotionProps) {
       )}
     </header>
   )
-} 
+}

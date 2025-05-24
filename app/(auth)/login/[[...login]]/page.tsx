@@ -22,7 +22,7 @@ import { SignIn } from "@clerk/nextjs"
 
 export default async function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="bg-background flex min-h-screen items-center justify-center">
       <SignIn
         routing="path"
         path="/login"

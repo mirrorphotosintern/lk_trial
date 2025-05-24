@@ -13,7 +13,7 @@
  * @dependencies
  * - HeroSection: Client component for interactive landing content.
  * - LeaderboardContainer: Server component for the leaderboard.
- * 
+ *
  * @notes
  * - No Suspense needed as there's no asynchronous logic at this stage.
  * - Relies on root layout for navigation, theme support, and authentication.
@@ -27,7 +27,7 @@ export default async function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center">
       <HeroSection />
-      
+
       <SignedIn>
         <div className="my-8 w-full max-w-screen-xl px-4">
           <LeaderboardContainer />
@@ -35,4 +35,4 @@ export default async function HomePage() {
       </SignedIn>
     </div>
   )
-} 
+}

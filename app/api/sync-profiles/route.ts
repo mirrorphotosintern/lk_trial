@@ -13,28 +13,21 @@ export async function POST(req: NextRequest) {
     // Verify the request is authorized
     const session = await auth()
     if (!session?.userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     // Sync user profile using the server action
     const result = await syncUserProfileAction()
 
     if (!result.isSuccess) {
-      return NextResponse.json(
-        { error: result.message },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.message }, { status: 500 })
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: "Profile synced successfully",
       profile: result.data
     })
-    
   } catch (error) {
     console.error("Profile sync error:", error)
     return NextResponse.json(
@@ -42,4 +35,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

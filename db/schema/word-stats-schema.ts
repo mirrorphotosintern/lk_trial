@@ -27,11 +27,11 @@ export const wordStatsTable = pgTable("word_stats", {
   kannada: text("kannada"), // The Kannada word (optional)
   icon: text("icon"), // URL to the word's icon (optional)
   category: text("category"), // Category of the word (optional)
-  
+
   // Performance statistics
   totalAttempts: integer("total_attempts").default(0).notNull(), // Number of times the word was attempted
   correctCount: integer("correct_count").default(0).notNull(), // Number of times the word was answered correctly
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow().notNull(), // Creation timestamp
   updatedAt: timestamp("updated_at")
@@ -42,4 +42,4 @@ export const wordStatsTable = pgTable("word_stats", {
 
 // Export types for use in actions
 export type InsertWordStat = typeof wordStatsTable.$inferInsert
-export type SelectWordStat = typeof wordStatsTable.$inferSelect 
+export type SelectWordStat = typeof wordStatsTable.$inferSelect

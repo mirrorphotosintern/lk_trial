@@ -12,12 +12,12 @@ import { toast } from "sonner"
  */
 export function SeedButton() {
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const handleSeedData = async () => {
     try {
       setIsLoading(true)
       const result = await seedWordStatsAction()
-      
+
       if (result.isSuccess) {
         toast.success(result.message)
       } else {
@@ -30,7 +30,7 @@ export function SeedButton() {
       setIsLoading(false)
     }
   }
-  
+
   return (
     <Button
       onClick={handleSeedData}
@@ -41,15 +41,15 @@ export function SeedButton() {
     >
       {isLoading ? (
         <>
-          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+          <Loader2 className="mr-2 size-3 animate-spin" />
           Seeding...
         </>
       ) : (
         <>
-          <CloudLightning className="mr-2 h-3 w-3" />
+          <CloudLightning className="mr-2 size-3" />
           Seed Word Stats
         </>
       )}
     </Button>
   )
-} 
+}

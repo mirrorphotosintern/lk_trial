@@ -22,7 +22,7 @@ import { SignUp } from "@clerk/nextjs"
 
 export default async function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="bg-background flex min-h-screen items-center justify-center">
       <SignUp
         routing="path"
         path="/signup"

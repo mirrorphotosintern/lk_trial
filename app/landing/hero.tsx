@@ -35,9 +35,9 @@ export function Hero() {
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
+        ease: "easeInOut"
+      }
+    }
   }
 
   return (
@@ -54,8 +54,8 @@ export function Hero() {
           alt="LearnKannada Logo"
           width={240}
           height={240}
-          className="h-60 w-60"
-          onError={(e) => {
+          className="size-60"
+          onError={e => {
             console.error("Logo failed to load")
             e.currentTarget.style.display = "none" // Hide on error
           }}
@@ -63,18 +63,18 @@ export function Hero() {
       </motion.div>
 
       {/* Tagline */}
-      <h1 className="mb-4 text-4xl font-semibold text-foreground md:text-5xl">
-        Learn Kannada with Fun!
+      <h1 className="text-foreground mb-4 text-4xl font-semibold md:text-5xl">
+        Learn to speak and understand Kannada!
       </h1>
-      <p className="mb-8 max-w-md text-lg text-muted-foreground">
+      <p className="text-muted-foreground mb-8 max-w-md text-lg">
         Play games, learn words, and enjoy Kannada with LearnKannada!
       </p>
 
       {/* Start Button with Auth Prompt */}
       <SignInButton mode="modal">
-        <button className="flex items-center rounded-md bg-accent px-6 py-3 text-lg font-medium text-accent-foreground transition-colors hover:bg-accent/90">
+        <button className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center rounded-md px-6 py-3 text-lg font-medium transition-colors">
           Start Learning
-          <ArrowRight className="ml-2 h-5 w-5" />
+          <ArrowRight className="ml-2 size-5" />
         </button>
       </SignInButton>
     </div>

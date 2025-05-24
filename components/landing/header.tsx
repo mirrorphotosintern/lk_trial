@@ -61,10 +61,10 @@ export default function Header() {
           whileTap={{ scale: 0.95 }}
         >
           <Link href="/" className="flex items-center space-x-2">
-            <div className="relative h-8 w-8">
-              <Image 
-                src="/kannadakali.png" 
-                alt="LearnKannada Logo" 
+            <div className="relative size-8">
+              <Image
+                src="/kannadakali.png"
+                alt="LearnKannada Logo"
                 fill
                 className="object-contain"
               />

@@ -32,7 +32,7 @@ export async function CardsFetcher() {
   // Handle fetch failure
   if (!result.isSuccess || !result.data) {
     return (
-      <div className="text-center text-destructive">
+      <div className="text-destructive text-center">
         Failed to load cards: {result.message}
       </div>
     )
@@ -43,7 +43,7 @@ export async function CardsFetcher() {
   // Handle empty dataset
   if (entries.length === 0) {
     return (
-      <div className="text-center text-muted-foreground">
+      <div className="text-muted-foreground text-center">
         No cards available to display.
       </div>
     )

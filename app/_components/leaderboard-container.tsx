@@ -9,4 +9,4 @@ export default async function LeaderboardContainer() {
   if (!session?.userId) return null
 
   return <LeaderboardSection />
-} 
+}

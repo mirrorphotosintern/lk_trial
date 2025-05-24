@@ -16,7 +16,14 @@
  * - Designed to be queried efficiently for the parental dashboard.
  */
 
-import { integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid
+} from "drizzle-orm/pg-core"
 
 // Define quiz type enum
 export const quizTypeEnum = pgEnum("quiz_type", ["rapid_fire", "standard"])
@@ -39,4 +46,4 @@ export const quizResultsTable = pgTable("quiz_results", {
 
 // Type definitions for inserting and selecting quiz results
 export type InsertQuizResult = typeof quizResultsTable.$inferInsert
-export type SelectQuizResult = typeof quizResultsTable.$inferSelect 
+export type SelectQuizResult = typeof quizResultsTable.$inferSelect

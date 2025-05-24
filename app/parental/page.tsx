@@ -3,12 +3,12 @@
  * This server component serves as the entry point for the Parental Progress page in LearnKannada.
  * It enforces authentication via Clerk, fetches progress data from the database,
  * and renders the ProgressDisplay component within a Suspense boundary to handle loading states.
- * 
+ *
  * Key features:
  * - Authentication: Redirects unauthenticated users to sign-in.
  * - Data Fetching: Retrieves user progress from Supabase DB server-side.
  * - Suspense: Provides a loading fallback while data is fetched.
- * 
+ *
  * @dependencies
  * - Clerk (@clerk/nextjs/server): For authentication.
  * - ProgressDisplay (./_components/progress-display): Client component for rendering progress stats.
@@ -16,7 +16,7 @@
  * - getProgressAction (@/actions/db/progress-actions): Fetches progress data.
  * - getQuizStatsAction (@/actions/db/quiz-results-actions): Fetches quiz stats data.
  * - getWordStatsAction (@/actions/db/word-stats-actions): Fetches word stats data.
- * 
+ *
  * @notes
  * - Uses "use server" directive per project rules.
  * - Suspense is necessary due to asynchronous DB fetch.
@@ -37,7 +37,7 @@ import { SeedButton } from "./_components/seed-button"
 function DashboardSkeleton() {
   return (
     <div className="flex h-[300px] items-center justify-center">
-      <div className="text-center text-muted-foreground">
+      <div className="text-muted-foreground text-center">
         Loading dashboard...
       </div>
     </div>
@@ -53,18 +53,18 @@ export default async function ParentalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-montserrat">
+    <div className="bg-background font-montserrat min-h-screen">
       {/* Header */}
-      <header className="p-4 flex items-center justify-between">
+      <header className="flex items-center justify-between p-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-foreground text-2xl font-bold">
             Parental Dashboard
           </h1>
           <p className="text-muted-foreground">
             See how your child is learning Kannada!
           </p>
         </div>
-        
+
         {/* Seed button for development/testing */}
         <div className="hidden md:block">
           <SeedButton />
@@ -84,5 +84,9 @@ export default async function ParentalPage() {
 // Fetcher component to handle async stats data loading
 async function DashboardFetcher() {
   const statsResult = await getQuizStatsAction()
-  return <ParentalDashboard stats={statsResult.isSuccess ? statsResult.data : null} />
+  return (
+    <ParentalDashboard
+      stats={statsResult.isSuccess ? statsResult.data : null}
+    />
+  )
 }

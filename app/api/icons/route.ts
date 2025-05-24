@@ -2,11 +2,11 @@
  * @description
  * This file contains API routes for icon management in the KannadaKali app.
  * It provides endpoints to download icons from URLs in the CSV file.
- * 
+ *
  * @route GET /api/icons
  * Triggers icon download from the CSV file to the public/icons directory.
  * Requires authentication.
- * 
+ *
  * @dependencies
  * - @clerk/nextjs/server: Provides authentication utilities.
  * - @/actions/icon-actions: Custom utilities for icon operations.
@@ -23,24 +23,21 @@ import { downloadIconsAction } from "@/actions/icon-actions"
  */
 export async function GET() {
   const { userId } = await auth()
-  
+
   if (!userId) {
     return NextResponse.json(
       { error: "Unauthorized: Please sign in to download icons" },
       { status: 401 }
     )
   }
-  
+
   try {
     const result = await downloadIconsAction()
-    
+
     if (!result.isSuccess) {
-      return NextResponse.json(
-        { error: result.message },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.message }, { status: 500 })
     }
-    
+
     return NextResponse.json({
       message: result.message,
       count: result.data
@@ -52,4 +49,4 @@ export async function GET() {
       { status: 500 }
     )
   }
-} 
+}

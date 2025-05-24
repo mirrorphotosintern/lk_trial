@@ -17,7 +17,7 @@ export default function ProfileSync() {
         try {
           console.log("Syncing user profile for", user.id)
           const result = await syncUserProfileAction()
-          
+
           if (result.isSuccess) {
             console.log("Profile synced successfully")
           } else {
@@ -37,21 +37,21 @@ export default function ProfileSync() {
     if (isLoaded) {
       syncProfile()
     }
-    
+
     // Also set up a sync on page focus to handle returning users
     const handleFocus = () => {
       if (isSignedIn && user) {
         syncProfile()
       }
     }
-    
-    window.addEventListener('focus', handleFocus)
-    
+
+    window.addEventListener("focus", handleFocus)
+
     return () => {
-      window.removeEventListener('focus', handleFocus)
+      window.removeEventListener("focus", handleFocus)
     }
   }, [isSignedIn, isLoaded, user])
 
   // This component doesn't render anything visible
   return null
-} 
+}

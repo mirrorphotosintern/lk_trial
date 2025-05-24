@@ -2,7 +2,14 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, Download, CheckCircle2 } from "lucide-react"
 
@@ -18,20 +25,20 @@ export function AdminIcons() {
     try {
       setIsLoading(true)
       setResult(null)
-      
+
       const response = await fetch("/api/icons", {
         method: "GET",
         headers: {
           "Content-Type": "application/json"
         }
       })
-      
+
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to download icons")
       }
-      
+
       setResult({
         success: true,
         message: data.message,
@@ -41,7 +48,10 @@ export function AdminIcons() {
       console.error("Error downloading icons:", error)
       setResult({
         success: false,
-        message: error instanceof Error ? error.message : "Unknown error downloading icons"
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unknown error downloading icons"
       })
     } finally {
       setIsLoading(false)
@@ -57,26 +67,27 @@ export function AdminIcons() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="mb-4 text-sm text-muted-foreground">
-          The CSV file contains URLs to icons for each word. This tool will download
-          all the icons and save them to the public/icons directory, making them
-          available for use in the application.
+        <p className="text-muted-foreground mb-4 text-sm">
+          The CSV file contains URLs to icons for each word. This tool will
+          download all the icons and save them to the public/icons directory,
+          making them available for use in the application.
         </p>
-        
+
         {result && (
-          <Alert variant={result.success ? "default" : "destructive"} className="my-4">
+          <Alert
+            variant={result.success ? "default" : "destructive"}
+            className="my-4"
+          >
             {result.success ? (
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="size-4" />
             ) : (
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="size-4" />
             )}
-            <AlertTitle>
-              {result.success ? "Success" : "Error"}
-            </AlertTitle>
+            <AlertTitle>{result.success ? "Success" : "Error"}</AlertTitle>
             <AlertDescription>
               {result.message}
               {result.success && result.count !== undefined && (
-                <span className="block mt-1">
+                <span className="mt-1 block">
                   Downloaded {result.count} icons
                 </span>
               )}
@@ -85,14 +96,11 @@ export function AdminIcons() {
         )}
       </CardContent>
       <CardFooter>
-        <Button 
-          onClick={handleDownloadIcons} 
-          disabled={isLoading}
-        >
-          <Download className="mr-2 h-4 w-4" />
+        <Button onClick={handleDownloadIcons} disabled={isLoading}>
+          <Download className="mr-2 size-4" />
           {isLoading ? "Downloading..." : "Download Icons"}
         </Button>
       </CardFooter>
     </Card>
   )
-} 
+}

@@ -15,7 +15,7 @@ import { Users } from "lucide-react"
 export default async function BadgesPage() {
   // Get the current user ID
   const { userId } = await auth()
-  
+
   // Evaluate badges to ensure they're up to date
   // This runs silently and doesn't block rendering
   if (userId) {
@@ -23,7 +23,7 @@ export default async function BadgesPage() {
       console.error("Error evaluating badges on page load:", error)
     })
   }
-  
+
   // Fetch user badges if logged in
   let userBadges: SelectBadge[] = []
   if (userId) {
@@ -32,34 +32,35 @@ export default async function BadgesPage() {
       userBadges = result.data
     }
   }
-  
+
   // Get all badge definitions from CSV via server action
   const badgeDefinitions = await getBadgeDefinitionsAction()
-  
+
   return (
-    <div className="container py-8 mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-8">Your Achievements</h1>
-      
-      <div className="max-w-4xl mx-auto">
-        <p className="text-center text-gray-600 mb-8">
-          Earn badges by completing challenges and improving your Kannada skills!
+    <div className="container mx-auto py-8">
+      <h1 className="mb-8 text-center text-3xl font-bold">Your Achievements</h1>
+
+      <div className="mx-auto max-w-4xl">
+        <p className="mb-8 text-center text-gray-600">
+          Earn badges by completing challenges and improving your Kannada
+          skills!
         </p>
-        
-        <BadgeGrid 
-          badgeDefinitions={badgeDefinitions} 
-          userBadges={userBadges} 
+
+        <BadgeGrid
+          badgeDefinitions={badgeDefinitions}
+          userBadges={userBadges}
         />
-        
-        <div className="flex justify-center mt-10">
-          <Link 
-            href="/parental" 
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors"
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/parental"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 rounded-md px-4 py-2 transition-colors"
           >
-            <Users className="h-5 w-5" />
+            <Users className="size-5" />
             Parental Dashboard
           </Link>
         </div>
       </div>
     </div>
   )
-} 
+}

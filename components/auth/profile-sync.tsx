@@ -33,4 +33,4 @@ export function ProfileSync() {
 
   // This is a utility component that doesn't render anything
   return null
-} 
+}

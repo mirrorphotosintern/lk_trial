@@ -44,12 +44,12 @@ export function CardGrid() {
         }
 
         setEntries(result.data)
-        
+
         // Extract unique categories
         const uniqueCategories = Array.from(
           new Set(result.data.map(entry => entry.category).filter(Boolean))
         ) as string[]
-        
+
         setCategories(uniqueCategories)
       } catch (err) {
         setIsLoading(false)
@@ -62,7 +62,7 @@ export function CardGrid() {
   }, [])
 
   // Filter entries by category
-  const filteredEntries = activeCategory 
+  const filteredEntries = activeCategory
     ? entries.filter(entry => entry.category === activeCategory)
     : entries
 
@@ -78,12 +78,16 @@ export function CardGrid() {
 
   // Render error state
   if (error) {
-    return <div className="text-center text-destructive">{error}</div>
+    return <div className="text-destructive text-center">{error}</div>
   }
 
   // Render empty state
   if (entries.length === 0) {
-    return <div className="text-center text-muted-foreground">No cards available to display.</div>
+    return (
+      <div className="text-muted-foreground text-center">
+        No cards available to display.
+      </div>
+    )
   }
 
   return (
@@ -98,12 +102,9 @@ export function CardGrid() {
       {/* Card Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredEntries.map((entry, index) => (
-          <CardDisplay 
-            key={index} 
-            entry={entry} 
-          />
+          <CardDisplay key={index} entry={entry} />
         ))}
       </div>
     </div>
   )
-} 
+}

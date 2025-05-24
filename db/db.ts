@@ -18,7 +18,14 @@
  * - Additional tables can be added to the schema object as needed.
  */
 
-import { badgesTable, leaderboardTable, profilesTable, progressTable, quizResultsTable, wordStatsTable } from "@/db/schema"
+import {
+  badgesTable,
+  leaderboardTable,
+  profilesTable,
+  progressTable,
+  quizResultsTable,
+  wordStatsTable
+} from "@/db/schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"

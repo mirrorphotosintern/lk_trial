@@ -21,7 +21,5 @@ interface CardClientWrapperProps {
 }
 
 export function CardClientWrapper({ entry }: CardClientWrapperProps) {
-  return (
-    <CardDisplay entry={entry} />
-  )
-} 
+  return <CardDisplay entry={entry} />
+}

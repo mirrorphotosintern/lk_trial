@@ -9,11 +9,11 @@ import { auth } from "@clerk/nextjs/server"
 
 async function fetchLeaderboardData(category?: string) {
   const { isSuccess, data } = await getLeaderboardAction(category)
-  
+
   if (!isSuccess || !data) {
     return { leaders: [], currentUserRank: undefined }
   }
-  
+
   return {
     leaders: data.leaders,
     currentUserRank: data.currentUserRank
@@ -22,11 +22,11 @@ async function fetchLeaderboardData(category?: string) {
 
 async function fetchCategories() {
   const { isSuccess, data } = await getLeaderboardCategoriesAction()
-  
+
   if (!isSuccess || !data) {
     return []
   }
-  
+
   return data
 }
 
@@ -55,4 +55,4 @@ export default async function LeaderboardContainer() {
       onCategoryChange={handleCategoryChange}
     />
   )
-} 
+}

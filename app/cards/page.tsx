@@ -29,17 +29,25 @@ export default async function CardsPage() {
   // Enforce authentication
   const { userId } = await auth()
   if (!userId) {
-    throw new Error("Unauthorized access: Please sign in to view the Cards page.")
+    throw new Error(
+      "Unauthorized access: Please sign in to view the Cards page."
+    )
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-semibold text-foreground">
+      <h1 className="text-foreground mb-6 text-3xl font-semibold">
         Kannada Cards
       </h1>
 
       {/* Suspense boundary for async CSV loading */}
-      <Suspense fallback={<div className="text-center text-muted-foreground">Loading cards...</div>}>
+      <Suspense
+        fallback={
+          <div className="text-muted-foreground text-center">
+            Loading cards...
+          </div>
+        }
+      >
         <CardGrid />
       </Suspense>
     </div>

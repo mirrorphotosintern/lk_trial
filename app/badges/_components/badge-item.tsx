@@ -21,14 +21,14 @@ export default function BadgeItem({ definition, userBadge }: BadgeItemProps) {
   const currentLevel = userBadge?.currentLevel || 0
   const progress = userBadge?.progress || 0
   const maxLevel = definition.hasLevels ? 5 : 1
-  
+
   return (
     <>
-      <div 
-        className="flex flex-col items-center p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+      <div
+        className="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 shadow-md transition-all hover:shadow-lg"
         onClick={() => setDetailOpen(true)}
       >
-        <div className="relative h-24 w-24 mb-4">
+        <div className="relative mb-4 size-24">
           <Image
             src={definition.imageUrl}
             alt={definition.englishName}
@@ -39,28 +39,30 @@ export default function BadgeItem({ definition, userBadge }: BadgeItemProps) {
             )}
           />
         </div>
-        
-        <h3 className="text-lg font-medium text-center mb-1">{definition.kannadaName}</h3>
-        
+
+        <h3 className="mb-1 text-center text-lg font-medium">
+          {definition.kannadaName}
+        </h3>
+
         {isEarned && (
-          <p className="text-sm text-gray-600 text-center mb-2">
+          <p className="mb-2 text-center text-sm text-gray-600">
             {definition.englishName}
           </p>
         )}
-        
+
         <div className="mt-auto">
           {isEarned ? (
-            <div className="text-xs text-center text-emerald-700 font-medium">
+            <div className="text-center text-xs font-medium text-emerald-700">
               Level {currentLevel} out of {maxLevel}
             </div>
           ) : (
-            <div className="text-xs text-center text-gray-500">
+            <div className="text-center text-xs text-gray-500">
               Not yet earned
             </div>
           )}
         </div>
       </div>
-      
+
       <BadgeDetail
         open={detailOpen}
         onOpenChange={setDetailOpen}
@@ -69,4 +71,4 @@ export default function BadgeItem({ definition, userBadge }: BadgeItemProps) {
       />
     </>
   )
-} 
+}
