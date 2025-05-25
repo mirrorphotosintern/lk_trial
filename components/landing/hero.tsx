@@ -45,7 +45,7 @@ export const HeroSection = () => {
             "animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:200%_100%] bg-clip-text text-sm font-medium text-transparent"
           )}
         >
-          Learn to speak and understand Kannada!
+          Learn Kannada using AI
         </span>
       </motion.div>
 
@@ -75,25 +75,27 @@ export const HeroSection = () => {
           speaking and listening games.
         </motion.div>
 
-        {/* Call to Action */}
+        {/* Call to Action - Consolidated Button */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-          className="flex gap-4"
         >
           <SignedOut>
             <SignInButton>
-              <Button className="bg-accent hover:bg-accent/90 text-lg">
-                Sign In
+              <Button className="bg-accent text-lg hover:bg-accent/90">
+                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>
             </SignInButton>
           </SignedOut>
-          <Link href="/cards">
-            <Button className="bg-accent hover:bg-accent/90 text-lg">
-              Start <ChevronRight className="ml-2 size-5" />
-            </Button>
-          </Link>
+          
+          <SignedIn>
+            <Link href="/cards">
+              <Button className="bg-accent text-lg hover:bg-accent/90">
+                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
+              </Button>
+            </Link>
+          </SignedIn>
         </motion.div>
       </motion.div>
 
