@@ -32,49 +32,28 @@ export async function getLeaderboardAction(
 }>> {
   try {
     console.log("Getting leaderboard", { category })
-    
-    // Get current user ID from auth
-    const session = await auth()
-    const currentUserId = session?.userId
-    
-    if (!currentUserId) {
-      return {
-        isSuccess: false,
-        message: "User not authenticated"
-      }
-    }
-    
-    // Get top 5 users using our new database function
+
+    // Try to get current user ID from auth, but allow unauthenticated
+    let currentUserId: string | undefined = undefined
+    try {
+      const session = await auth()
+      currentUserId = session?.userId ?? undefined
+    } catch {}
+
+    // Force category to NULL to fetch all leaderboard data
+    const safeCategory = null
     const topLeadersQuery = sql`
-      SELECT * FROM get_homepage_leaderboard(${category || null}, 5)
+      SELECT * FROM get_homepage_leaderboard(${safeCategory}, NULL)
     `
-    
     const topLeaders = await db.execute(topLeadersQuery)
-    
-    // Check if current user is in top 5
-    const currentUserInTop5 = topLeaders.some(
-      leader => leader.user_id === currentUserId
-    )
-    
-    // Get current user position if not in top 5
-    let currentUserPosition
-    
-    if (!currentUserInTop5) {
-      const userPositionQuery = sql`
-        SELECT * FROM get_user_leaderboard_position(${currentUserId}, ${category || null})
-      `
-      const userPosition = await db.execute(userPositionQuery)
-      
-      if (userPosition.length > 0) {
-        currentUserPosition = userPosition[0]
-      }
+    console.log('DEBUG: Raw leaderboard data:', topLeaders)
+    if (!topLeaders || topLeaders.length === 0) {
+      console.warn('DEBUG: No leaderboard data returned from Supabase. Check SQL function and table contents.')
     }
-    
+
     // Format leaderboard entries
     const leaders: LeaderboardEntry[] = topLeaders.map(leader => {
-      // Ensure we have valid display name
       const displayName = leader.display_name as string || `User ${(leader.user_id as string).substring(0, 6)}`;
-      
       return {
         userId: leader.user_id as string,
         displayName,
@@ -84,31 +63,34 @@ export async function getLeaderboardAction(
         accuracyPercentage: Number(leader.accuracy_percentage || 0),
         quizzesCompleted: Number(leader.quizzes_completed || 0),
         rank: Number(leader.rank || 0),
-        isCurrentUser: leader.user_id === currentUserId
+        isCurrentUser: currentUserId ? leader.user_id === currentUserId : false
       };
     });
-    
-    // Format current user rank if not in top 5
-    let formattedCurrentUserRank: LeaderboardEntry | undefined
-    
-    if (currentUserPosition) {
-      // Ensure we have valid display name
-      const displayName = currentUserPosition.display_name as string || 
-        `User ${(currentUserPosition.user_id as string).substring(0, 6)}`;
-      
-      formattedCurrentUserRank = {
-        userId: currentUserPosition.user_id as string,
-        displayName,
-        profileImageUrl: currentUserPosition.profile_image_url as string | null,
-        totalAttempts: Number(currentUserPosition.total_attempts || 0),
-        correctAnswers: Number(currentUserPosition.correct_answers || 0),
-        accuracyPercentage: Number(currentUserPosition.accuracy_percentage || 0),
-        quizzesCompleted: Number(currentUserPosition.quizzes_completed || 0),
-        rank: Number(currentUserPosition.rank || 0),
-        isCurrentUser: true
+
+    // Only fetch current user rank if authenticated and not in top 5
+    let formattedCurrentUserRank: LeaderboardEntry | undefined = undefined
+    if (currentUserId && !topLeaders.some(l => l.user_id === currentUserId)) {
+      const userPositionQuery = sql`
+        SELECT * FROM get_user_leaderboard_position(${currentUserId}, ${safeCategory})
+      `
+      const userPosition = await db.execute(userPositionQuery)
+      if (userPosition.length > 0) {
+        const pos = userPosition[0]
+        const displayName = pos.display_name as string || `User ${(pos.user_id as string).substring(0, 6)}`;
+        formattedCurrentUserRank = {
+          userId: pos.user_id as string,
+          displayName,
+          profileImageUrl: pos.profile_image_url as string | null,
+          totalAttempts: Number(pos.total_attempts || 0),
+          correctAnswers: Number(pos.correct_answers || 0),
+          accuracyPercentage: Number(pos.accuracy_percentage || 0),
+          quizzesCompleted: Number(pos.quizzes_completed || 0),
+          rank: Number(pos.rank || 0),
+          isCurrentUser: true
+        }
       }
     }
-    
+
     return {
       isSuccess: true,
       message: "Leaderboard retrieved successfully",
@@ -131,23 +113,10 @@ export async function getLeaderboardAction(
  */
 export async function getLeaderboardCategoriesAction(): Promise<ActionState<string[]>> {
   try {
-    // Get authenticated user
-    const session = await auth()
-    if (!session?.userId) {
-      return {
-        isSuccess: false,
-        message: "User not authenticated"
-      }
-    }
-    
-    // Query all categories using our new function
+    // Allow public access, do not require auth
     const query = sql`SELECT * FROM get_leaderboard_categories()`
-    
     const result = await db.execute(query)
-    
-    // Extract categories from result
     const categories = result.map(row => row.category as string)
-    
     return {
       isSuccess: true,
       message: "Categories retrieved successfully",

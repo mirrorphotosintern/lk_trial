@@ -78,6 +78,11 @@ export function LeaderboardSection() {
     loadLeaderboard("all")
   }, [])
 
+  // Debug: log leaders array
+  useEffect(() => {
+    console.log("LEADERBOARD DEBUG: leaders array", leaders)
+  }, [leaders])
+
   // When category changes, reload leaderboard
   useEffect(() => {
     loadLeaderboard(category)

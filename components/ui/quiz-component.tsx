@@ -117,7 +117,7 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
             score: correctAnswers,
             totalQuestions: results.length,
             timeSpent: undefined,
-            categories: undefined
+            categories: []
           })
 
           setShouldSaveResults(false)

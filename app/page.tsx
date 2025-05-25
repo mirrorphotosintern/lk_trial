@@ -28,11 +28,9 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col items-center">
       <HeroSection />
 
-      <SignedIn>
-        <div className="my-8 w-full max-w-screen-xl px-4">
-          <LeaderboardContainer />
-        </div>
-      </SignedIn>
+      <div className="my-8 w-full max-w-screen-xl px-4">
+        <LeaderboardContainer />
+      </div>
     </div>
   )
 }

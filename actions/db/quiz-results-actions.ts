@@ -69,6 +69,9 @@ export async function saveQuizResultAction(result: {
       console.error("Error evaluating badges after quiz:", error)
     })
 
+    // Update leaderboard after saving quiz result
+    await import("@/actions/db/leaderboard-actions").then(m => m.updateUserLeaderboardAction(userId))
+
     return {
       isSuccess: true,
       message: "Quiz result saved successfully",
