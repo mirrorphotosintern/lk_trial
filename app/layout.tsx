@@ -55,7 +55,7 @@ export default async function RootLayout({
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
-          <title>Learn Kannada with Fun!</title>
+          <title>LearnKannada - Learn Kannada using AI</title>
           {/* Importing Noto Sans Kannada for Kannada script rendering */}
           <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600&family=Poppins:wght@400;600&display=swap"
@@ -123,13 +123,6 @@ export default async function RootLayout({
                     <SignedIn>
                       <UserButton afterSignOutUrl="/" />
                     </SignedIn>
-                    <SignedOut>
-                      <SignInButton mode="modal">
-                        <button className="hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm font-medium">
-                          Sign In
-                        </button>
-                      </SignInButton>
-                    </SignedOut>
                   </div>
                 </div>
               </div>
