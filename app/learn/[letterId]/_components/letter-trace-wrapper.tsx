@@ -55,8 +55,7 @@ const validLetterIds = [
   "46_ಷ",
   "47_ಸ",
   "48_ಹ",
-  "49_ಳ",
-  "50_ಕ್ಷ"
+  "49_ಳ"
 ]
 
 interface LetterTraceWrapperProps {

@@ -52,8 +52,7 @@ const letters = [
   { id: "46_ಷ", label: "ಷ" },
   { id: "47_ಸ", label: "ಸ" },
   { id: "48_ಹ", label: "ಹ" },
-  { id: "49_ಳ", label: "ಳ" },
-  { id: "50_ಕ್ಷ", label: "ಕ್ಷ" }
+  { id: "49_ಳ", label: "ಳ" }
 ]
 
 export default async function LearnPage() {
