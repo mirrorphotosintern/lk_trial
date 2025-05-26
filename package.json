@@ -49,6 +49,8 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.45.4",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
@@ -92,6 +94,8 @@
     "eslint-plugin-tailwindcss": "^3.18.0",
     "husky": "^9.1.7",
     "prettier": "^3.5.0",
+    "svgo": "^3.3.2",
     "typescript": "^5"
-  }
+  },
+  "type": "module"
 }

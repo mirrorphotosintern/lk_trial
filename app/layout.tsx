@@ -40,6 +40,7 @@ import { Home, Book, Gamepad2, Users, Award } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
+import { LetterSelect } from "@/components/ui/letter-select"
 
 export default async function RootLayout({
   children
@@ -93,6 +94,7 @@ export default async function RootLayout({
                     <Home className="mr-2 size-4" />
                     Home
                   </Link>
+                  <LetterSelect />
                   <Link
                     href="/cards"
                     className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
@@ -136,6 +138,9 @@ export default async function RootLayout({
                   <Home className="mr-2 size-4" />
                   Home
                 </Link>
+                <div className="hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2">
+                  <LetterSelect />
+                </div>
                 <Link
                   href="/cards"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"

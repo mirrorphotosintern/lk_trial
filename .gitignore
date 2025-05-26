@@ -37,3 +37,21 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor/
+.cursorrules
+
+# Repomix files
+repomix.config.json
+repomix-output.txt
+custom-output.md
+.repo_ignore
+
+# Terminal and system files
+terminal
+Thumbs.db

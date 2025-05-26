@@ -83,15 +83,15 @@ export const HeroSection = () => {
         >
           <SignedOut>
             <SignInButton>
-              <Button className="bg-accent text-lg hover:bg-accent/90">
+              <Button className="bg-accent hover:bg-accent/90 text-lg">
                 ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>
             </SignInButton>
           </SignedOut>
-          
+
           <SignedIn>
             <Link href="/cards">
-              <Button className="bg-accent text-lg hover:bg-accent/90">
+              <Button className="bg-accent hover:bg-accent/90 text-lg">
                 ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>
             </Link>

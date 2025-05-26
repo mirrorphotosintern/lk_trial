@@ -19,6 +19,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 
 const navLinks = [
+  { href: "/learn/01_ಅ", label: "Learn" },
   { href: "/about", label: "About" },
   { href: "/features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
