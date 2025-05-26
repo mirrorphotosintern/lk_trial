@@ -1,6 +1,19 @@
 "use server"
 
 import "./globals.css"
+import { Poppins, Noto_Sans_Kannada } from "next/font/google"
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-poppins"
+})
+
+const notoSansKannada = Noto_Sans_Kannada({
+  subsets: ["kannada"],
+  weight: ["400", "600"],
+  variable: "--font-noto-sans-kannada"
+})
 
 /**
  * @description
@@ -49,7 +62,11 @@ export default async function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${poppins.variable} ${notoSansKannada.variable}`}
+      >
         <head>
           <meta charSet="UTF-8" />
           <meta
@@ -57,11 +74,6 @@ export default async function RootLayout({
             content="width=device-width, initial-scale=1.0"
           />
           <title>LearnKannada - Learn Kannada using AI</title>
-          {/* Importing Noto Sans Kannada for Kannada script rendering */}
-          <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600&family=Poppins:wght@400;600&display=swap"
-            rel="stylesheet"
-          />
         </head>
         <body className="bg-background font-poppins text-foreground min-h-screen antialiased">
           <ThemeProvider

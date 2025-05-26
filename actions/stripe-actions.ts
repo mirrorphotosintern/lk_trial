@@ -7,7 +7,7 @@ import {
   updateProfileByStripeCustomerIdAction
 } from "@/actions/db/profiles-actions"
 import { SelectProfile } from "@/db/schema"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import Stripe from "stripe"
 
 type MembershipStatus = SelectProfile["membership"]
@@ -33,7 +33,7 @@ const getMembershipStatus = (
 }
 
 const getSubscription = async (subscriptionId: string) => {
-  return stripe.subscriptions.retrieve(subscriptionId, {
+  return getStripe().subscriptions.retrieve(subscriptionId, {
     expand: ["default_payment_method"]
   })
 }
@@ -81,7 +81,7 @@ export const manageSubscriptionStatusChange = async (
     }
 
     const subscription = await getSubscription(subscriptionId)
-    const product = await stripe.products.retrieve(productId)
+    const product = await getStripe().products.retrieve(productId)
     const membership = product.metadata.membership as MembershipStatus
 
     if (!["free", "pro"].includes(membership)) {

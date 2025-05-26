@@ -6,7 +6,7 @@ import {
   manageSubscriptionStatusChange,
   updateStripeCustomer
 } from "@/actions/stripe-actions"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import { headers } from "next/headers"
 import Stripe from "stripe"
 
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       throw new Error("Webhook secret or signature missing")
     }
 
+    const stripe = getStripe()
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err: any) {
     console.error(`Webhook Error: ${err.message}`)
@@ -80,9 +81,12 @@ async function handleCheckoutSession(event: Stripe.Event) {
       checkoutSession.customer as string
     )
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["default_payment_method"]
-    })
+    const subscription = await getStripe().subscriptions.retrieve(
+      subscriptionId,
+      {
+        expand: ["default_payment_method"]
+      }
+    )
 
     const productId = subscription.items.data[0].price.product as string
     await manageSubscriptionStatusChange(
