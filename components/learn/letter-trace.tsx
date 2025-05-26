@@ -152,6 +152,8 @@ export default function LetterTrace({
   // Drawing handlers
   const startDrawing = (e: React.PointerEvent) => {
     if (isComplete) return
+    // Prevent scrolling on touch devices
+    e.preventDefault()
     setIsDrawing(true)
     const canvas = canvasRef.current
     const ctx = canvas?.getContext("2d")
@@ -168,6 +170,8 @@ export default function LetterTrace({
 
   const draw = (e: React.PointerEvent) => {
     if (!isDrawing || isComplete) return
+    // Prevent scrolling on touch devices
+    e.preventDefault()
     const canvas = canvasRef.current
     const ctx = canvas?.getContext("2d")
     if (!canvas || !ctx) return
@@ -202,7 +206,10 @@ export default function LetterTrace({
 
   return (
     <div ref={containerRef} className="mx-auto w-full max-w-[512px]">
-      <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+      <div
+        className="relative w-full touch-none"
+        style={{ paddingBottom: "100%" }}
+      >
         {/* Hidden canvas for letter pixels */}
         <canvas
           ref={letterCanvasRef}
@@ -222,12 +229,14 @@ export default function LetterTrace({
         {/* Canvas layer for drawing */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 size-full"
+          className="absolute inset-0 size-full touch-none"
           style={{ zIndex: 2 }}
           onPointerDown={startDrawing}
           onPointerMove={draw}
           onPointerUp={stopDrawing}
           onPointerLeave={stopDrawing}
+          onTouchStart={e => e.preventDefault()}
+          onTouchMove={e => e.preventDefault()}
         />
       </div>
 
