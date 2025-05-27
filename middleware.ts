@@ -22,9 +22,9 @@ import { NextResponse } from "next/server"
 // Define protected routes using a matcher
 const isProtectedRoute = createRouteMatcher([
   "/cards(.*)",
-  "/quiz(.*)",
+  "/quiz(.*)", 
   "/parental(.*)",
-  "/api/(.*)" // Also protect all API routes
+  "/api/(?!connect)(.*)?" // Exclude /api/connect from protection
 ])
 
 /**
