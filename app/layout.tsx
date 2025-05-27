@@ -49,7 +49,7 @@ import {
 } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/utilities/providers"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { Home, Book, Gamepad2, Users, Award } from "lucide-react"
+import { Home, Book, Gamepad2, Users, Award, Trophy } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
@@ -122,6 +122,13 @@ export default async function RootLayout({
                     Quiz
                   </Link>
                   <Link
+                    href="/game"
+                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
+                  >
+                    <Trophy className="mr-2 size-4" />
+                    Game
+                  </Link>
+                  <Link
                     href="/badges"
                     className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                   >
@@ -168,6 +175,13 @@ export default async function RootLayout({
                   Quiz
                 </Link>
                 <Link
+                  href="/game"
+                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
+                >
+                  <Trophy className="mr-2 size-4" />
+                  Game
+                </Link>
+                <Link
                   href="/badges"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                 >
@@ -178,7 +192,7 @@ export default async function RootLayout({
             </header>
 
             {/* Main Content */}
-            <main className="container flex-1 py-6">
+            <main className="flex-1">
               <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
             </main>
 
