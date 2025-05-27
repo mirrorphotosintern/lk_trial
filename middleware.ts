@@ -24,6 +24,7 @@ const isProtectedRoute = createRouteMatcher([
   "/cards(.*)",
   "/quiz(.*)", 
   "/parental(.*)",
+  "/game(.*)",
   "/api/(.*)" // Also protect all API routes // Exclude /api/connect from protection
 ])
 
