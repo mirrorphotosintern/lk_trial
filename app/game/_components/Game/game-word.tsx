@@ -3,42 +3,59 @@
 
 "use client"
 
-import { GAME_TEXT } from "../../constants/game-constants";
-import React from "react";
-import styles from "./word-wrangler.module.css";
+import { GAME_TEXT } from "../../constants/game-constants"
+import React from "react"
+import styles from "./word-wrangler.module.css"
 
 interface GameWordProps {
-  word: string;
-  showAutoDetected: boolean;
-  showIncorrect: boolean;
+  word: string
+  showAutoDetected: boolean
+  showIncorrect: boolean
 }
 
 export const GameWord: React.FC<GameWordProps> = ({
   word,
   showAutoDetected,
-  showIncorrect,
+  showIncorrect
 }) => {
   return (
     <div className="relative">
       <div
         className={`
-          cultural-card rounded-3xl p-8 lg:p-12 text-center min-h-[200px] flex flex-col items-center justify-center transition-all duration-500 relative overflow-hidden
-          ${showAutoDetected ? styles.correctWordDetected : ''}
-          ${showIncorrect ? styles.incorrectWordDetected : ''}
+          cultural-card relative flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center transition-all duration-500 lg:p-12
+          ${showAutoDetected ? styles.correctWordDetected : ""}
+          ${showIncorrect ? styles.incorrectWordDetected : ""}
         `}
       >
         {/* Background decorative elements */}
-        <div className="absolute top-4 left-4 text-2xl opacity-20 floating-element">📝</div>
-        <div className="absolute top-4 right-4 text-2xl opacity-20 floating-element" style={{animationDelay: '1s'}}>✨</div>
-        <div className="absolute bottom-4 left-4 text-2xl opacity-20 floating-element" style={{animationDelay: '2s'}}>🎯</div>
-        <div className="absolute bottom-4 right-4 text-2xl opacity-20 floating-element" style={{animationDelay: '1.5s'}}>💭</div>
-        
+        <div className="floating-element absolute left-4 top-4 text-2xl opacity-20">
+          📝
+        </div>
+        <div
+          className="floating-element absolute right-4 top-4 text-2xl opacity-20"
+          style={{ animationDelay: "1s" }}
+        >
+          ✨
+        </div>
+        <div
+          className="floating-element absolute bottom-4 left-4 text-2xl opacity-20"
+          style={{ animationDelay: "2s" }}
+        >
+          🎯
+        </div>
+        <div
+          className="floating-element absolute bottom-4 right-4 text-2xl opacity-20"
+          style={{ animationDelay: "1.5s" }}
+        >
+          💭
+        </div>
+
         <div className="relative z-10">
-          <p className="text-lg lg:text-xl font-semibold cultural-decoration mb-4 leading-relaxed">
+          <p className="cultural-decoration mb-4 text-lg font-semibold leading-relaxed lg:text-xl">
             {GAME_TEXT.describeWord}
           </p>
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-            <span className="text-3xl lg:text-5xl font-black tracking-wide">
+          <div className="rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 px-8 py-6 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <span className="text-3xl font-black tracking-wide lg:text-5xl">
               {word}
             </span>
           </div>
@@ -48,8 +65,8 @@ export const GameWord: React.FC<GameWordProps> = ({
         {showIncorrect && <IncorrectOverlay />}
       </div>
     </div>
-  );
-};
+  )
+}
 
 const CorrectOverlay: React.FC = () => (
   <div className={styles.autoDetectedOverlay}>
@@ -74,7 +91,7 @@ const CorrectOverlay: React.FC = () => (
       </svg>
     </div>
   </div>
-);
+)
 
 const IncorrectOverlay: React.FC = () => (
   <div className={styles.incorrectOverlay}>
@@ -99,4 +116,4 @@ const IncorrectOverlay: React.FC = () => (
       </svg>
     </div>
   </div>
-);
+)

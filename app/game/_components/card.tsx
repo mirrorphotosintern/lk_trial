@@ -3,30 +3,28 @@
 
 export function Card({
   children,
-  className,
+  className
 }: {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
 }) {
   return (
     <div
-      className={`bg-white rounded-3xl relative card-border text-black ${className}`}
+      className={`card-border relative rounded-3xl bg-white text-black ${className}`}
     >
       {children}
     </div>
-  );
+  )
 }
 
-export function CardInner({ 
+export function CardInner({
   children,
   className = ""
-}: { 
-  children: React.ReactNode;
-  className?: string;
+}: {
+  children: React.ReactNode
+  className?: string
 }) {
   return (
-    <div className={`p-6 lg:p-10 relative z-10 ${className}`}>
-      {children}
-    </div>
-  );
+    <div className={`relative z-10 p-6 lg:p-10 ${className}`}>{children}</div>
+  )
 }

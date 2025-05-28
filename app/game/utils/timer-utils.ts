@@ -5,9 +5,9 @@
  */
 export function clearTimer(timer: NodeJS.Timeout | null): null {
   if (timer) {
-    clearTimeout(timer);
+    clearTimeout(timer)
   }
-  return null;
+  return null
 }
 
 /**
@@ -19,19 +19,19 @@ export function createCountdownTimer(
   onTick: (secondsLeft: number) => void,
   onComplete: () => void
 ): () => void {
-  let secondsLeft = durationSeconds;
+  let secondsLeft = durationSeconds
 
   const timer = setInterval(() => {
-    secondsLeft--;
-    onTick(secondsLeft);
+    secondsLeft--
+    onTick(secondsLeft)
 
     if (secondsLeft <= 0) {
-      clearInterval(timer);
-      onComplete();
+      clearInterval(timer)
+      onComplete()
     }
-  }, 1000);
+  }, 1000)
 
   return () => {
-    clearInterval(timer);
-  };
+    clearInterval(timer)
+  }
 }

@@ -3,46 +3,46 @@
 
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { PersonalityType, DEFAULT_PERSONALITY } from '../types/personality';
+import React, { createContext, useContext, useState, ReactNode } from "react"
+import { PersonalityType, DEFAULT_PERSONALITY } from "../types/personality"
 
 interface ConfigurationContextProps {
-  personality: PersonalityType;
-  setPersonality: (personality: PersonalityType) => void;
+  personality: PersonalityType
+  setPersonality: (personality: PersonalityType) => void
 }
 
 const ConfigurationContext = createContext<
   ConfigurationContextProps | undefined
->(undefined);
+>(undefined)
 
 interface ConfigurationProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function ConfigurationProvider({
-  children,
+  children
 }: ConfigurationProviderProps) {
   const [personality, setPersonality] =
-    useState<PersonalityType>(DEFAULT_PERSONALITY);
+    useState<PersonalityType>(DEFAULT_PERSONALITY)
 
   const value = {
     personality,
-    setPersonality,
-  };
+    setPersonality
+  }
 
   return (
     <ConfigurationContext.Provider value={value}>
       {children}
     </ConfigurationContext.Provider>
-  );
+  )
 }
 
 export function useConfigurationSettings() {
-  const context = useContext(ConfigurationContext);
+  const context = useContext(ConfigurationContext)
   if (context === undefined) {
     throw new Error(
-      'useConfigurationSettings must be used within a ConfigurationProvider'
-    );
+      "useConfigurationSettings must be used within a ConfigurationProvider"
+    )
   }
-  return context;
+  return context
 }

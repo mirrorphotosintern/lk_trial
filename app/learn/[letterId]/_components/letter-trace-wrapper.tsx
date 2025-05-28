@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import LetterTrace from "@/components/learn/letter-trace"
 import { AlertCircle } from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 
 // Array of valid letter IDs to validate against
 const validLetterIds = [
@@ -68,6 +69,7 @@ export default function LetterTraceWrapper({
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { user } = useUser()
 
   const handleError = () => {
     setError("Failed to load the letter. Please try again.")
@@ -78,17 +80,29 @@ export default function LetterTraceWrapper({
     setIsLoading(false)
   }
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    // Track learned letters in localStorage
+    let learned = JSON.parse(localStorage.getItem("learned_letters") || "[]")
+    if (!learned.includes(letterId)) {
+      learned.push(letterId)
+      localStorage.setItem("learned_letters", JSON.stringify(learned))
+    }
+    // If 2 new letters learned, increment credits by 2
+    if (learned.length % 2 === 0 && user?.id) {
+      await fetch("/api/increment-credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, amount: 2 })
+      })
+      router.refresh()
+    }
     // Find the current letter's index
     const currentIndex = validLetterIds.indexOf(letterId)
     if (currentIndex === -1) return
-
-    // If there's a next letter, navigate to it
     if (currentIndex < validLetterIds.length - 1) {
       const nextLetterId = validLetterIds[currentIndex + 1]
       router.push(`/learn/${nextLetterId}`)
     } else {
-      // If this is the last letter, go back to the learn page
       router.push("/learn")
     }
   }
