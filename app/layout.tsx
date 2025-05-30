@@ -54,7 +54,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
 import { LetterSelect } from "@/components/ui/letter-select"
-import NavbarWrapper from "@/app/_components/navbar-wrapper"
+import UserWithCredits from "@/components/ui/user-with-credits"
 
 export default async function RootLayout({
   children
@@ -140,11 +140,10 @@ export default async function RootLayout({
 
                 {/* Theme Toggle and Auth */}
                 <div className="flex items-center space-x-4">
-                  <NavbarWrapper />
                   <ThemeToggle />
                   <div className="flex items-center">
                     <SignedIn>
-                      <UserButton afterSignOutUrl="/" />
+                      <UserWithCredits />
                     </SignedIn>
                   </div>
                 </div>
