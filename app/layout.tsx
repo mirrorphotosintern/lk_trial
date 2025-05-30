@@ -107,34 +107,19 @@ export default async function RootLayout({
                     <Home className="mr-2 size-4" />
                     Home
                   </Link>
-                  <LetterSelect />
                   <Link
-                    href="/cards"
+                    href="/learn"
                     className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                   >
                     <Book className="mr-2 size-4" />
-                    Cards
+                    Learn
                   </Link>
                   <Link
-                    href="/quiz"
+                    href="/play"
                     className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                   >
                     <Gamepad2 className="mr-2 size-4" />
-                    Quiz
-                  </Link>
-                  <Link
-                    href="/game"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <Trophy className="mr-2 size-4" />
-                    Game
-                  </Link>
-                  <Link
-                    href="/badges"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <Award className="mr-2 size-4" />
-                    Badges
+                    Play
                   </Link>
                 </nav>
 
@@ -158,36 +143,19 @@ export default async function RootLayout({
                   <Home className="mr-2 size-4" />
                   Home
                 </Link>
-                <div className="hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2">
-                  <LetterSelect />
-                </div>
                 <Link
-                  href="/cards"
+                  href="/learn"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                 >
                   <Book className="mr-2 size-4" />
-                  Cards
+                  Learn
                 </Link>
                 <Link
-                  href="/quiz"
+                  href="/play"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                 >
                   <Gamepad2 className="mr-2 size-4" />
-                  Quiz
-                </Link>
-                <Link
-                  href="/game"
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                >
-                  <Trophy className="mr-2 size-4" />
-                  Game
-                </Link>
-                <Link
-                  href="/badges"
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                >
-                  <Award className="mr-2 size-4" />
-                  Badges
+                  Play
                 </Link>
               </nav>
             </header>
