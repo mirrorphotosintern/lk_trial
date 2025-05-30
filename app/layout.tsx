@@ -54,7 +54,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
 import { LetterSelect } from "@/components/ui/letter-select"
-import UserWithCredits from "@/components/ui/user-with-credits"
+import UserButtonWithCredits from "@/components/ui/user-button-with-credits"
 
 export default async function RootLayout({
   children
@@ -143,7 +143,7 @@ export default async function RootLayout({
                   <ThemeToggle />
                   <div className="flex items-center">
                     <SignedIn>
-                      <UserWithCredits />
+                      <UserButtonWithCredits />
                     </SignedIn>
                   </div>
                 </div>
