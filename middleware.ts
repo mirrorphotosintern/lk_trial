@@ -22,7 +22,8 @@ import { NextResponse } from "next/server"
 // Define protected routes using a matcher
 const isProtectedRoute = createRouteMatcher([
   "/parental(.*)",
-  "/play(.*)",
+  "/play/quiz(.*)",
+  "/play/game(.*)",
   "/api/(.*)" // Also protect all API routes // Exclude /api/connect from protection
 ])
 
@@ -35,27 +36,29 @@ const isProtectedRoute = createRouteMatcher([
  * @returns NextResponse or redirect based on auth status
  */
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, redirectToSignIn } = await auth()
-  const { pathname } = req.nextUrl; // Get the pathname for checking
+  const { userId, redirectToSignIn } = await auth();
+  const { pathname } = req.nextUrl;
 
-  // If the route is /learn or starts with /learn/, it's public
-  if (pathname === "/learn" || pathname.startsWith("/learn/")) {
+  // If the route is /learn, /learn/*, /learn/cards, or /learn/cards/* it's public
+  if (pathname === "/learn" ||
+      pathname.startsWith("/learn/") ||
+      pathname === "/learn/cards" ||
+      pathname.startsWith("/learn/cards/")) {
     return NextResponse.next();
   }
 
-  // If user is not authenticated and trying to access a protected route (that is not /learn)
+  // If user is not authenticated and trying to access a protected route
   if (!userId && isProtectedRoute(req)) {
+    // Redirect to sign-in page with return URL
     return redirectToSignIn({ returnBackUrl: req.url });
   }
 
   // If user is authenticated and accessing a protected route, proceed
-  // This condition is fine as is, or can be simplified if the above handles all public cases.
-  // For now, keeping it to ensure authenticated users CAN access protected routes.
   if (userId && isProtectedRoute(req)) {
     return NextResponse.next();
   }
 
-  // For all other cases (e.g., other public routes like /landing or /), proceed
+  // For all other cases (e.g., public routes like /landing), proceed
   return NextResponse.next();
 })
 

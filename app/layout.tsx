@@ -49,12 +49,21 @@ import {
 } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/utilities/providers"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { Home, Book, Gamepad2, Users, Award, Trophy } from "lucide-react"
+import { Home, Book, Gamepad2 } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
 import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
-import { LetterSelect } from "@/components/ui/letter-select"
+// LetterSelect removed as it's no longer used
 import UserButtonWithCredits from "@/components/ui/user-button-with-credits"
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu"
 
 export default async function RootLayout({
   children
@@ -99,28 +108,65 @@ export default async function RootLayout({
                 </Link>
 
                 {/* Navigation - Desktop: Buttons, Mobile: Hidden */}
-                <nav className="hidden space-x-4 md:flex">
-                  <Link
-                    href="/"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <Home className="mr-2 size-4" />
-                    Home
-                  </Link>
-                  <Link
-                    href="/learn"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <Book className="mr-2 size-4" />
-                    Learn
-                  </Link>
-                  <Link
-                    href="/play"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <Gamepad2 className="mr-2 size-4" />
-                    Play
-                  </Link>
+                <nav className="hidden md:flex">
+                  <NavigationMenu>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <Link href="/" legacyBehavior passHref>
+                          <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                            <Home className="mr-2 size-4" />
+                            Home
+                          </NavigationMenuLink>
+                        </Link>
+                      </NavigationMenuItem>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger>
+                          <Book className="mr-2 size-4" /> Learn
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid gap-3 p-4 md:w-[200px]">
+                            <li>
+                              <NavigationMenuLink asChild>
+                                <Link href="/learn" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                  Trace Letters
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                            <li>
+                              <NavigationMenuLink asChild>
+                                <Link href="/learn/cards" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                  Learn Cards
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger>
+                          <Gamepad2 className="mr-2 size-4" /> Play
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid gap-3 p-4 md:w-[200px]">
+                            <li>
+                              <NavigationMenuLink asChild>
+                                <Link href="/play/quiz" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                  Quiz
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                            <li>
+                              <NavigationMenuLink asChild>
+                                <Link href="/play/game" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                  Game
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
                 </nav>
 
                 {/* Theme Toggle and Auth */}
@@ -135,28 +181,37 @@ export default async function RootLayout({
               </div>
 
               {/* Mobile Navigation - Visible only on small screens */}
-              <nav className="border-border bg-background flex flex-col space-y-2 border-t p-4 md:hidden">
+              <nav className="border-border bg-background flex flex-col space-y-1 border-t p-4 md:hidden"> {/* Reduced space-y-2 to space-y-1 for tighter packing */}
                 <Link
                   href="/"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                 >
-                  <Home className="mr-2 size-4" />
-                  Home
+                  <Home className="mr-2 size-4" /> Home
                 </Link>
-                <Link
-                  href="/learn"
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                >
-                  <Book className="mr-2 size-4" />
-                  Learn
-                </Link>
-                <Link
-                  href="/play"
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                >
-                  <Gamepad2 className="mr-2 size-4" />
-                  Play
-                </Link>
+
+                <div>
+                  <div className="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground">
+                      <Book className="mr-2 size-4" /> Learn
+                  </div>
+                  <Link href="/learn" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
+                      Trace Letters
+                  </Link>
+                  <Link href="/learn/cards" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
+                      Learn Cards
+                  </Link>
+                </div>
+
+                <div>
+                  <div className="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground">
+                      <Gamepad2 className="mr-2 size-4" /> Play
+                  </div>
+                  <Link href="/play/quiz" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
+                      Quiz
+                  </Link>
+                  <Link href="/play/game" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
+                      Game
+                  </Link>
+                </div>
               </nav>
             </header>
 
