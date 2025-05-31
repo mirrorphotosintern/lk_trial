@@ -17,6 +17,9 @@ export default function SignInPage() {
           }
         }}
         redirectUrl={returnBackUrl || "/"}
+        routing="path"
+        path="/sign-in"
+        signUpUrl="/sign-up"
       />
     </div>
   )

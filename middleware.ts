@@ -16,33 +16,28 @@ Notes:
 - Assumes Clerk env vars are set in `.env.local`.
 */
 
-import { clerkMiddleware } from "@clerk/nextjs/server"
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
-// Define protected routes using a matcher
-const isProtectedRoute = (req: Request) => {
-  const { pathname } = new URL(req.url)
-  return (
-    pathname.startsWith("/parental") ||
-    pathname.startsWith("/play/quiz") ||
-    pathname.startsWith("/play/game") ||
-    pathname.startsWith("/api/")
-  )
-}
+// Create matchers for protected and public routes
+const isProtectedRoute = createRouteMatcher([
+  "/parental(.*)",
+  "/play/quiz(.*)",
+  "/play/game(.*)",
+  "/api/(.*)"
+])
 
-// Define public routes
-const isPublicRoute = (req: Request) => {
-  const { pathname } = new URL(req.url)
-  return (
-    pathname === "/" ||
-    pathname === "/learn" ||
-    pathname.startsWith("/learn/") ||
-    pathname === "/learn/cards" ||
-    pathname.startsWith("/learn/cards/") ||
-    pathname.startsWith("/sign-in") ||
-    pathname.startsWith("/sign-up")
-  )
-}
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/learn",
+  "/learn/cards",
+  "/learn/(.*)",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhook",
+  "/api/webhooks(.*)",
+  "/api/trpc(.*)"
+])
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, redirectToSignIn } = await auth()
