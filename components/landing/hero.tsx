@@ -81,21 +81,11 @@ export const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
-          <SignedOut>
-            <SignInButton>
-              <Button className="bg-accent hover:bg-accent/90 text-lg">
-                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
-              </Button>
-            </SignInButton>
-          </SignedOut>
-
-          <SignedIn>
-            <Link href="/cards">
-              <Button className="bg-accent hover:bg-accent/90 text-lg">
-                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
-              </Button>
-            </Link>
-          </SignedIn>
+          <Link href="/learn/cards">
+            <Button className="bg-accent hover:bg-accent/90 text-lg">
+              ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
+            </Button>
+          </Link>
         </motion.div>
       </motion.div>
 
