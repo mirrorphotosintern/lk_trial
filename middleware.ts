@@ -19,45 +19,42 @@ Notes:
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
-// Define protected routes using a matcher
+// Create matchers for protected and public routes
 const isProtectedRoute = createRouteMatcher([
-  "/cards(.*)",
-  "/quiz(.*)", 
   "/parental(.*)",
-  "/game(.*)",
-  "/api/(.*)" // Also protect all API routes // Exclude /api/connect from protection
+  "/play/quiz(.*)",
+  "/play/game(.*)",
+  "/api/(.*)"
 ])
 
-/**
- * Middleware function to handle authentication with Clerk.
- * Protects specified routes and redirects unauthenticated users.
- *
- * @param auth - Clerk authentication object
- * @param req - Incoming request object
- * @returns NextResponse or redirect based on auth status
- */
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/learn",
+  "/learn/cards",
+  "/learn/(.*)",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhook",
+  "/api/webhooks(.*)",
+  "/api/trpc(.*)"
+])
+
 export default clerkMiddleware(async (auth, req) => {
   const { userId, redirectToSignIn } = await auth()
 
-  // If user is not authenticated and trying to access a protected route
-  if (!userId && isProtectedRoute(req)) {
-    // Redirect to sign-in page with return URL
-    return redirectToSignIn({ returnBackUrl: req.url })
-  }
-
-  // If user is authenticated and accessing a protected route, proceed
-  if (userId && isProtectedRoute(req)) {
+  // Allow public routes
+  if (isPublicRoute(req)) {
     return NextResponse.next()
   }
 
-  // For all other cases (e.g., public routes like /landing), proceed
+  // Handle protected routes
+  if (!userId && isProtectedRoute(req)) {
+    return redirectToSignIn({ returnBackUrl: req.url })
+  }
+
   return NextResponse.next()
 })
 
-// Configuration for middleware application
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)",
-    "/"
-  ]
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"]
 }

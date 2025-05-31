@@ -4,11 +4,10 @@
  * It provides functionality to load and parse the CSV dataset securely.
  *
  * Key features:
- * - Authentication: Ensures only authenticated users can access CSV data using Clerk.
  * - CSV Loading: Reads and parses the CSV file from the public directory.
+ * - Public Access: CSV data is publicly accessible for learning purposes.
  *
  * @dependencies
- * - @clerk/nextjs/server: Provides authentication utilities.
  * - fs/promises: Node.js API for asynchronous file reading.
  * - @/lib/csv-parser: Custom utility to parse CSV data.
  * - @/types: Imports ActionState and KannadaEntry for type safety.
@@ -21,7 +20,6 @@
 
 "use server"
 
-import { auth } from "@clerk/nextjs/server"
 import { readFile } from "fs/promises"
 import { parseCsv } from "@/lib/csv-parser"
 import { ActionState, KannadaEntry } from "@/types"
@@ -31,15 +29,6 @@ import { ActionState, KannadaEntry } from "@/types"
  * @returns A promise resolving to an ActionState containing the parsed KannadaEntry array or an error.
  */
 export async function loadCsvAction(): Promise<ActionState<KannadaEntry[]>> {
-  // Check authentication
-  const { userId } = await auth()
-  if (!userId) {
-    return {
-      isSuccess: false,
-      message: "Unauthorized: Please sign in to access the data"
-    }
-  }
-
   try {
     // Read the CSV file from the public directory
     const csvPath = process.cwd() + "/public/data/kannada-kali-updated.csv"

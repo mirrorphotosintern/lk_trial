@@ -41,7 +41,7 @@ export default async function QuizPage() {
   // Authenticate user
   const { userId } = await auth()
   if (!userId) {
-    redirect("/sign-in?redirect_url=/quiz")
+    redirect("/sign-in?redirect_url=/play/quiz")
     return null
   }
 
