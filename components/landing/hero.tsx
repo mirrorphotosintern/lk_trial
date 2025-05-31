@@ -89,7 +89,7 @@ export const HeroSection = () => {
             </Link>
           </SignedIn>
           <SignedOut>
-            <SignInButton mode="modal" afterSignInUrl="/play/quiz">
+            <SignInButton mode="modal" fallbackRedirectUrl="/play/quiz">
               <Button className="bg-accent hover:bg-accent/90 text-lg">
                 ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>
