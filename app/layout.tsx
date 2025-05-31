@@ -49,7 +49,7 @@ import {
 } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/utilities/providers"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { Home, Book, Gamepad2 } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
+import { Home, Book, Gamepad2, Menu } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
 import Link from "next/link"
 import { Suspense } from "react"
 import { ProfileSync } from "@/components/profile-sync"
@@ -64,6 +64,8 @@ import {
   NavigationMenuLink,
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default async function RootLayout({
   children
@@ -107,24 +109,12 @@ export default async function RootLayout({
                   <span className="text-xl font-semibold">LearnKannada</span>
                 </Link>
 
-                {/* Navigation - Desktop: Buttons, Mobile: Hidden */}
-                <nav className="hidden md:flex">
+                {/* Desktop Navigation */}
+                <div className="hidden md:flex md:items-center md:space-x-4">
                   <NavigationMenu>
                     <NavigationMenuList>
                       <NavigationMenuItem>
-                        <Link href="/" legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                          >
-                            <Home className="mr-2 size-4" />
-                            Home
-                          </NavigationMenuLink>
-                        </Link>
-                      </NavigationMenuItem>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger>
-                          <Book className="mr-2 size-4" /> Learn
-                        </NavigationMenuTrigger>
+                        <NavigationMenuTrigger>Learn</NavigationMenuTrigger>
                         <NavigationMenuContent>
                           <ul className="grid gap-3 p-4 md:w-[200px]">
                             <li>
@@ -151,9 +141,7 @@ export default async function RootLayout({
                         </NavigationMenuContent>
                       </NavigationMenuItem>
                       <NavigationMenuItem>
-                        <NavigationMenuTrigger>
-                          <Gamepad2 className="mr-2 size-4" /> Play
-                        </NavigationMenuTrigger>
+                        <NavigationMenuTrigger>Play</NavigationMenuTrigger>
                         <NavigationMenuContent>
                           <ul className="grid gap-3 p-4 md:w-[200px]">
                             <li>
@@ -181,10 +169,68 @@ export default async function RootLayout({
                       </NavigationMenuItem>
                     </NavigationMenuList>
                   </NavigationMenu>
-                </nav>
+                </div>
 
-                {/* Theme Toggle and Auth */}
                 <div className="flex items-center space-x-4">
+                  {/* Mobile Menu */}
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden"
+                        aria-label="Toggle menu"
+                      >
+                        <Menu className="size-6" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="right"
+                      className="w-[300px] sm:w-[400px]"
+                    >
+                      <nav className="flex flex-col space-y-4">
+                        <div>
+                          <div className="text-muted-foreground mb-2 text-sm font-medium">
+                            Learn
+                          </div>
+                          <div className="ml-4 flex flex-col space-y-2">
+                            <Link
+                              href="/learn"
+                              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                            >
+                              Trace Letters
+                            </Link>
+                            <Link
+                              href="/learn/cards"
+                              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                            >
+                              Learn Cards
+                            </Link>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground mb-2 text-sm font-medium">
+                            Play
+                          </div>
+                          <div className="ml-4 flex flex-col space-y-2">
+                            <Link
+                              href="/play/quiz"
+                              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                            >
+                              Quiz
+                            </Link>
+                            <Link
+                              href="/play/game"
+                              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                            >
+                              Game
+                            </Link>
+                          </div>
+                        </div>
+                      </nav>
+                    </SheetContent>
+                  </Sheet>
+
                   <ThemeToggle />
                   <div className="flex items-center">
                     <SignedIn>
@@ -193,52 +239,6 @@ export default async function RootLayout({
                   </div>
                 </div>
               </div>
-
-              {/* Mobile Navigation - Visible only on small screens */}
-              <nav className="border-border bg-background flex flex-col space-y-1 border-t p-4 md:hidden">
-                {" "}
-                {/* Reduced space-y-2 to space-y-1 for tighter packing */}
-                <Link
-                  href="/"
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
-                >
-                  <Home className="mr-2 size-4" /> Home
-                </Link>
-                <div>
-                  <div className="text-muted-foreground flex items-center px-3 py-2 text-sm font-medium">
-                    <Book className="mr-2 size-4" /> Learn
-                  </div>
-                  <Link
-                    href="/learn"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
-                  >
-                    Trace Letters
-                  </Link>
-                  <Link
-                    href="/learn/cards"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
-                  >
-                    Learn Cards
-                  </Link>
-                </div>
-                <div>
-                  <div className="text-muted-foreground flex items-center px-3 py-2 text-sm font-medium">
-                    <Gamepad2 className="mr-2 size-4" /> Play
-                  </div>
-                  <Link
-                    href="/play/quiz"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
-                  >
-                    Quiz
-                  </Link>
-                  <Link
-                    href="/play/game"
-                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
-                  >
-                    Game
-                  </Link>
-                </div>
-              </nav>
             </header>
 
             {/* Main Content */}
