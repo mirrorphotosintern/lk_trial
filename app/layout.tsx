@@ -1,7 +1,10 @@
-"use server"
-
 import "./globals.css"
 import { Poppins, Noto_Sans_Kannada } from "next/font/google"
+import { ClerkProvider } from "@clerk/nextjs"
+import { ThemeProvider } from "@/components/utilities/providers"
+import { Toaster } from "@/components/ui/toaster"
+import { cn } from "@/lib/utils"
+import { RedirectAfterSignIn } from "@/components/auth/redirect-after-sign-in"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -40,14 +43,7 @@ const notoSansKannada = Noto_Sans_Kannada({
  * - Navigation adapts to screen size using Tailwind's responsive classes.
  */
 
-import {
-  ClerkProvider,
-  UserButton,
-  SignInButton,
-  SignedIn,
-  SignedOut
-} from "@clerk/nextjs"
-import { ThemeProvider } from "@/components/utilities/providers"
+import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Home, Book, Gamepad2, Menu } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
 import Link from "next/link"
@@ -67,7 +63,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: {
   children: React.ReactNode
@@ -94,6 +90,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <RedirectAfterSignIn />
             {/* Header with Navigation */}
             <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
               <div className="container flex h-16 items-center justify-between px-4">
@@ -264,6 +261,8 @@ export default async function RootLayout({
                 . All rights reserved.
               </div>
             </footer>
+
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

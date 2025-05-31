@@ -75,17 +75,26 @@ export const HeroSection = () => {
           speaking and listening games.
         </motion.div>
 
-        {/* Call to Action - Consolidated Button */}
+        {/* Call to Action - Start Button with Auth */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
-          <Link href="/learn/cards">
-            <Button className="bg-accent hover:bg-accent/90 text-lg">
-              ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
-            </Button>
-          </Link>
+          <SignedIn>
+            <Link href="/play/quiz">
+              <Button className="bg-accent hover:bg-accent/90 text-lg">
+                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
+              </Button>
+            </Link>
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal" afterSignInUrl="/play/quiz">
+              <Button className="bg-accent hover:bg-accent/90 text-lg">
+                ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
+              </Button>
+            </SignInButton>
+          </SignedOut>
         </motion.div>
       </motion.div>
 

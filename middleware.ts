@@ -16,56 +16,50 @@ Notes:
 - Assumes Clerk env vars are set in `.env.local`.
 */
 
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { clerkMiddleware } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
 // Define protected routes using a matcher
-const isProtectedRoute = createRouteMatcher([
-  "/parental(.*)",
-  "/play/quiz(.*)",
-  "/play/game(.*)",
-  "/api/(.*)" // Also protect all API routes // Exclude /api/connect from protection
-])
+const isProtectedRoute = (req: Request) => {
+  const { pathname } = new URL(req.url)
+  return (
+    pathname.startsWith("/parental") ||
+    pathname.startsWith("/play/quiz") ||
+    pathname.startsWith("/play/game") ||
+    pathname.startsWith("/api/")
+  )
+}
 
-/**
- * Middleware function to handle authentication with Clerk.
- * Protects specified routes and redirects unauthenticated users.
- *
- * @param auth - Clerk authentication object
- * @param req - Incoming request object
- * @returns NextResponse or redirect based on auth status
- */
+// Define public routes
+const isPublicRoute = (req: Request) => {
+  const { pathname } = new URL(req.url)
+  return (
+    pathname === "/" ||
+    pathname === "/learn" ||
+    pathname.startsWith("/learn/") ||
+    pathname === "/learn/cards" ||
+    pathname.startsWith("/learn/cards/") ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up")
+  )
+}
+
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, redirectToSignIn } = await auth();
-  const { pathname } = req.nextUrl;
+  const { userId, redirectToSignIn } = await auth()
 
-  // If the route is /learn, /learn/*, /learn/cards, or /learn/cards/* it's public
-  if (pathname === "/learn" ||
-      pathname.startsWith("/learn/") ||
-      pathname === "/learn/cards" ||
-      pathname.startsWith("/learn/cards/")) {
-    return NextResponse.next();
+  // Allow public routes
+  if (isPublicRoute(req)) {
+    return NextResponse.next()
   }
 
-  // If user is not authenticated and trying to access a protected route
+  // Handle protected routes
   if (!userId && isProtectedRoute(req)) {
-    // Redirect to sign-in page with return URL
-    return redirectToSignIn({ returnBackUrl: req.url });
+    return redirectToSignIn({ returnBackUrl: req.url })
   }
 
-  // If user is authenticated and accessing a protected route, proceed
-  if (userId && isProtectedRoute(req)) {
-    return NextResponse.next();
-  }
-
-  // For all other cases (e.g., public routes like /landing), proceed
-  return NextResponse.next();
+  return NextResponse.next()
 })
 
-// Configuration for middleware application
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)",
-    "/"
-  ]
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"]
 }
