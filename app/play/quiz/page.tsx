@@ -25,7 +25,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
-import QuizFetcher from "@/app/quiz/_components/quiz-fetcher"
+import QuizFetcher from "./_components/quiz-fetcher"
 
 // Skeleton fallback component for loading state
 function QuizSkeleton() {

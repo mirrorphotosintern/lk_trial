@@ -113,7 +113,9 @@ export default async function RootLayout({
                     <NavigationMenuList>
                       <NavigationMenuItem>
                         <Link href="/" legacyBehavior passHref>
-                          <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                          <NavigationMenuLink
+                            className={navigationMenuTriggerStyle()}
+                          >
                             <Home className="mr-2 size-4" />
                             Home
                           </NavigationMenuLink>
@@ -127,14 +129,20 @@ export default async function RootLayout({
                           <ul className="grid gap-3 p-4 md:w-[200px]">
                             <li>
                               <NavigationMenuLink asChild>
-                                <Link href="/learn" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                <Link
+                                  href="/learn"
+                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                >
                                   Trace Letters
                                 </Link>
                               </NavigationMenuLink>
                             </li>
                             <li>
                               <NavigationMenuLink asChild>
-                                <Link href="/learn/cards" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                <Link
+                                  href="/learn/cards"
+                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                >
                                   Learn Cards
                                 </Link>
                               </NavigationMenuLink>
@@ -150,14 +158,20 @@ export default async function RootLayout({
                           <ul className="grid gap-3 p-4 md:w-[200px]">
                             <li>
                               <NavigationMenuLink asChild>
-                                <Link href="/play/quiz" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                <Link
+                                  href="/play/quiz"
+                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                >
                                   Quiz
                                 </Link>
                               </NavigationMenuLink>
                             </li>
                             <li>
                               <NavigationMenuLink asChild>
-                                <Link href="/play/game" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                                <Link
+                                  href="/play/game"
+                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                >
                                   Game
                                 </Link>
                               </NavigationMenuLink>
@@ -181,35 +195,47 @@ export default async function RootLayout({
               </div>
 
               {/* Mobile Navigation - Visible only on small screens */}
-              <nav className="border-border bg-background flex flex-col space-y-1 border-t p-4 md:hidden"> {/* Reduced space-y-2 to space-y-1 for tighter packing */}
+              <nav className="border-border bg-background flex flex-col space-y-1 border-t p-4 md:hidden">
+                {" "}
+                {/* Reduced space-y-2 to space-y-1 for tighter packing */}
                 <Link
                   href="/"
                   className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md px-3 py-2 text-sm font-medium"
                 >
                   <Home className="mr-2 size-4" /> Home
                 </Link>
-
                 <div>
-                  <div className="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground">
-                      <Book className="mr-2 size-4" /> Learn
+                  <div className="text-muted-foreground flex items-center px-3 py-2 text-sm font-medium">
+                    <Book className="mr-2 size-4" /> Learn
                   </div>
-                  <Link href="/learn" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
-                      Trace Letters
+                  <Link
+                    href="/learn"
+                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
+                  >
+                    Trace Letters
                   </Link>
-                  <Link href="/learn/cards" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
-                      Learn Cards
+                  <Link
+                    href="/learn/cards"
+                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
+                  >
+                    Learn Cards
                   </Link>
                 </div>
-
                 <div>
-                  <div className="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground">
-                      <Gamepad2 className="mr-2 size-4" /> Play
+                  <div className="text-muted-foreground flex items-center px-3 py-2 text-sm font-medium">
+                    <Gamepad2 className="mr-2 size-4" /> Play
                   </div>
-                  <Link href="/play/quiz" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
-                      Quiz
+                  <Link
+                    href="/play/quiz"
+                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
+                  >
+                    Quiz
                   </Link>
-                  <Link href="/play/game" className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium">
-                      Game
+                  <Link
+                    href="/play/game"
+                    className="hover:bg-accent hover:text-accent-foreground flex items-center rounded-md py-2 pl-8 pr-3 text-sm font-medium"
+                  >
+                    Game
                   </Link>
                 </div>
               </nav>

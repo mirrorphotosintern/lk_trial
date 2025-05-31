@@ -1,4 +1,4 @@
-"use server";
+"use server"
 
 /**
  * @description
@@ -15,8 +15,8 @@
  * - CardGrid: Renders cards with filtering and expanded view functionality.
  */
 
-import { Suspense } from "react";
-import { CardGrid } from "@/app/cards/_components/card-grid";
+import { Suspense } from "react"
+import { CardGrid } from "@/app/cards/_components/card-grid"
 
 export default async function LearnCardsPage() {
   return (
@@ -36,5 +36,5 @@ export default async function LearnCardsPage() {
         <CardGrid />
       </Suspense>
     </div>
-  );
+  )
 }

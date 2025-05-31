@@ -61,7 +61,8 @@ const validLetterIds = [
   "49_ಳ"
 ]
 
-export default async function LearnTraceLetterPage({ params }: PageProps) { // Renamed component
+export default async function LearnTraceLetterPage({ params }: PageProps) {
+  // Renamed component
   const { letterId } = await params
   const decodedLetterId = decodeURIComponent(letterId)
 
@@ -73,7 +74,9 @@ export default async function LearnTraceLetterPage({ params }: PageProps) { // R
   return (
     <div className="container mx-auto flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4">
       <div className="w-full max-w-2xl text-center">
-        <Suspense fallback={<div>Loading letter trace...</div>}> {/* Updated fallback */}
+        <Suspense fallback={<div>Loading letter trace...</div>}>
+          {" "}
+          {/* Updated fallback */}
           <LetterTraceWrapper letterId={decodedLetterId} />
         </Suspense>
       </div>
