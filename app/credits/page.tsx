@@ -67,7 +67,7 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Learn New Words</p>
               <p className="text-muted-foreground text-sm">
-                Complete 1 LetterTrace to earn 20 credits
+                Complete Trace on 2 different letters to earn 20 credits
               </p>
             </div>
           </div>
