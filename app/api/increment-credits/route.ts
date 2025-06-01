@@ -7,9 +7,16 @@ export async function POST(req: Request) {
     if (!userId || !amount) {
       return new NextResponse("Missing userId or amount", { status: 400 })
     }
-    await addCreditsAction(userId, amount)
-    return new NextResponse("OK")
+
+    const result = await addCreditsAction(userId, amount)
+
+    if (!result.isSuccess) {
+      return new NextResponse(result.message, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, credits: result.data })
   } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 })
+    console.error("Increment credits API error", error)
+    return new NextResponse("Server error", { status: 500 })
   }
 }

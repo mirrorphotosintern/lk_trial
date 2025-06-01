@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import LetterTrace from "@/components/learn/letter-trace"
 import { AlertCircle } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
+import { toast } from "sonner" // optional: make sure 'sonner' is installed if used
 
-// Array of valid letter IDs to validate against
 const validLetterIds = [
   "01_ಅ",
   "02_ಆ",
@@ -67,9 +67,15 @@ export default function LetterTraceWrapper({
   letterId
 }: LetterTraceWrapperProps) {
   const router = useRouter()
+  const { user } = useUser()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { user } = useUser()
+  const [learned, setLearned] = useState<string[]>([])
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("learned_letters") || "[]")
+    setLearned(stored)
+  }, [])
 
   const handleError = () => {
     setError("Failed to load the letter. Please try again.")
@@ -81,24 +87,31 @@ export default function LetterTraceWrapper({
   }
 
   const handleComplete = async () => {
-    // Track learned letters in localStorage
-    let learned = JSON.parse(localStorage.getItem("learned_letters") || "[]")
-    if (!learned.includes(letterId)) {
-      learned.push(letterId)
-      localStorage.setItem("learned_letters", JSON.stringify(learned))
+    const updated = [...new Set([...learned, letterId])]
+    localStorage.setItem("learned_letters", JSON.stringify(updated))
+    setLearned(updated)
+
+    if (updated.length % 2 === 0 && user?.id) {
+      try {
+        const res = await fetch("/api/increment-credits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, amount: 20 })
+        })
+
+        if (!res.ok) throw new Error("Failed to increment credits")
+
+        toast.success("You earned 20 credits!")
+        router.refresh()
+      } catch (err) {
+        console.error("Credit increment error:", err)
+        toast.error("Could not add credits")
+      }
     }
-    // If 2 new letters learned, increment credits by 2
-    if (learned.length % 2 === 0 && user?.id) {
-      await fetch("/api/increment-credits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, amount: 2 })
-      })
-      router.refresh()
-    }
-    // Find the current letter's index
+
     const currentIndex = validLetterIds.indexOf(letterId)
     if (currentIndex === -1) return
+
     if (currentIndex < validLetterIds.length - 1) {
       const nextLetterId = validLetterIds[currentIndex + 1]
       router.push(`/learn/${nextLetterId}`)
