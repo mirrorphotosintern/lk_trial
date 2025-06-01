@@ -67,7 +67,7 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Learn New Words</p>
               <p className="text-muted-foreground text-sm">
-                Complete 2 LetterTrace to earn 20 credits
+                Complete 1 LetterTrace to earn 20 credits
               </p>
             </div>
           </div>
@@ -109,7 +109,7 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Take Quizzes</p>
               <p className="text-muted-foreground text-sm">
-                Each quiz attempt costs 1 credit
+                Each quiz attempt costs 30 credits
               </p>
             </div>
           </div>
