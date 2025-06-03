@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils"
 import { recordWordAttemptAction } from "@/actions/db/word-stats-actions"
 import { Timer, CheckCircle, XCircle, ArrowLeft } from "lucide-react"
 import Image from "next/image"
-import QuizSetup from "@/app/quiz/_components/quiz-setup"
+import QuizSetup from "@/app/play/quiz/_components/quiz-setup"
 
 // Constants
 const QUESTION_TIME = 10 // Time per question in seconds

@@ -84,3 +84,55 @@ export async function deductCreditsAction(userId: string, amount: number): Promi
     return { isSuccess: false, message: "Failed to deduct credits" }
   }
 }
+
+// Check and deduct credits for quiz access
+export async function checkAndDeductQuizCreditsAction(userId: string): Promise<ActionState<number>> {
+  const QUIZ_COST = 50 // Quiz costs 50 credits
+  
+  try {
+    // Start a transaction to ensure atomic operation
+    const result = await db.transaction(async (tx) => {
+      const [user] = await tx.select().from(creditsTable).where(eq(creditsTable.userId, userId)).limit(1)
+
+      if (!user) {
+        // Initialize credits if user doesn't exist
+        await tx.insert(creditsTable).values({
+          userId,
+          credits: 100 // Default initial credits
+        })
+        return { hasCredits: false, remainingCredits: 100 }
+      }
+
+      if (user.credits < QUIZ_COST) {
+        return { hasCredits: false, remainingCredits: user.credits }
+      }
+
+      // Deduct credits
+      const [updated] = await tx.update(creditsTable)
+        .set({
+          credits: sql`${creditsTable.credits} - ${QUIZ_COST}`,
+          updatedAt: new Date()
+        })
+        .where(eq(creditsTable.userId, userId))
+        .returning()
+
+      return { hasCredits: true, remainingCredits: updated.credits }
+    })
+
+    if (!result.hasCredits) {
+      return { 
+        isSuccess: false, 
+        message: `Insufficient credits. You need ${QUIZ_COST} credits to play the quiz. You have ${result.remainingCredits} credits.`
+      }
+    }
+
+    return { 
+      isSuccess: true, 
+      message: `${QUIZ_COST} credits deducted. You have ${result.remainingCredits} credits remaining.`,
+      data: result.remainingCredits
+    }
+  } catch (error) {
+    console.error("Error checking/deducting quiz credits:", error)
+    return { isSuccess: false, message: "Failed to process credits" }
+  }
+}

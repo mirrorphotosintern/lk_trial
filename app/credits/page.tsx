@@ -109,7 +109,7 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Take Quizzes</p>
               <p className="text-muted-foreground text-sm">
-                Each quiz attempt costs 30 credits
+                Each quiz attempt costs 50 credits
               </p>
             </div>
           </div>

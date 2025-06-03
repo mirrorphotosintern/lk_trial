@@ -2,11 +2,10 @@
  * @description
  * This server component fetches Kannada quiz data and passes it to the QuizComponent.
  * It retrieves CSV data of Kannada words to use in the quiz.
- * This component is intended for use within the /play/quiz section.
  *
  * Key features:
  * - Data Fetching: Loads CSV data for the quiz.
- * - Auth Check: Redirects unauthenticated users (primarily handled by page and middleware).
+ * - Auth Check: Redirects unauthenticated users.
  * - Quiz Component: Passes CSV data to the client-side quiz component.
  *
  * @dependencies
@@ -26,13 +25,13 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
 import { loadCsvAction } from "@/actions/csv-actions"
-import QuizComponent from "@/components/ui/quiz-component" // Assuming @/components/ is a valid alias from the new location
+import QuizComponent from "@/components/ui/quiz-component"
 
 export default async function QuizFetcher() {
-  // Authentication check (safeguard, main check in page.tsx and middleware)
+  // Authentication check
   const { userId } = await auth()
   if (!userId) {
-    redirect("/sign-in?redirect_url=/play/quiz") // Ensure redirect URL is relevant
+    redirect("/sign-in?redirect_url=/quiz")
     return null
   }
 

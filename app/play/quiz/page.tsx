@@ -25,7 +25,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
-import QuizFetcher from "./_components/quiz-fetcher"
+import QuizAccessWrapper from "./_components/quiz-access-wrapper"
 
 // Skeleton fallback component for loading state
 function QuizSkeleton() {
@@ -53,14 +53,14 @@ export default async function QuizPage() {
           Kannada Quiz
         </h1>
         <p className="text-muted-foreground font-montserrat">
-          Match the Kanglish words to the correct Kannada icon
+          Match the Kannada words to the correct icon
         </p>
       </header>
 
       {/* Main content with suspense */}
       <main className="container mx-auto p-4">
         <Suspense fallback={<QuizSkeleton />}>
-          <QuizFetcher />
+          <QuizAccessWrapper />
         </Suspense>
       </main>
     </div>
