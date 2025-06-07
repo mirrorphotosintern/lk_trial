@@ -12,6 +12,7 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { Suspense } from "react"
+import BuyCredits from "@/components/utilities/buy-credits"
 
 export default async function CreditsPage() {
   const { userId } = await auth()
@@ -49,6 +50,9 @@ async function CreditsContent({ userId }: { userId: string }) {
           <p className="text-4xl font-bold">{credits.toLocaleString()}</p>
         </CardContent>
       </Card>
+
+      {/* Buy Credits Section */}
+      <BuyCredits />
 
       {/* How to Earn Credits */}
       <Card>

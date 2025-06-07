@@ -102,5 +102,9 @@
     "svgo": "^3.3.2",
     "typescript": "^5"
   },
+  "overrides": {
+    "react": "^19.0",
+    "react-dom": "^19.0"
+  },
   "type": "module"
 }

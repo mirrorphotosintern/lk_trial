@@ -2,18 +2,63 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia"
+// Validate environment variables
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error("STRIPE_SECRET_KEY is not set in environment variables")
+}
+
+if (!process.env.NEXT_PUBLIC_APP_URL) {
+  throw new Error("NEXT_PUBLIC_APP_URL is not set in environment variables")
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-02-24.acacia" // Use the expected API version
 })
 
 export async function POST(req: Request) {
   try {
     const session = await auth()
     if (!session?.userId) {
+      console.error("Unauthorized: No user session found")
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const { credits, price } = await req.json()
+    const body = await req.json()
+    const { credits, price } = body
+
+    // Validate request data
+    if (!credits || !price) {
+      console.error("Missing required fields:", { credits, price })
+      return new NextResponse("Missing required fields: credits and price", {
+        status: 400
+      })
+    }
+
+    if (typeof credits !== "number" || typeof price !== "number") {
+      console.error("Invalid field types:", {
+        credits: typeof credits,
+        price: typeof price
+      })
+      return new NextResponse(
+        "Invalid field types: credits and price must be numbers",
+        { status: 400 }
+      )
+    }
+
+    if (credits <= 0 || price <= 0) {
+      console.error("Invalid values:", { credits, price })
+      return new NextResponse(
+        "Invalid values: credits and price must be positive",
+        { status: 400 }
+      )
+    }
+
+    console.log("Creating checkout session for:", {
+      userId: session.userId,
+      credits,
+      price,
+      priceInCents: Math.round(price * 100)
+    })
 
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -22,10 +67,12 @@ export async function POST(req: Request) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `${credits} Learning Credits`,
-              description: "Credits for learning and quizzes"
+              name: `${credits.toLocaleString()} Learning Credits`,
+              description:
+                "Credits for learning Kannada - quizzes, games, and premium features",
+              images: [`${process.env.NEXT_PUBLIC_APP_URL}/icon-512x512.png`]
             },
-            unit_amount: price * 100 // Convert to cents
+            unit_amount: Math.round(price * 100) // Convert to cents and ensure integer
           },
           quantity: 1
         }
@@ -35,13 +82,47 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/credits/cancel`,
       metadata: {
         userId: session.userId,
-        credits
+        credits: credits.toString(),
+        purchaseType: "credits",
+        price: price.toString(),
+        timestamp: new Date().toISOString()
+      },
+      billing_address_collection: "auto",
+      payment_intent_data: {
+        metadata: {
+          userId: session.userId,
+          credits: credits.toString(),
+          purchaseType: "credits",
+          price: price.toString()
+        }
       }
     })
 
-    return NextResponse.json({ url: checkoutSession.url })
+    console.log("Checkout session created successfully:", {
+      sessionId: checkoutSession.id,
+      url: checkoutSession.url
+    })
+
+    return NextResponse.json({
+      url: checkoutSession.url,
+      sessionId: checkoutSession.id
+    })
   } catch (error) {
     console.error("Error creating checkout session:", error)
-    return new NextResponse("Internal Error", { status: 500 })
+
+    // Provide more specific error messages
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Stripe error:", {
+        type: error.type,
+        code: error.code,
+        message: error.message
+      })
+      return new NextResponse(`Stripe Error: ${error.message}`, { status: 400 })
+    }
+
+    return new NextResponse(
+      "Internal Error: Failed to create checkout session",
+      { status: 500 }
+    )
   }
 }

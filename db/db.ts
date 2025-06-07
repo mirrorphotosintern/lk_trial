@@ -27,6 +27,7 @@ import {
   wordStatsTable
 } from "@/db/schema"
 import { creditsTable } from "@/db/schema/credits-schema"
+import { paymentsTable } from "@/db/schema/payments-schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
@@ -42,7 +43,8 @@ const schema = {
   wordStats: wordStatsTable,
   leaderboard: leaderboardTable,
   badges: badgesTable,
-  credits: creditsTable
+  credits: creditsTable,
+  payments: paymentsTable
 }
 
 // Create the PostgreSQL client and Drizzle ORM instance
