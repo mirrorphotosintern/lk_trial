@@ -3,7 +3,7 @@ Contains middleware for protecting routes in KannadaKali.
 Uses Clerk to enforce authentication for specific routes.
 
 Key features:
-- Route protection: Ensures `/cards`, `/quiz`, `/parental` require login.
+- Route protection: Ensures `/cards`, `/quiz`, `/parental`, `/survey` require login.
 - Redirect: Sends unauthenticated users to the sign-in page.
 
 Dependencies:
@@ -24,6 +24,7 @@ const isProtectedRoute = createRouteMatcher([
   "/parental(.*)",
   "/play/quiz(.*)",
   "/play/game(.*)",
+  "/survey(.*)",
   "/api/(.*)"
 ])
 
