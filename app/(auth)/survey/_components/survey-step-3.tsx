@@ -3,7 +3,6 @@
 import { SurveyStep3Data, TIME_OF_DAY_OPTIONS } from "@/types"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -13,19 +12,33 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Bell, MessageSquare, Users } from "lucide-react"
+import { Calendar, MessageSquare, Users } from "lucide-react"
+import { useEffect } from "react"
 
 interface SurveyStep3Props {
   data: Partial<SurveyStep3Data>
   onChange: (data: Partial<SurveyStep3Data>) => void
+  userEmail: string
 }
 
-export default function SurveyStep3({ data, onChange }: SurveyStep3Props) {
+export default function SurveyStep3({
+  data,
+  onChange,
+  userEmail
+}: SurveyStep3Props) {
+  // Auto-fill email when component mounts or when userEmail changes
+  useEffect(() => {
+    if (userEmail && !data.calendarEmail) {
+      onChange({ ...data, calendarEmail: userEmail })
+    }
+  }, [userEmail, data, onChange])
+
   const handleCalendarOptInChange = (value: string) => {
     onChange({
       ...data,
       calendarOptIn: value as SurveyStep3Data["calendarOptIn"],
-      calendarEmail: value === "yes_send_invite" ? data.calendarEmail : "",
+      calendarEmail:
+        value === "yes_send_invite" ? data.calendarEmail || userEmail : "",
       calendarTimeOfDay:
         value === "yes_send_invite" ? data.calendarTimeOfDay : ""
     })
@@ -37,33 +50,6 @@ export default function SurveyStep3({ data, onChange }: SurveyStep3Props) {
 
   const handleCalendarTimeChange = (value: string) => {
     onChange({ ...data, calendarTimeOfDay: value })
-  }
-
-  const handleNotificationChange = (
-    type: keyof Pick<
-      SurveyStep3Data,
-      | "notificationMobilePush"
-      | "notificationEmailDigest"
-      | "notificationWhatsapp"
-      | "notificationNone"
-    >,
-    checked: boolean
-  ) => {
-    const updates: Partial<SurveyStep3Data> = { ...data, [type]: checked }
-
-    // If "None" is selected, uncheck all others
-    if (type === "notificationNone" && checked) {
-      updates.notificationMobilePush = false
-      updates.notificationEmailDigest = false
-      updates.notificationWhatsapp = false
-    }
-
-    // If any other option is selected, uncheck "None"
-    if (type !== "notificationNone" && checked) {
-      updates.notificationNone = false
-    }
-
-    onChange(updates)
   }
 
   const handleReferralSourceChange = (value: string) => {
@@ -156,96 +142,6 @@ export default function SurveyStep3({ data, onChange }: SurveyStep3Props) {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Notification Preferences */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="mb-4 flex items-center gap-2">
-            <Bell className="text-primary size-5" />
-            <Label className="text-lg font-semibold">
-              Pick your reminder style
-            </Label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <Checkbox
-                id="notificationMobilePush"
-                checked={data.notificationMobilePush || false}
-                onCheckedChange={checked =>
-                  handleNotificationChange(
-                    "notificationMobilePush",
-                    checked as boolean
-                  )
-                }
-              />
-              <Label
-                htmlFor="notificationMobilePush"
-                className="flex-1 cursor-pointer"
-              >
-                Mobile push notifications
-              </Label>
-            </div>
-
-            <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <Checkbox
-                id="notificationEmailDigest"
-                checked={data.notificationEmailDigest || false}
-                onCheckedChange={checked =>
-                  handleNotificationChange(
-                    "notificationEmailDigest",
-                    checked as boolean
-                  )
-                }
-              />
-              <Label
-                htmlFor="notificationEmailDigest"
-                className="flex-1 cursor-pointer"
-              >
-                Email digest
-              </Label>
-            </div>
-
-            <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <Checkbox
-                id="notificationWhatsapp"
-                checked={data.notificationWhatsapp || false}
-                onCheckedChange={checked =>
-                  handleNotificationChange(
-                    "notificationWhatsapp",
-                    checked as boolean
-                  )
-                }
-              />
-              <Label
-                htmlFor="notificationWhatsapp"
-                className="flex-1 cursor-pointer"
-              >
-                WhatsApp ping
-              </Label>
-            </div>
-
-            <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <Checkbox
-                id="notificationNone"
-                checked={data.notificationNone || false}
-                onCheckedChange={checked =>
-                  handleNotificationChange(
-                    "notificationNone",
-                    checked as boolean
-                  )
-                }
-              />
-              <Label
-                htmlFor="notificationNone"
-                className="flex-1 cursor-pointer"
-              >
-                None
-              </Label>
-            </div>
-          </div>
         </CardContent>
       </Card>
 

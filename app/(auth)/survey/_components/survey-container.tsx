@@ -26,11 +26,13 @@ import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react"
 interface SurveyContainerProps {
   userId: string
   existingData: SelectSurveyResponse | null
+  userEmail: string
 }
 
 export default function SurveyContainer({
   userId,
-  existingData
+  existingData,
+  userEmail
 }: SurveyContainerProps) {
   const router = useRouter()
   const { toast } = useToast()
@@ -209,12 +211,7 @@ export default function SurveyContainer({
       step3Data.referralSource &&
       step3Data.earlyTester &&
       (step3Data.referralSource !== "other" || step3Data.referralOther) &&
-      (step3Data.calendarOptIn !== "yes_send_invite" ||
-        step3Data.calendarEmail) &&
-      (step3Data.notificationMobilePush ||
-        step3Data.notificationEmailDigest ||
-        step3Data.notificationWhatsapp ||
-        step3Data.notificationNone)
+      (step3Data.calendarOptIn !== "yes_send_invite" || step3Data.calendarEmail)
     )
   }
 
@@ -378,7 +375,11 @@ export default function SurveyContainer({
           )}
 
           {progress.currentStep === 3 && (
-            <SurveyStep3 data={step3Data} onChange={handleStep3Change} />
+            <SurveyStep3
+              data={step3Data}
+              onChange={handleStep3Change}
+              userEmail={userEmail}
+            />
           )}
         </div>
 

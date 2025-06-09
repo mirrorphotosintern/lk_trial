@@ -1,6 +1,6 @@
 "use server"
 
-import { auth } from "@clerk/nextjs/server"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { getSurveyResponseAction } from "@/actions/db/survey-actions"
@@ -74,8 +74,13 @@ export default async function SurveyPage() {
 
 async function SurveyFetcher({ userId }: { userId: string }) {
   let existingSurvey = null
+  let userEmail = ""
 
   try {
+    // Get user email from Clerk
+    const user = await currentUser()
+    userEmail = user?.emailAddresses?.[0]?.emailAddress || ""
+
     const result = await getSurveyResponseAction(userId)
     if (result.isSuccess) {
       existingSurvey = result.data
@@ -92,5 +97,11 @@ async function SurveyFetcher({ userId }: { userId: string }) {
     // Continue with null data - user can start fresh
   }
 
-  return <SurveyContainer userId={userId} existingData={existingSurvey} />
+  return (
+    <SurveyContainer
+      userId={userId}
+      existingData={existingSurvey}
+      userEmail={userEmail}
+    />
+  )
 }
