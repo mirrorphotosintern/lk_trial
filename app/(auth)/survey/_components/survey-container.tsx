@@ -368,46 +368,50 @@ export default function SurveyContainer({
           </div>
         )}
 
-        {progress.currentStep === 1 && (
-          <SurveyStep1 data={step1Data} onChange={handleStep1Change} />
-        )}
+        <div className="min-h-96">
+          {progress.currentStep === 1 && (
+            <SurveyStep1 data={step1Data} onChange={handleStep1Change} />
+          )}
 
-        {progress.currentStep === 2 && (
-          <SurveyStep2 data={step2Data} onChange={handleStep2Change} />
-        )}
+          {progress.currentStep === 2 && (
+            <SurveyStep2 data={step2Data} onChange={handleStep2Change} />
+          )}
 
-        {progress.currentStep === 3 && (
-          <SurveyStep3 data={step3Data} onChange={handleStep3Change} />
-        )}
+          {progress.currentStep === 3 && (
+            <SurveyStep3 data={step3Data} onChange={handleStep3Change} />
+          )}
+        </div>
 
-        <div className="flex justify-between pt-4">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={progress.currentStep === 1 || isLoading}
-          >
-            <ArrowLeft className="mr-2 size-4" />
-            Back
-          </Button>
+        <div className="bg-background mt-8 border-t pt-6">
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={progress.currentStep === 1 || isLoading}
+            >
+              <ArrowLeft className="mr-2 size-4" />
+              Back
+            </Button>
 
-          <Button
-            onClick={handleNext}
-            disabled={!getCurrentStepValid() || isLoading}
-          >
-            {isLoading ? (
-              "Saving..."
-            ) : progress.currentStep === 3 ? (
-              <>
-                Complete Survey
-                <CheckCircle className="ml-2 size-4" />
-              </>
-            ) : (
-              <>
-                Next
-                <ArrowRight className="ml-2 size-4" />
-              </>
-            )}
-          </Button>
+            <Button
+              onClick={handleNext}
+              disabled={!getCurrentStepValid() || isLoading}
+            >
+              {isLoading ? (
+                "Saving..."
+              ) : progress.currentStep === 3 ? (
+                <>
+                  Complete Survey
+                  <CheckCircle className="ml-2 size-4" />
+                </>
+              ) : (
+                <>
+                  Next
+                  <ArrowRight className="ml-2 size-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

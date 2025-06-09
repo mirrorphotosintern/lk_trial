@@ -33,6 +33,8 @@ export default async function SurveyPage() {
 
   return (
     <div className="bg-background min-h-screen">
+      <div style={{ height: "950px" }}></div>{" "}
+      {/* Custom 250px spacer for fixed header */}
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-8 text-center">
@@ -49,6 +51,7 @@ export default async function SurveyPage() {
           </Suspense>
         </div>
       </div>
+      <div className="h-16"></div> {/* Bottom spacer */}
     </div>
   )
 }
