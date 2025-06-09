@@ -6,6 +6,9 @@ import { Suspense } from "react"
 import { getSurveyResponseAction } from "@/actions/db/survey-actions"
 import SurveyContainer from "./_components/survey-container"
 import SurveySkeleton from "./_components/survey-skeleton"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { SkipForward } from "lucide-react"
 
 /**
  * @description
@@ -41,9 +44,22 @@ export default async function SurveyPage() {
             <h1 className="text-foreground mb-4 text-3xl font-bold">
               Welcome to LearnKannada! 🎉
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground mb-6 text-lg">
               Let's personalize your learning experience with a quick survey
             </p>
+
+            {/* Skip Survey Button */}
+            <div className="flex justify-center">
+              <Link href="/learn">
+                <Button
+                  variant="outline"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <SkipForward className="mr-2 size-4" />
+                  Skip Survey for Now
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <Suspense fallback={<SurveySkeleton />}>
