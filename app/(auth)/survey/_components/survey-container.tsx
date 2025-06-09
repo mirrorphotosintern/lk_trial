@@ -77,6 +77,43 @@ export default function SurveyContainer({
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [forceValidation, setForceValidation] = useState(0)
+
+  // Force revalidation when data changes
+  useEffect(() => {
+    setForceValidation(prev => prev + 1)
+  }, [step1Data, step2Data, step3Data])
+
+  // Enhanced step data change handlers with logging
+  const handleStep1Change = (newData: Partial<SurveyStep1Data>) => {
+    console.log(
+      "Survey Container: Step 1 data changing from:",
+      step1Data,
+      "to:",
+      newData
+    )
+    setStep1Data(newData)
+  }
+
+  const handleStep2Change = (newData: Partial<SurveyStep2Data>) => {
+    console.log(
+      "Survey Container: Step 2 data changing from:",
+      step2Data,
+      "to:",
+      newData
+    )
+    setStep2Data(newData)
+  }
+
+  const handleStep3Change = (newData: Partial<SurveyStep3Data>) => {
+    console.log(
+      "Survey Container: Step 3 data changing from:",
+      step3Data,
+      "to:",
+      newData
+    )
+    setStep3Data(newData)
+  }
 
   useEffect(() => {
     if (progress.isCompleted) {
@@ -91,27 +128,79 @@ export default function SurveyContainer({
   const progressPercentage = ((progress.currentStep - 1) / 3) * 100
 
   const isStep1Valid = () => {
-    return (
-      step1Data.goal &&
-      step1Data.timeHorizon &&
-      step1Data.role &&
-      step1Data.ageBand &&
-      (step1Data.goal !== "other" || step1Data.goalOther)
-    )
+    const hasGoal = !!step1Data.goal
+    const hasTimeHorizon = !!step1Data.timeHorizon
+    const hasRole = !!step1Data.role
+    const hasAgeBand = !!step1Data.ageBand
+    const goalOtherValid = step1Data.goal !== "other" || !!step1Data.goalOther
+
+    const isValid =
+      hasGoal && hasTimeHorizon && hasRole && hasAgeBand && goalOtherValid
+
+    // Debug logging to help identify missing fields
+    if (progress.currentStep === 1) {
+      console.log("Step 1 Validation Debug:", {
+        goal: step1Data.goal,
+        hasGoal,
+        timeHorizon: step1Data.timeHorizon,
+        hasTimeHorizon,
+        role: step1Data.role,
+        hasRole,
+        ageBand: step1Data.ageBand,
+        hasAgeBand,
+        goalOther: step1Data.goalOther,
+        goalOtherValid: goalOtherValid,
+        isValid
+      })
+    }
+
+    return isValid
   }
 
   const isStep2Valid = () => {
-    return (
-      step2Data.motherTongue &&
-      step2Data.readingLevel &&
-      step2Data.exposure &&
-      step2Data.sessionLength &&
-      (step2Data.formatQuickQuizzes ||
-        step2Data.formatStoryMode ||
-        step2Data.formatTraceLetter ||
-        step2Data.formatSpeakingPractice ||
-        step2Data.formatLeaderboard)
+    const hasMotherTongue = !!step2Data.motherTongue
+    const hasReadingLevel = !!step2Data.readingLevel
+    const hasExposure = !!step2Data.exposure
+    const hasSessionLength = !!step2Data.sessionLength
+    const hasAtLeastOneFormat = !!(
+      step2Data.formatQuickQuizzes ||
+      step2Data.formatStoryMode ||
+      step2Data.formatTraceLetter ||
+      step2Data.formatSpeakingPractice ||
+      step2Data.formatLeaderboard
     )
+
+    const isValid =
+      hasMotherTongue &&
+      hasReadingLevel &&
+      hasExposure &&
+      hasSessionLength &&
+      hasAtLeastOneFormat
+
+    // Debug logging to help identify missing fields
+    if (progress.currentStep === 2) {
+      console.log("Step 2 Validation Debug:", {
+        motherTongue: step2Data.motherTongue,
+        hasMotherTongue,
+        readingLevel: step2Data.readingLevel,
+        hasReadingLevel,
+        exposure: step2Data.exposure,
+        hasExposure,
+        sessionLength: step2Data.sessionLength,
+        hasSessionLength,
+        formatPreferences: {
+          quickQuizzes: step2Data.formatQuickQuizzes,
+          storyMode: step2Data.formatStoryMode,
+          traceLetter: step2Data.formatTraceLetter,
+          speakingPractice: step2Data.formatSpeakingPractice,
+          leaderboard: step2Data.formatLeaderboard
+        },
+        hasAtLeastOneFormat,
+        isValid
+      })
+    }
+
+    return isValid
   }
 
   const isStep3Valid = () => {
@@ -236,16 +325,59 @@ export default function SurveyContainer({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Debug Panel - Remove after fixing */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="mb-4 rounded border border-yellow-500 bg-yellow-50 p-3 text-sm dark:bg-yellow-950">
+            <div className="font-semibold">Debug Info:</div>
+            <div>Current Step: {progress.currentStep}</div>
+            <div>Step Valid: {getCurrentStepValid() ? "✅ YES" : "❌ NO"}</div>
+            {progress.currentStep === 1 && (
+              <div>
+                <div>Goal: {step1Data.goal || "❌ Not set"}</div>
+                <div>Time Horizon: {step1Data.timeHorizon || "❌ Not set"}</div>
+                <div>Role: {step1Data.role || "❌ Not set"}</div>
+                <div>Age Band: {step1Data.ageBand || "❌ Not set"}</div>
+              </div>
+            )}
+            {progress.currentStep === 2 && (
+              <div>
+                <div>
+                  Mother Tongue: {step2Data.motherTongue || "❌ Not set"}
+                </div>
+                <div>
+                  Reading Level: {step2Data.readingLevel || "❌ Not set"}
+                </div>
+                <div>Exposure: {step2Data.exposure || "❌ Not set"}</div>
+                <div>
+                  Session Length: {step2Data.sessionLength || "❌ Not set"}
+                </div>
+                <div>
+                  Format Preferences:{" "}
+                  {[
+                    step2Data.formatQuickQuizzes && "Quick Quizzes",
+                    step2Data.formatStoryMode && "Story Mode",
+                    step2Data.formatTraceLetter && "Trace Letter",
+                    step2Data.formatSpeakingPractice && "Speaking Practice",
+                    step2Data.formatLeaderboard && "Leaderboard"
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || "❌ None selected"}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {progress.currentStep === 1 && (
-          <SurveyStep1 data={step1Data} onChange={setStep1Data} />
+          <SurveyStep1 data={step1Data} onChange={handleStep1Change} />
         )}
 
         {progress.currentStep === 2 && (
-          <SurveyStep2 data={step2Data} onChange={setStep2Data} />
+          <SurveyStep2 data={step2Data} onChange={handleStep2Change} />
         )}
 
         {progress.currentStep === 3 && (
-          <SurveyStep3 data={step3Data} onChange={setStep3Data} />
+          <SurveyStep3 data={step3Data} onChange={handleStep3Change} />
         )}
 
         <div className="flex justify-between pt-4">

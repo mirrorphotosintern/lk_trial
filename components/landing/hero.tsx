@@ -82,14 +82,14 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
           <SignedIn>
-            <Link href="/play/quiz">
+            <Link href="/survey">
               <Button className="bg-accent hover:bg-accent/90 text-lg">
                 ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>
             </Link>
           </SignedIn>
           <SignedOut>
-            <SignInButton mode="modal" fallbackRedirectUrl="/play/quiz">
+            <SignInButton mode="modal" fallbackRedirectUrl="/survey">
               <Button className="bg-accent hover:bg-accent/90 text-lg">
                 ಶುರುಮಾಡಿ (Start) <ChevronRight className="ml-2 size-5" />
               </Button>

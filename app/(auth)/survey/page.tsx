@@ -60,6 +60,11 @@ async function SurveyFetcher({ userId }: { userId: string }) {
     const result = await getSurveyResponseAction(userId)
     if (result.isSuccess) {
       existingSurvey = result.data
+
+      // If user has already completed the survey, redirect them to the main app
+      if (existingSurvey?.isCompleted) {
+        redirect("/learn")
+      }
     } else {
       console.warn("Failed to fetch existing survey data:", result.message)
     }

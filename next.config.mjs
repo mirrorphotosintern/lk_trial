@@ -3,7 +3,8 @@ Configures Next.js for the app.
 */
 
 /** @type {import('next').NextConfig} */
-const nextConfig = { 
+const nextConfig = {
+  reactStrictMode: true,
   images: { 
     remotePatterns: [
       { hostname: "localhost" },
@@ -43,6 +44,13 @@ const nextConfig = {
   // Additional configuration for better stability
   experimental: {
     optimizePackageImports: ['@clerk/nextjs', 'lucide-react']
+  },
+  // Additional option to handle hydration mismatches gracefully
+  onDemandEntries: {
+    // Period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // Number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2
   }
 }
 

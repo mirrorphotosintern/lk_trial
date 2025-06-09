@@ -1,7 +1,24 @@
 -- SQL script to create survey tables and enums
 -- Run this in your Supabase SQL editor or PostgreSQL database
+-- This script will drop existing survey tables/types and recreate them
 
--- Create enums first
+-- Drop existing survey table and trigger first
+DROP TRIGGER IF EXISTS update_survey_responses_updated_at ON survey_responses;
+DROP TABLE IF EXISTS survey_responses;
+
+-- Drop existing survey-specific types
+DROP TYPE IF EXISTS early_tester;
+DROP TYPE IF EXISTS referral_source;
+DROP TYPE IF EXISTS calendar_opt_in;
+DROP TYPE IF EXISTS session_length;
+DROP TYPE IF EXISTS exposure;
+DROP TYPE IF EXISTS reading_level;
+DROP TYPE IF EXISTS age_band;
+DROP TYPE IF EXISTS role;
+DROP TYPE IF EXISTS time_horizon;
+DROP TYPE IF EXISTS goal;
+
+-- Create enums
 CREATE TYPE goal AS ENUM (
   'daily_conversation',
   'heritage_language', 
@@ -128,7 +145,7 @@ CREATE TABLE survey_responses (
 -- Create index on user_id for faster lookups
 CREATE INDEX idx_survey_responses_user_id ON survey_responses(user_id);
 
--- Create a trigger to automatically update the updated_at timestamp
+-- Create the update function if it doesn't exist (it's shared with other tables)
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -137,6 +154,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Create trigger for survey responses table
 CREATE TRIGGER update_survey_responses_updated_at 
   BEFORE UPDATE ON survey_responses 
   FOR EACH ROW 

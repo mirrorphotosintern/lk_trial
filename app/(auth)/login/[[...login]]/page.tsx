@@ -31,7 +31,7 @@ export default function LoginPage() {
         routing="path"
         path="/login"
         signUpUrl="/signup"
-        redirectUrl={redirectUrl || "/"}
+        redirectUrl={redirectUrl || "/survey"}
         appearance={{
           elements: {
             formButtonPrimary: "bg-accent text-white hover:bg-accent/90",

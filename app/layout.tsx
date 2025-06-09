@@ -5,6 +5,26 @@ import { ThemeProvider } from "@/components/utilities/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import { RedirectAfterSignIn } from "@/components/auth/redirect-after-sign-in"
+import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { Home, Book, Gamepad2, Menu } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
+import Link from "next/link"
+import { Suspense } from "react"
+import { ProfileSync } from "@/components/profile-sync"
+// LetterSelect removed as it's no longer used
+import UserButtonWithCredits from "@/components/ui/user-button-with-credits"
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { ClientOnly } from "@/components/utilities/client-only"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -42,26 +62,6 @@ const notoSansKannada = Noto_Sans_Kannada({
  * - Suspense ensures smooth loading states for child components.
  * - Navigation adapts to screen size using Tailwind's responsive classes.
  */
-
-import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { Home, Book, Gamepad2, Menu } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
-import Link from "next/link"
-import { Suspense } from "react"
-import { ProfileSync } from "@/components/profile-sync"
-// LetterSelect removed as it's no longer used
-import UserButtonWithCredits from "@/components/ui/user-button-with-credits"
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle
-} from "@/components/ui/navigation-menu"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function RootLayout({
   children
@@ -108,64 +108,66 @@ export default function RootLayout({
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex md:items-center md:space-x-4">
-                  <NavigationMenu>
-                    <NavigationMenuList>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger>Learn</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <ul className="grid gap-3 p-4 md:w-[200px]">
-                            <li>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href="/learn"
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-                                >
-                                  Trace Letters
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                            <li>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href="/learn/cards"
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-                                >
-                                  Learn Cards
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          </ul>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger>Play</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <ul className="grid gap-3 p-4 md:w-[200px]">
-                            <li>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href="/play/quiz"
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-                                >
-                                  Quiz
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                            <li>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href="/play/game"
-                                  className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-                                >
-                                  Game
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          </ul>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    </NavigationMenuList>
-                  </NavigationMenu>
+                  <ClientOnly>
+                    <NavigationMenu>
+                      <NavigationMenuList>
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger>Learn</NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid gap-3 p-4 md:w-[200px]">
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href="/learn"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                  >
+                                    Trace Letters
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href="/learn/cards"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                  >
+                                    Learn Cards
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            </ul>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger>Play</NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid gap-3 p-4 md:w-[200px]">
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href="/play/quiz"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                  >
+                                    Quiz
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href="/play/game"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                  >
+                                    Game
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            </ul>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
+                      </NavigationMenuList>
+                    </NavigationMenu>
+                  </ClientOnly>
                 </div>
 
                 <div className="flex items-center space-x-4">

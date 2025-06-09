@@ -21,10 +21,12 @@ interface SurveyStep2Props {
 
 export default function SurveyStep2({ data, onChange }: SurveyStep2Props) {
   const handleMotherTongueChange = (value: string) => {
+    console.log("Step 2: Mother tongue changed to:", value)
     onChange({ ...data, motherTongue: value })
   }
 
   const handleReadingLevelChange = (value: string) => {
+    console.log("Step 2: Reading level changed to:", value)
     onChange({
       ...data,
       readingLevel: value as SurveyStep2Data["readingLevel"]
@@ -32,6 +34,7 @@ export default function SurveyStep2({ data, onChange }: SurveyStep2Props) {
   }
 
   const handleExposureChange = (value: string) => {
+    console.log("Step 2: Exposure changed to:", value)
     onChange({ ...data, exposure: value as SurveyStep2Data["exposure"] })
   }
 
@@ -46,10 +49,12 @@ export default function SurveyStep2({ data, onChange }: SurveyStep2Props) {
     >,
     checked: boolean
   ) => {
+    console.log("Step 2: Format changed:", format, "to:", checked)
     onChange({ ...data, [format]: checked })
   }
 
   const handleSessionLengthChange = (value: string) => {
+    console.log("Step 2: Session length changed to:", value)
     onChange({
       ...data,
       sessionLength: value as SurveyStep2Data["sessionLength"]
