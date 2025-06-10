@@ -385,33 +385,56 @@ export default function SurveyContainer({
 
         <div className="bg-background mt-8 border-t pt-6">
           <div className="flex justify-between">
-            <Button
-              variant="outline"
+            <button
+              type="button"
               onClick={handleBack}
               disabled={progress.currentStep === 1 || isLoading}
+              className={`
+                border-input bg-background hover:bg-accent hover:text-accent-foreground 
+                inline-flex min-w-[120px] cursor-pointer 
+                items-center justify-center gap-2 rounded-md
+                border px-6
+                py-3 text-sm
+                font-medium transition-colors
+                disabled:pointer-events-none
+                disabled:opacity-50
+                ${progress.currentStep === 1 || isLoading ? "cursor-not-allowed" : "cursor-pointer"}
+              `}
             >
-              <ArrowLeft className="mr-2 size-4" />
-              Back
-            </Button>
+              <ArrowLeft className="pointer-events-none size-4" />
+              <span className="pointer-events-none">Back</span>
+            </button>
 
-            <Button
+            <button
+              type="button"
               onClick={handleNext}
               disabled={!getCurrentStepValid() || isLoading}
+              className={`
+                bg-primary text-primary-foreground hover:bg-primary/90 inline-flex 
+                min-w-[120px] cursor-pointer items-center
+                justify-center gap-2 rounded-md
+                px-6 py-3
+                text-sm
+                font-medium transition-colors
+                disabled:pointer-events-none
+                disabled:opacity-50
+                ${!getCurrentStepValid() || isLoading ? "cursor-not-allowed" : "cursor-pointer"}
+              `}
             >
               {isLoading ? (
-                "Saving..."
+                <span className="pointer-events-none">Saving...</span>
               ) : progress.currentStep === 3 ? (
                 <>
-                  Complete Survey
-                  <CheckCircle className="ml-2 size-4" />
+                  <span className="pointer-events-none">Complete Survey</span>
+                  <CheckCircle className="pointer-events-none size-4" />
                 </>
               ) : (
                 <>
-                  Next
-                  <ArrowRight className="ml-2 size-4" />
+                  <span className="pointer-events-none">Next</span>
+                  <ArrowRight className="pointer-events-none size-4" />
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </CardContent>

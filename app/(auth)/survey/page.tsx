@@ -34,6 +34,31 @@ export default async function SurveyPage() {
     redirect("/login")
   }
 
+  // Check if user has already completed the survey
+  let existingSurvey = null
+  let userEmail = ""
+
+  try {
+    // Get user email from Clerk
+    const user = await currentUser()
+    userEmail = user?.emailAddresses?.[0]?.emailAddress || ""
+
+    const result = await getSurveyResponseAction(userId)
+    if (result.isSuccess) {
+      existingSurvey = result.data
+
+      // If user has already completed the survey, redirect them to the main app
+      if (existingSurvey?.isCompleted) {
+        redirect("/learn")
+      }
+    } else {
+      console.warn("Failed to fetch existing survey data:", result.message)
+    }
+  } catch (error) {
+    console.error("Error fetching survey data:", error)
+    // Continue with null data - user can start fresh
+  }
+
   return (
     <div className="bg-background min-h-screen">
       <div style={{ height: "950px" }}></div>{" "}
@@ -63,7 +88,11 @@ export default async function SurveyPage() {
           </div>
 
           <Suspense fallback={<SurveySkeleton />}>
-            <SurveyFetcher userId={userId} />
+            <SurveyFetcher
+              userId={userId}
+              existingData={existingSurvey}
+              userEmail={userEmail}
+            />
           </Suspense>
         </div>
       </div>
@@ -72,35 +101,19 @@ export default async function SurveyPage() {
   )
 }
 
-async function SurveyFetcher({ userId }: { userId: string }) {
-  let existingSurvey = null
-  let userEmail = ""
-
-  try {
-    // Get user email from Clerk
-    const user = await currentUser()
-    userEmail = user?.emailAddresses?.[0]?.emailAddress || ""
-
-    const result = await getSurveyResponseAction(userId)
-    if (result.isSuccess) {
-      existingSurvey = result.data
-
-      // If user has already completed the survey, redirect them to the main app
-      if (existingSurvey?.isCompleted) {
-        redirect("/learn")
-      }
-    } else {
-      console.warn("Failed to fetch existing survey data:", result.message)
-    }
-  } catch (error) {
-    console.error("Error fetching survey data:", error)
-    // Continue with null data - user can start fresh
-  }
-
+async function SurveyFetcher({
+  userId,
+  existingData,
+  userEmail
+}: {
+  userId: string
+  existingData: any
+  userEmail: string
+}) {
   return (
     <SurveyContainer
       userId={userId}
-      existingData={existingSurvey}
+      existingData={existingData}
       userEmail={userEmail}
     />
   )
