@@ -85,7 +85,7 @@ export default async function SurveyPage() {
                 Welcome to LearnKannada! 🎉
               </h1>
               <p className="text-muted-foreground mb-6 text-lg">
-                Let's personalize your learning experience with a quick survey
+                Help us personalize your learning experience with a quick survey
               </p>
 
               {/* Skip Survey Button */}
