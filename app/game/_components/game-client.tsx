@@ -124,13 +124,13 @@ function GameContent() {
                 style={{ animationDelay: "0.9s" }}
               >
                 <Link
-                  href="https://github.com/daily-co/word-wrangler-gemini-live"
+                  href="https://mirrorphotos.io/"
                   className="game-button ghost w-full lg:w-auto"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <IconCode size={24} />
-                  View Source Code
+                  Visit Us!
                 </Link>
               </div>
             </CardInner>
