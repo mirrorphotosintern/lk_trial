@@ -76,42 +76,44 @@ export default async function SurveyPage() {
     console.log("SurveyPage: Rendering survey page")
     return (
       <div className="bg-background min-h-screen">
-        <div style={{ height: "950px" }}></div>{" "}
-        {/* Custom 250px spacer for fixed header */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="mx-auto max-w-4xl">
-            <div className="mb-8 text-center">
-              <h1 className="text-foreground mb-4 text-3xl font-bold">
-                Welcome to LearnKannada! 🎉
-              </h1>
-              <p className="text-muted-foreground mb-6 text-lg">
-                Help us personalize your learning experience with a quick survey
-              </p>
+        <div className="pt-20">
+          {" "}
+          {/* Proper spacing for fixed header */}
+          <div className="container mx-auto px-4 py-8">
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-8 text-center">
+                <h1 className="text-foreground mb-4 text-3xl font-bold">
+                  Welcome to LearnKannada! 🎉
+                </h1>
+                <p className="text-muted-foreground mb-6 text-lg">
+                  Help us personalize your learning experience with a quick
+                  survey
+                </p>
 
-              {/* Skip Survey Button */}
-              <div className="flex justify-center">
-                <Link href="/learn">
-                  <Button
-                    variant="outline"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <SkipForward className="mr-2 size-4" />
-                    Skip Survey for Now
-                  </Button>
-                </Link>
+                {/* Skip Survey Button */}
+                <div className="flex justify-center">
+                  <Link href="/learn">
+                    <Button
+                      variant="outline"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <SkipForward className="mr-2 size-4" />
+                      Skip Survey for Now
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
 
-            <Suspense fallback={<SurveySkeleton />}>
-              <SurveyFetcher
-                userId={userId}
-                existingData={existingSurvey}
-                userEmail={userEmail}
-              />
-            </Suspense>
+              <Suspense fallback={<SurveySkeleton />}>
+                <SurveyFetcher
+                  userId={userId}
+                  existingData={existingSurvey}
+                  userEmail={userEmail}
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
-        <div className="h-16"></div> {/* Bottom spacer */}
       </div>
     )
   } catch (error) {
