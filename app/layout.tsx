@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ClientOnly } from "@/components/utilities/client-only"
+import { ConditionalFooter } from "@/components/layout/conditional-footer"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -250,19 +251,8 @@ export default function RootLayout({
               <ProfileSync />
             </SignedIn>
 
-            {/* Footer */}
-            <footer className="border-border bg-background border-t py-4">
-              <div className="text-muted-foreground container text-center text-sm">
-                @2025{" "}
-                <Link
-                  href="https://mirrorphotos.io"
-                  className="hover:text-foreground transition"
-                >
-                  MirrorPhotos
-                </Link>{" "}
-                all rights reserved
-              </div>
-            </footer>
+            {/* Footer - Hidden on auth routes */}
+            <ConditionalFooter />
 
             <Toaster />
           </ThemeProvider>

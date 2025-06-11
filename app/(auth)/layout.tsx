@@ -1,5 +1,5 @@
 /*
-This server layout provides a centered layout for (auth) pages.
+This server layout provides a layout for (auth) pages.
 */
 
 "use server"
@@ -9,7 +9,5 @@ interface AuthLayoutProps {
 }
 
 export default async function AuthLayout({ children }: AuthLayoutProps) {
-  return (
-    <div className="flex h-screen items-center justify-center">{children}</div>
-  )
+  return <>{children}</>
 }
