@@ -16,8 +16,11 @@ import {
   updateSurveyStepAction,
   completeSurveyAction
 } from "@/actions/db/survey-actions"
+import { createBatchQuestionResponsesAction } from "@/actions/db/question-responses-actions"
+import { InsertQuestionResponse } from "@/db/schema/question-responses-schema"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
+import { useUser } from "@clerk/nextjs"
 import SurveyStep1 from "./survey-step-1"
 import SurveyStep2 from "./survey-step-2"
 import SurveyStep3 from "./survey-step-3"
@@ -26,16 +29,18 @@ import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react"
 interface SurveyContainerProps {
   userId: string
   existingData: SelectSurveyResponse | null
-  userEmail: string
+  userEmail?: string
 }
 
 export default function SurveyContainer({
   userId,
   existingData,
-  userEmail
+  userEmail: initialUserEmail
 }: SurveyContainerProps) {
   const router = useRouter()
   const { toast } = useToast()
+  const { user } = useUser()
+  const [userEmail, setUserEmail] = useState(initialUserEmail || "")
 
   const [progress, setProgress] = useState<SurveyProgress>({
     currentStep: 1,
@@ -232,6 +237,30 @@ export default function SurveyContainer({
         }
 
         if (result.isSuccess) {
+          // Save individual question responses to database
+          try {
+            const questionResponses = createQuestionResponses(
+              1,
+              step1Data as SurveyStep1Data,
+              result.data?.id
+            )
+            const questionResult =
+              await createBatchQuestionResponsesAction(questionResponses)
+            if (questionResult.isSuccess) {
+              console.log(
+                `[Question Responses] Step 1: ${questionResult.data?.length} responses saved`
+              )
+            } else {
+              console.warn(
+                `[Question Responses] Step 1 failed:`,
+                questionResult.message
+              )
+            }
+          } catch (questionError) {
+            console.warn(`[Question Responses] Step 1 error:`, questionError)
+            // Don't fail the entire operation if question responses fail
+          }
+
           setProgress(prev => ({
             ...prev,
             currentStep: 2,
@@ -243,6 +272,30 @@ export default function SurveyContainer({
       } else if (progress.currentStep === 2 && isStep2Valid()) {
         const result = await updateSurveyStepAction(userId, 2, step2Data)
         if (result.isSuccess) {
+          // Save individual question responses to database
+          try {
+            const questionResponses = createQuestionResponses(
+              2,
+              step2Data as SurveyStep2Data,
+              existingData?.id
+            )
+            const questionResult =
+              await createBatchQuestionResponsesAction(questionResponses)
+            if (questionResult.isSuccess) {
+              console.log(
+                `[Question Responses] Step 2: ${questionResult.data?.length} responses saved`
+              )
+            } else {
+              console.warn(
+                `[Question Responses] Step 2 failed:`,
+                questionResult.message
+              )
+            }
+          } catch (questionError) {
+            console.warn(`[Question Responses] Step 2 error:`, questionError)
+            // Don't fail the entire operation if question responses fail
+          }
+
           setProgress(prev => ({
             ...prev,
             currentStep: 3,
@@ -260,6 +313,59 @@ export default function SurveyContainer({
         const completeResult = await completeSurveyAction(userId)
         if (!completeResult.isSuccess) {
           throw new Error(completeResult.message)
+        }
+
+        // Save step 3 individual question responses to database
+        try {
+          const questionResponses = createQuestionResponses(
+            3,
+            step3Data as SurveyStep3Data,
+            existingData?.id
+          )
+          const questionResult =
+            await createBatchQuestionResponsesAction(questionResponses)
+          if (questionResult.isSuccess) {
+            console.log(
+              `[Question Responses] Step 3: ${questionResult.data?.length} responses saved`
+            )
+          } else {
+            console.warn(
+              `[Question Responses] Step 3 failed:`,
+              questionResult.message
+            )
+          }
+        } catch (questionError) {
+          console.warn(`[Question Responses] Step 3 error:`, questionError)
+          // Don't fail the entire operation if question responses fail
+        }
+
+        // Save all question responses for complete survey
+        try {
+          const allQuestionResponses = [
+            ...createQuestionResponses(
+              1,
+              step1Data as SurveyStep1Data,
+              existingData?.id
+            ),
+            ...createQuestionResponses(
+              2,
+              step2Data as SurveyStep2Data,
+              existingData?.id
+            ),
+            ...createQuestionResponses(
+              3,
+              step3Data as SurveyStep3Data,
+              existingData?.id
+            )
+          ]
+          console.log(
+            `[Question Responses] Complete survey: ${allQuestionResponses.length} total responses tracked`
+          )
+        } catch (questionError) {
+          console.warn(
+            `[Question Responses] Complete survey logging error:`,
+            questionError
+          )
         }
 
         toast({
@@ -304,6 +410,377 @@ export default function SurveyContainer({
       default:
         return false
     }
+  }
+
+  // Auto-fill user email from Clerk when available
+  useEffect(() => {
+    if (user?.primaryEmailAddress?.emailAddress && !userEmail) {
+      setUserEmail(user.primaryEmailAddress.emailAddress)
+    }
+  }, [user, userEmail])
+
+  // Auto-fill calendar email when user email is available and calendar opt-in is selected
+  useEffect(() => {
+    if (
+      userEmail &&
+      step3Data.calendarOptIn === "yes_send_invite" &&
+      !step3Data.calendarEmail
+    ) {
+      setStep3Data(prev => ({ ...prev, calendarEmail: userEmail }))
+    }
+  }, [userEmail, step3Data.calendarOptIn, step3Data.calendarEmail])
+
+  // Helper function to convert step data to question responses
+  const createQuestionResponses = (
+    stepNumber: number,
+    stepData: any,
+    surveyResponseId?: string
+  ): InsertQuestionResponse[] => {
+    const responses: InsertQuestionResponse[] = []
+    let responseOrder = 1
+
+    if (stepNumber === 1) {
+      const data = stepData as SurveyStep1Data
+
+      if (data.goal) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 1,
+          questionId: "primary_goal",
+          questionText: "What is your primary goal for learning Kannada?",
+          answerValue: data.goal,
+          answerText: getGoalText(data.goal),
+          answerData: { goal: data.goal, goalOther: data.goalOther },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.timeHorizon) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 1,
+          questionId: "time_horizon",
+          questionText: "When do you want to achieve this goal?",
+          answerValue: data.timeHorizon,
+          answerText: getTimeHorizonText(data.timeHorizon),
+          answerData: { timeHorizon: data.timeHorizon },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.role) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 1,
+          questionId: "learner_role",
+          questionText: "Who is this for?",
+          answerValue: data.role,
+          answerText: getRoleText(data.role),
+          answerData: { role: data.role },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.ageBand) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 1,
+          questionId: "age_band",
+          questionText: "What is the age range?",
+          answerValue: data.ageBand,
+          answerText: getAgeBandText(data.ageBand),
+          answerData: { ageBand: data.ageBand },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+    } else if (stepNumber === 2) {
+      const data = stepData as SurveyStep2Data
+
+      if (data.motherTongue) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 2,
+          questionId: "mother_tongue",
+          questionText: "What is your mother tongue?",
+          answerValue: data.motherTongue,
+          answerText: data.motherTongue,
+          answerData: { motherTongue: data.motherTongue },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.readingLevel) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 2,
+          questionId: "reading_level",
+          questionText: "How well can you read Kannada?",
+          answerValue: data.readingLevel,
+          answerText: getReadingLevelText(data.readingLevel),
+          answerData: { readingLevel: data.readingLevel },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.exposure) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 2,
+          questionId: "kannada_exposure",
+          questionText: "How often do you currently hear or speak Kannada?",
+          answerValue: data.exposure,
+          answerText: getExposureText(data.exposure),
+          answerData: { exposure: data.exposure },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      // Learning format preferences
+      const formats = []
+      if (data.formatQuickQuizzes) formats.push("Quick Quizzes")
+      if (data.formatStoryMode) formats.push("Story Mode")
+      if (data.formatTraceLetter) formats.push("Trace Letters")
+      if (data.formatSpeakingPractice) formats.push("Speaking Practice")
+      if (data.formatLeaderboard) formats.push("Leaderboard")
+
+      if (formats.length > 0) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 2,
+          questionId: "learning_formats",
+          questionText: "Which learning formats interest you most?",
+          answerValue: formats.join(", "),
+          answerText: formats.join(", "),
+          answerData: {
+            formatQuickQuizzes: data.formatQuickQuizzes,
+            formatStoryMode: data.formatStoryMode,
+            formatTraceLetter: data.formatTraceLetter,
+            formatSpeakingPractice: data.formatSpeakingPractice,
+            formatLeaderboard: data.formatLeaderboard
+          },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.sessionLength) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 2,
+          questionId: "session_length",
+          questionText: "How long would you like each learning session to be?",
+          answerValue: data.sessionLength,
+          answerText: getSessionLengthText(data.sessionLength),
+          answerData: { sessionLength: data.sessionLength },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+    } else if (stepNumber === 3) {
+      const data = stepData as SurveyStep3Data
+
+      if (data.calendarOptIn) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 3,
+          questionId: "calendar_invite",
+          questionText:
+            "Would you like us to send you a calendar invite for your learning sessions?",
+          answerValue: data.calendarOptIn,
+          answerText: getCalendarOptInText(data.calendarOptIn),
+          answerData: {
+            calendarOptIn: data.calendarOptIn,
+            calendarEmail: data.calendarEmail,
+            calendarTimeOfDay: data.calendarTimeOfDay
+          },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      // Notification preferences
+      const notifications = []
+      if (data.notificationMobilePush) notifications.push("Mobile Push")
+      if (data.notificationEmailDigest) notifications.push("Email Digest")
+      if (data.notificationWhatsapp) notifications.push("WhatsApp")
+      if (data.notificationNone) notifications.push("None")
+
+      if (notifications.length > 0) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 3,
+          questionId: "notification_preferences",
+          questionText: "How would you like to receive reminders and updates?",
+          answerValue: notifications.join(", "),
+          answerText: notifications.join(", "),
+          answerData: {
+            notificationMobilePush: data.notificationMobilePush,
+            notificationEmailDigest: data.notificationEmailDigest,
+            notificationWhatsapp: data.notificationWhatsapp,
+            notificationNone: data.notificationNone
+          },
+          responseOrder: responseOrder++,
+          isRequired: false
+        })
+      }
+
+      if (data.referralSource) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 3,
+          questionId: "referral_source",
+          questionText: "How did you hear about this app?",
+          answerValue: data.referralSource,
+          answerText: getReferralSourceText(data.referralSource),
+          answerData: {
+            referralSource: data.referralSource,
+            referralOther: data.referralOther
+          },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+
+      if (data.earlyTester) {
+        responses.push({
+          userId,
+          surveyResponseId,
+          stepNumber: 3,
+          questionId: "early_tester",
+          questionText:
+            "Would you like to be an early tester for new features?",
+          answerValue: data.earlyTester,
+          answerText: getEarlyTesterText(data.earlyTester),
+          answerData: { earlyTester: data.earlyTester },
+          responseOrder: responseOrder++,
+          isRequired: true
+        })
+      }
+    }
+
+    return responses
+  }
+
+  // Helper functions to convert enum values to readable text
+  const getGoalText = (goal: string) => {
+    const goalTexts: Record<string, string> = {
+      daily_conversation: "Daily conversation",
+      heritage_language: "Connect with heritage",
+      school_curriculum: "School curriculum",
+      workplace_need: "Workplace communication",
+      travel: "Travel preparation",
+      other: "Other"
+    }
+    return goalTexts[goal] || goal
+  }
+
+  const getTimeHorizonText = (timeHorizon: string) => {
+    const timeTexts: Record<string, string> = {
+      less_than_1_month: "Less than 1 month",
+      "1_to_3_months": "1-3 months",
+      "3_to_6_months": "3-6 months",
+      "6_months_plus": "6+ months"
+    }
+    return timeTexts[timeHorizon] || timeHorizon
+  }
+
+  const getRoleText = (role: string) => {
+    const roleTexts: Record<string, string> = {
+      myself_adult: "Myself (adult)",
+      child_under_13: "Child under 13",
+      child_13_17: "Child 13-17",
+      classroom_group: "Classroom/group"
+    }
+    return roleTexts[role] || role
+  }
+
+  const getAgeBandText = (ageBand: string) => {
+    const ageTexts: Record<string, string> = {
+      "4_to_6": "4-6 years",
+      "7_to_9": "7-9 years",
+      "10_to_12": "10-12 years",
+      "13_to_17": "13-17 years",
+      "18_to_34": "18-34 years",
+      "35_to_54": "35-54 years",
+      "55_plus": "55+ years"
+    }
+    return ageTexts[ageBand] || ageBand
+  }
+
+  const getReadingLevelText = (level: string) => {
+    const levelTexts: Record<string, string> = {
+      none: "Cannot read Kannada",
+      few_vowels: "Know a few vowels",
+      most_vowels_consonants: "Know most vowels and consonants",
+      comfortable_reader: "Comfortable reader"
+    }
+    return levelTexts[level] || level
+  }
+
+  const getExposureText = (exposure: string) => {
+    const exposureTexts: Record<string, string> = {
+      daily: "Daily",
+      weekly: "Weekly",
+      rarely: "Rarely",
+      never: "Never"
+    }
+    return exposureTexts[exposure] || exposure
+  }
+
+  const getSessionLengthText = (length: string) => {
+    const lengthTexts: Record<string, string> = {
+      "5_min": "5 minutes",
+      "10_min": "10 minutes",
+      "15_min": "15 minutes",
+      "20_min_plus": "20+ minutes"
+    }
+    return lengthTexts[length] || length
+  }
+
+  const getCalendarOptInText = (optIn: string) => {
+    const optInTexts: Record<string, string> = {
+      yes_send_invite: "Yes, send invite",
+      no_thanks: "No thanks"
+    }
+    return optInTexts[optIn] || optIn
+  }
+
+  const getReferralSourceText = (source: string) => {
+    const sourceTexts: Record<string, string> = {
+      friend_family: "Friend or family",
+      instagram: "Instagram",
+      youtube: "YouTube",
+      school: "School",
+      other: "Other"
+    }
+    return sourceTexts[source] || source
+  }
+
+  const getEarlyTesterText = (tester: string) => {
+    const testerTexts: Record<string, string> = {
+      yes_please: "Yes please",
+      maybe_later: "Maybe later"
+    }
+    return testerTexts[tester] || tester
   }
 
   return (

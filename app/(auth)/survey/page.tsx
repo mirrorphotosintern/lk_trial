@@ -1,6 +1,6 @@
 "use server"
 
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { getSurveyResponseAction } from "@/actions/db/survey-actions"
@@ -28,77 +28,110 @@ import { SkipForward } from "lucide-react"
  */
 
 export default async function SurveyPage() {
-  const { userId } = await auth()
-
-  if (!userId) {
-    redirect("/login")
-  }
-
-  // Check if user has already completed the survey
-  let existingSurvey = null
-  let userEmail = ""
+  console.log("SurveyPage: Starting page load")
 
   try {
-    // Get user email from Clerk
-    const user = await currentUser()
-    userEmail = user?.emailAddresses?.[0]?.emailAddress || ""
+    const { userId } = await auth()
+    console.log("SurveyPage: Got userId:", userId ? "present" : "null")
 
-    const result = await getSurveyResponseAction(userId)
-    if (result.isSuccess) {
-      existingSurvey = result.data
-
-      // If user has already completed the survey, redirect them to the main app
-      if (existingSurvey?.isCompleted) {
-        redirect("/learn")
-      }
-    } else {
-      console.warn("Failed to fetch existing survey data:", result.message)
+    if (!userId) {
+      console.log("SurveyPage: No userId, redirecting to login")
+      redirect("/login")
     }
-  } catch (error) {
-    console.error("Error fetching survey data:", error)
-    // Continue with null data - user can start fresh
-  }
 
-  return (
-    <div className="bg-background min-h-screen">
-      <div style={{ height: "950px" }}></div>{" "}
-      {/* Custom 250px spacer for fixed header */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-foreground mb-4 text-3xl font-bold">
-              Welcome to LearnKannada! 🎉
-            </h1>
-            <p className="text-muted-foreground mb-6 text-lg">
-              Let's personalize your learning experience with a quick survey
-            </p>
+    // Initialize with empty values to avoid currentUser() issues
+    let existingSurvey = null
+    let userEmail = "" // We'll get this in the SurveyContainer instead
 
-            {/* Skip Survey Button */}
-            <div className="flex justify-center">
-              <Link href="/learn">
-                <Button
-                  variant="outline"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <SkipForward className="mr-2 size-4" />
-                  Skip Survey for Now
-                </Button>
-              </Link>
+    console.log("SurveyPage: Calling getSurveyResponseAction")
+
+    try {
+      const result = await getSurveyResponseAction(userId)
+      console.log(
+        "SurveyPage: getSurveyResponseAction result:",
+        result.isSuccess ? "success" : "failed"
+      )
+
+      if (result.isSuccess) {
+        existingSurvey = result.data
+        console.log(
+          "SurveyPage: Existing survey:",
+          existingSurvey ? "found" : "none"
+        )
+
+        // If user has already completed the survey, redirect them to the main app
+        if (existingSurvey?.isCompleted) {
+          console.log("SurveyPage: Survey completed, redirecting to /learn")
+          redirect("/learn")
+        }
+      } else {
+        console.warn("Failed to fetch existing survey data:", result.message)
+        // Continue with null data - user can start fresh
+      }
+    } catch (dbError) {
+      console.error("Database error:", dbError)
+      // Continue with null data - user can start fresh
+    }
+
+    console.log("SurveyPage: Rendering survey page")
+    return (
+      <div className="bg-background min-h-screen">
+        <div style={{ height: "950px" }}></div>{" "}
+        {/* Custom 250px spacer for fixed header */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-8 text-center">
+              <h1 className="text-foreground mb-4 text-3xl font-bold">
+                Welcome to LearnKannada! 🎉
+              </h1>
+              <p className="text-muted-foreground mb-6 text-lg">
+                Let's personalize your learning experience with a quick survey
+              </p>
+
+              {/* Skip Survey Button */}
+              <div className="flex justify-center">
+                <Link href="/learn">
+                  <Button
+                    variant="outline"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <SkipForward className="mr-2 size-4" />
+                    Skip Survey for Now
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <Suspense fallback={<SurveySkeleton />}>
-            <SurveyFetcher
-              userId={userId}
-              existingData={existingSurvey}
-              userEmail={userEmail}
-            />
-          </Suspense>
+            <Suspense fallback={<SurveySkeleton />}>
+              <SurveyFetcher
+                userId={userId}
+                existingData={existingSurvey}
+                userEmail={userEmail}
+              />
+            </Suspense>
+          </div>
+        </div>
+        <div className="h-16"></div> {/* Bottom spacer */}
+      </div>
+    )
+  } catch (error) {
+    console.error("SurveyPage: Critical error in page load:", error)
+    // Return a basic error page instead of redirecting
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="mb-4 text-2xl font-bold">Survey Unavailable</h1>
+          <p className="text-muted-foreground mb-4">
+            There was an error loading the survey. You can continue to the
+            learning section.
+          </p>
+          <Link href="/learn">
+            <Button>Go to Learn</Button>
+          </Link>
         </div>
       </div>
-      <div className="h-16"></div> {/* Bottom spacer */}
-    </div>
-  )
+    )
+  }
 }
 
 async function SurveyFetcher({

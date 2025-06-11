@@ -25,7 +25,8 @@ import {
   progressTable,
   quizResultsTable,
   wordStatsTable,
-  surveyResponsesTable
+  surveyResponsesTable,
+  questionResponsesTable
 } from "@/db/schema"
 import { creditsTable } from "@/db/schema/credits-schema"
 import { paymentsTable } from "@/db/schema/payments-schema"
@@ -46,7 +47,8 @@ const schema = {
   badges: badgesTable,
   credits: creditsTable,
   payments: paymentsTable,
-  surveyResponses: surveyResponsesTable
+  surveyResponses: surveyResponsesTable,
+  questionResponses: questionResponsesTable
 }
 
 // Create the PostgreSQL client and Drizzle ORM instance

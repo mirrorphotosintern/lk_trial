@@ -18,13 +18,13 @@ import { useEffect } from "react"
 interface SurveyStep3Props {
   data: Partial<SurveyStep3Data>
   onChange: (data: Partial<SurveyStep3Data>) => void
-  userEmail: string
+  userEmail?: string
 }
 
 export default function SurveyStep3({
   data,
   onChange,
-  userEmail
+  userEmail = ""
 }: SurveyStep3Props) {
   // Auto-fill email when component mounts or when userEmail changes
   useEffect(() => {

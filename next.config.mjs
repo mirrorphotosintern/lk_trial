@@ -5,6 +5,17 @@ Configures Next.js for the app.
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Speed up builds
+  typescript: {
+    // Don't type-check during builds (use separate npm run type-check)
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    // Don't lint during builds (use separate npm run lint)
+    ignoreDuringBuilds: true,
+  },
+  // Disable source maps in production builds for speed
+  productionBrowserSourceMaps: false,
   images: { 
     remotePatterns: [
       { hostname: "localhost" },
@@ -16,6 +27,13 @@ const nextConfig = {
   },
   // Webpack configuration to help prevent chunk loading errors
   webpack: (config, { dev, isServer }) => {
+    // Speed up builds
+    if (dev) {
+      config.cache = {
+        type: 'filesystem',
+      }
+    }
+
     // Optimization for better chunk loading
     if (!isServer) {
       config.optimization = {
@@ -41,9 +59,9 @@ const nextConfig = {
 
     return config
   },
-  // Additional configuration for better stability
+  // Additional configuration for better stability and speed
   experimental: {
-    optimizePackageImports: ['@clerk/nextjs', 'lucide-react']
+    optimizePackageImports: ['@clerk/nextjs', 'lucide-react', '@radix-ui/react-icons'],
   },
   // Additional option to handle hydration mismatches gracefully
   onDemandEntries: {
