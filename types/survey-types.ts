@@ -17,7 +17,7 @@ export interface SurveyStep1Data {
     | "1_to_3_months"
     | "3_to_6_months"
     | "6_months_plus"
-  role: "myself_adult" | "child_under_13" | "child_13_17" | "classroom_group"
+  role: "myself" | "my_son" | "my_daughter" | "classroom_group"
   ageBand:
     | "4_to_6"
     | "7_to_9"

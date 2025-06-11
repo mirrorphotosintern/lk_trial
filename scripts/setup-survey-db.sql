@@ -36,9 +36,9 @@ CREATE TYPE time_horizon AS ENUM (
 );
 
 CREATE TYPE role AS ENUM (
-  'myself_adult',
-  'child_under_13',
-  'child_13_17', 
+  'myself',
+  'my_son',
+  'my_daughter',
   'classroom_group'
 );
 

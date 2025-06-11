@@ -705,9 +705,9 @@ export default function SurveyContainer({
 
   const getRoleText = (role: string) => {
     const roleTexts: Record<string, string> = {
-      myself_adult: "Myself (adult)",
-      child_under_13: "Child under 13",
-      child_13_17: "Child 13-17",
+      myself: "Myself",
+      my_son: "My son",
+      my_daughter: "My daughter",
       classroom_group: "Classroom/group"
     }
     return roleTexts[role] || role

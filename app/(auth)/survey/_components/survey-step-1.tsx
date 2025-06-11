@@ -193,23 +193,23 @@ export default function SurveyStep1({ data, onChange }: SurveyStep1Props) {
             className="grid grid-cols-1 gap-3 md:grid-cols-2"
           >
             <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <RadioGroupItem value="myself_adult" id="myself_adult" />
-              <Label htmlFor="myself_adult" className="flex-1 cursor-pointer">
-                Myself (adult)
+              <RadioGroupItem value="myself" id="myself" />
+              <Label htmlFor="myself" className="flex-1 cursor-pointer">
+                Myself
               </Label>
             </div>
 
             <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <RadioGroupItem value="child_under_13" id="child_under_13" />
-              <Label htmlFor="child_under_13" className="flex-1 cursor-pointer">
-                My child (under 13)
+              <RadioGroupItem value="my_son" id="my_son" />
+              <Label htmlFor="my_son" className="flex-1 cursor-pointer">
+                My son
               </Label>
             </div>
 
             <div className="hover:bg-accent/50 flex items-center space-x-2 rounded-lg border p-3">
-              <RadioGroupItem value="child_13_17" id="child_13_17" />
-              <Label htmlFor="child_13_17" className="flex-1 cursor-pointer">
-                My child (13-17)
+              <RadioGroupItem value="my_daughter" id="my_daughter" />
+              <Label htmlFor="my_daughter" className="flex-1 cursor-pointer">
+                My daughter
               </Label>
             </div>
 
@@ -219,7 +219,7 @@ export default function SurveyStep1({ data, onChange }: SurveyStep1Props) {
                 htmlFor="classroom_group"
                 className="flex-1 cursor-pointer"
               >
-                A classroom / group
+                A classroom/group
               </Label>
             </div>
           </RadioGroup>

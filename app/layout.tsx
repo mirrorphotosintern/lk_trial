@@ -253,14 +253,14 @@ export default function RootLayout({
             {/* Footer */}
             <footer className="border-border bg-background border-t py-4">
               <div className="text-muted-foreground container text-center text-sm">
-                &copy; 2025{" "}
+                @2025{" "}
                 <Link
                   href="https://mirrorphotos.io"
                   className="hover:text-foreground transition"
                 >
                   MirrorPhotos
-                </Link>
-                . All rights reserved.
+                </Link>{" "}
+                all rights reserved
               </div>
             </footer>
 
