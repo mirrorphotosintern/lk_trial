@@ -26,32 +26,32 @@ export function ManualMode({ allFoodItems }: ManualModeProps) {
   const getItemPosition = (foodId: string) => {
     const positions: Record<string, { top: string; left: string }> = {
       // Main dishes positions
-      "rice-sambar": { top: "70%", left: "35%" },
-      "rice-rasam": { top: "70%", left: "55%" },
-      "curd-rice": { top: "70%", left: "75%" },
+      "rice-sambar": { top: "60%", left: "35%" },
+      "rice-rasam": { top: "60%", left: "55%" },
+      "curd-rice": { top: "55%", left: "75%" },
 
       // Curries in center
-      palya: { top: "45%", left: "35%" },
-      "corn-palya": { top: "45%", left: "50%" },
-      kosumbari: { top: "45%", left: "65%" },
+      palya: { top: "40%", left: "35%" },
+      "corn-palya": { top: "40%", left: "50%" },
+      kosumbari: { top: "40%", left: "65%" },
 
       // Ice cream position
-      "ice-cream": { top: "15%", left: "12%" },
+      "ice-cream": { top: "3%", left: "10%" },
 
       // Water position
-      water: { top: "15%", left: "88%" },
+      water: { top: "3%", left: "90%" },
 
       // Sweets
-      obbattu: { top: "60%", left: "15%" },
-      mysorepak: { top: "25%", left: "50%" },
-      payasam: { top: "25%", left: "65%" },
+      obbattu: { top: "50%", left: "15%" },
+      mysorepak: { top: "20%", left: "50%" },
+      payasam: { top: "20%", left: "65%" },
 
       // MANUAL MODE SPECIFIC: Salt in different position
-      salt: { top: "29%", left: "15%" }, // Different position for manual mode
-      pickle: { top: "25%", left: "25%" },
-      papad: { top: "25%", left: "35%" },
+      salt: { top: "24%", left: "15%" }, // Different position for manual mode
+      pickle: { top: "20%", left: "25%" },
+      papad: { top: "20%", left: "35%" },
 
-      banana: { top: "85%", left: "15%" }
+      banana: { top: "55%", left: "15%" }
     }
 
     return positions[foodId] || { top: "50%", left: "50%" }

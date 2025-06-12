@@ -28,32 +28,32 @@ export function AutoMode({ allFoodItems }: AutoModeProps) {
   const getItemPosition = (foodId: string) => {
     const positions: Record<string, { top: string; left: string }> = {
       // Main dishes positions
-      "rice-sambar": { top: "70%", left: "35%" },
-      "rice-rasam": { top: "70%", left: "50%" },
-      "curd-rice": { top: "70%", left: "65%" },
+      "rice-sambar": { top: "60%", left: "35%" },
+      "rice-rasam": { top: "60%", left: "50%" },
+      "curd-rice": { top: "60%", left: "65%" },
 
       // Curries in center
-      palya: { top: "45%", left: "35%" },
-      "corn-palya": { top: "45%", left: "50%" },
-      kosumbari: { top: "45%", left: "65%" },
+      palya: { top: "40%", left: "35%" },
+      "corn-palya": { top: "40%", left: "50%" },
+      kosumbari: { top: "40%", left: "65%" },
 
       // Ice cream position
-      "ice-cream": { top: "15%", left: "22%" },
+      "ice-cream": { top: "5%", left: "20%" },
 
       // Water position
-      water: { top: "15%", left: "76%" },
+      water: { top: "3%", left: "79%" },
 
       // Sweets
-      obbattu: { top: "55%", left: "25%" },
-      mysorepak: { top: "25%", left: "50%" },
-      payasam: { top: "25%", left: "65%" },
+      obbattu: { top: "50%", left: "25%" },
+      mysorepak: { top: "20%", left: "50%" },
+      payasam: { top: "20%", left: "65%" },
 
       // AUTO MODE SPECIFIC: Salt inside leaf
-      salt: { top: "35%", left: "25%" }, // Inside leaf for auto mode
-      pickle: { top: "30%", left: "30%" },
-      papad: { top: "30%", left: "37%" },
+      salt: { top: "30%", left: "25%" }, // Inside leaf for auto mode
+      pickle: { top: "25%", left: "30%" },
+      papad: { top: "25%", left: "37%" },
 
-      banana: { top: "85%", left: "25%" }
+      banana: { top: "80%", left: "25%" }
     }
 
     return positions[foodId] || { top: "50%", left: "50%" }
