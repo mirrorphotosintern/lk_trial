@@ -28,9 +28,9 @@ export function AutoMode({ allFoodItems }: AutoModeProps) {
   const getItemPosition = (foodId: string) => {
     const positions: Record<string, { top: string; left: string }> = {
       // Main dishes positions
-      "rice-sambar": { top: "60%", left: "35%" },
-      "rice-rasam": { top: "60%", left: "50%" },
-      "curd-rice": { top: "60%", left: "65%" },
+      "rice-sambar": { top: "55%", left: "35%" },
+      "rice-rasam": { top: "57%", left: "50%" },
+      "curd-rice": { top: "55%", left: "65%" },
 
       // Curries in center
       palya: { top: "40%", left: "35%" },
@@ -53,7 +53,7 @@ export function AutoMode({ allFoodItems }: AutoModeProps) {
       pickle: { top: "25%", left: "30%" },
       papad: { top: "25%", left: "37%" },
 
-      banana: { top: "80%", left: "25%" }
+      banana: { top: "54%", left: "25%" }
     }
 
     return positions[foodId] || { top: "50%", left: "50%" }
