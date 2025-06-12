@@ -1,3 +1,5 @@
+"use client"
+
 import "./globals.css"
 import { Poppins, Noto_Sans_Kannada } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
@@ -9,7 +11,7 @@ import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Home, Book, Gamepad2, Menu } from "lucide-react" // Users, Award, Trophy removed as they are no longer used directly in nav
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { ProfileSync } from "@/components/profile-sync"
 // LetterSelect removed as it's no longer used
 import UserButtonWithCredits from "@/components/ui/user-button-with-credits"
@@ -23,7 +25,12 @@ import {
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle
+} from "@/components/ui/sheet"
 import { ClientOnly } from "@/components/utilities/client-only"
 import { ConditionalFooter } from "@/components/layout/conditional-footer"
 
@@ -69,6 +76,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <ClerkProvider>
       <html
@@ -173,7 +182,7 @@ export default function RootLayout({
 
                 <div className="flex items-center space-x-4">
                   {/* Mobile Menu */}
-                  <Sheet>
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
                     <SheetTrigger asChild>
                       <Button
                         variant="ghost"
@@ -188,6 +197,9 @@ export default function RootLayout({
                       side="right"
                       className="w-[300px] sm:w-[400px]"
                     >
+                      <SheetTitle className="sr-only">
+                        Navigation Menu
+                      </SheetTitle>
                       <nav className="flex flex-col space-y-4">
                         <div>
                           <div className="text-muted-foreground mb-2 text-sm font-medium">
@@ -197,12 +209,14 @@ export default function RootLayout({
                             <Link
                               href="/learn"
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                              onClick={() => setIsOpen(false)}
                             >
                               Trace Letters
                             </Link>
                             <Link
                               href="/learn/cards"
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                              onClick={() => setIsOpen(false)}
                             >
                               Learn Cards
                             </Link>
@@ -216,12 +230,14 @@ export default function RootLayout({
                             <Link
                               href="/play/quiz"
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                              onClick={() => setIsOpen(false)}
                             >
                               Quiz
                             </Link>
                             <Link
                               href="/play/game"
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                              onClick={() => setIsOpen(false)}
                             >
                               Game
                             </Link>

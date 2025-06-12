@@ -28,7 +28,6 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 
 export const HeroSection = () => {
   return (
@@ -96,24 +95,6 @@ export const HeroSection = () => {
             </SignInButton>
           </SignedOut>
         </motion.div>
-      </motion.div>
-
-      {/* Logo Image */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 1, ease: "easeOut" }}
-        className="mt-20 flex w-full max-w-screen-lg items-center justify-center"
-      >
-        <div className="relative size-[240px]">
-          <Image
-            src="/kannadakali.png"
-            alt="LearnKannada Logo"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
       </motion.div>
     </div>
   )
