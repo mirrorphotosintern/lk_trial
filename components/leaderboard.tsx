@@ -31,7 +31,9 @@ export default function Leaderboard({
   categories,
   onCategoryChange
 }: LeaderboardProps) {
-  const [leaders, setLeaders] = useState<LeaderboardEntry[]>(initialLeaders)
+  const [leaders, setLeaders] = useState<LeaderboardEntry[]>(
+    initialLeaders.slice(0, 10)
+  )
   const [currentUserRank, setCurrentUserRank] = useState<
     LeaderboardEntry | undefined
   >(initialUserRank)
@@ -43,7 +45,7 @@ export default function Leaderboard({
     try {
       const newCategory = category === "all" ? null : category
       const result = await onCategoryChange(newCategory)
-      setLeaders(result.leaders)
+      setLeaders(result.leaders.slice(0, 10))
       setCurrentUserRank(result.currentUserRank)
       setSelectedCategory(newCategory)
     } catch (error) {
@@ -100,22 +102,23 @@ export default function Leaderboard({
             <LeaderboardRow key={user.userId} user={user} />
           ))}
 
-          {currentUserRank && (
-            <>
-              <div className="relative my-2 py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+          {currentUserRank &&
+            !leaders.some(l => l.userId === currentUserRank.userId) && (
+              <>
+                <div className="relative my-2 py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="text-muted-foreground bg-white px-2 text-xs dark:bg-slate-950">
+                      • • •
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center">
-                  <span className="text-muted-foreground bg-white px-2 text-xs dark:bg-slate-950">
-                    • • •
-                  </span>
-                </div>
-              </div>
 
-              <LeaderboardRow user={currentUserRank} highlighted />
-            </>
-          )}
+                <LeaderboardRow user={currentUserRank} highlighted />
+              </>
+            )}
 
           {leaders.length === 0 && (
             <div className="text-muted-foreground py-4 text-center">
