@@ -131,7 +131,7 @@ export default function RootLayout({
                                     href="/learn"
                                     className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
                                   >
-                                    Trace Letters
+                                    Letters
                                   </Link>
                                 </NavigationMenuLink>
                               </li>
@@ -141,7 +141,17 @@ export default function RootLayout({
                                     href="/learn/cards"
                                     className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
                                   >
-                                    Learn Cards
+                                    Words
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                              <li>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href="/learn/community"
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+                                  >
+                                    Communities
                                   </Link>
                                 </NavigationMenuLink>
                               </li>
@@ -211,14 +221,21 @@ export default function RootLayout({
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
                               onClick={() => setIsOpen(false)}
                             >
-                              Trace Letters
+                              Letters
                             </Link>
                             <Link
                               href="/learn/cards"
                               className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
                               onClick={() => setIsOpen(false)}
                             >
-                              Learn Cards
+                              Words
+                            </Link>
+                            <Link
+                              href="/learn/community"
+                              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Communities
                             </Link>
                           </div>
                         </div>
