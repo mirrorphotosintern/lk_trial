@@ -1,8 +1,8 @@
 "use server"
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { db } from "@/db/db"
 import { ActionState } from "@/types"
-import { auth } from "@clerk/nextjs/server"
+import { sql } from "drizzle-orm"
 
 interface Stats {
   totalUsers: number
@@ -11,41 +11,22 @@ interface Stats {
 
 export async function getStatsAction(): Promise<ActionState<Stats>> {
   try {
-    let totalUsers: number
-    let totalQuizzes: number
-
-    // Try to get real user count from Clerk first
-    try {
-      // Since we can't directly get user count from Clerk in server actions,
-      // we'll use the environment variable for now
-      totalUsers = parseInt(process.env.NEXT_PUBLIC_TOTAL_USERS || "43", 10)
-    } catch (error) {
-      console.error("Error getting user count:", error)
-      // Fall back to environment variable or default
-      totalUsers = parseInt(process.env.NEXT_PUBLIC_TOTAL_USERS || "43", 10)
-    }
-
-    // Try to get real quiz count from Supabase first
-    try {
-      const supabase = createClientComponentClient()
-      const { data, error } = await supabase.storage
-        .from(process.env.NEXT_PUBLIC_QUIZZES_BUCKET || "quizzes")
-        .list()
-
-      if (error) throw error
-      totalQuizzes = data.length
-    } catch (error) {
-      console.error("Error getting quiz count from Supabase:", error)
-      // Fall back to environment variable or default
-      totalQuizzes = parseInt(process.env.NEXT_PUBLIC_TOTAL_QUIZZES || "77", 10)
-    }
+    // Get all stats in a single query using the same function as leaderboard
+    const statsQuery = sql`
+      SELECT 
+        COUNT(DISTINCT user_id) as total_users,
+        SUM(quizzes_completed) as total_quizzes
+      FROM get_homepage_leaderboard(NULL, NULL)
+    `
+    const statsResult = await db.execute(statsQuery)
+    const stats = statsResult[0]
 
     return {
       isSuccess: true,
       message: "Stats retrieved successfully",
       data: {
-        totalUsers,
-        totalQuizzes
+        totalUsers: Number(stats?.total_users || 0),
+        totalQuizzes: Number(stats?.total_quizzes || 0)
       }
     }
   } catch (error) {
