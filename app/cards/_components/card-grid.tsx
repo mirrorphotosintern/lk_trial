@@ -20,16 +20,21 @@
 
 import { useEffect, useState } from "react"
 import { loadCsvAction } from "@/actions/csv-actions"
-import { CardDisplay } from "@/components/ui/card-display"
+import { EnhancedCardDisplay } from "@/components/ui/enhanced-card-display"
 import { CategoryFilter } from "@/components/ui/category-filter"
 import { KannadaEntry } from "@/types"
+import { Button } from "@/components/ui/button"
+import { Play, Pause, Volume2, VolumeX } from "lucide-react"
 
 export function CardGrid() {
   const [entries, setEntries] = useState<KannadaEntry[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false)
+  const [currentAutoPlayIndex, setCurrentAutoPlayIndex] = useState(0)
+  const [isMuted, setIsMuted] = useState(false)
 
   // Fetch CSV data on component mount
   useEffect(() => {
@@ -61,14 +66,42 @@ export function CardGrid() {
     fetchData()
   }, [])
 
-  // Filter entries by category
-  const filteredEntries = activeCategory
-    ? entries.filter(entry => entry.category === activeCategory)
-    : entries
+  // Filter entries by selected categories
+  const filteredEntries =
+    selectedCategories.length > 0
+      ? entries.filter(
+          entry => entry.category && selectedCategories.includes(entry.category)
+        )
+      : entries
 
   // Handle category selection
-  const handleCategorySelect = (category: string | null) => {
-    setActiveCategory(category)
+  const handleCategoriesChange = (categories: string[]) => {
+    setSelectedCategories(categories)
+    setIsAutoPlaying(false)
+    setCurrentAutoPlayIndex(0)
+  }
+
+  // Handle auto-play completion
+  const handleAutoPlayComplete = () => {
+    if (currentAutoPlayIndex < filteredEntries.length - 1) {
+      setCurrentAutoPlayIndex(prev => prev + 1)
+    } else {
+      setIsAutoPlaying(false)
+      setCurrentAutoPlayIndex(0)
+    }
+  }
+
+  // Toggle auto-play
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(!isAutoPlaying)
+    if (!isAutoPlaying) {
+      setCurrentAutoPlayIndex(0)
+    }
+  }
+
+  // Toggle mute
+  const toggleMute = () => {
+    setIsMuted(!isMuted)
   }
 
   // Render loading state
@@ -91,18 +124,64 @@ export function CardGrid() {
   }
 
   return (
-    <div>
-      {/* Category Filter */}
-      <CategoryFilter
-        categories={categories}
-        activeCategory={activeCategory}
-        onCategorySelect={handleCategorySelect}
-      />
+    <div className="space-y-6">
+      {/* Controls */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <CategoryFilter
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onCategoriesChange={handleCategoriesChange}
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleMute}
+            className="flex items-center gap-2"
+          >
+            {isMuted ? (
+              <>
+                <VolumeX className="size-4" />
+                Unmute
+              </>
+            ) : (
+              <>
+                <Volume2 className="size-4" />
+                Mute
+              </>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleAutoPlay}
+            className="flex items-center gap-2"
+          >
+            {isAutoPlaying ? (
+              <>
+                <Pause className="size-4" />
+                Pause Auto-play
+              </>
+            ) : (
+              <>
+                <Play className="size-4" />
+                Start Auto-play
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
 
       {/* Card Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredEntries.map((entry, index) => (
-          <CardDisplay key={index} entry={entry} />
+          <EnhancedCardDisplay
+            key={index}
+            entry={entry}
+            isAutoPlaying={isAutoPlaying && index === currentAutoPlayIndex}
+            onAutoPlayComplete={handleAutoPlayComplete}
+            isMuted={isMuted}
+          />
         ))}
       </div>
     </div>
