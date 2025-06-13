@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { checkAndDeductQuizCreditsAction } from "@/actions/db/credits-actions"
+import { checkQuizCreditsAction } from "@/actions/db/credits-actions"
 import QuizFetcher from "./quiz-fetcher"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -16,8 +16,8 @@ export default async function QuizAccessWrapper() {
     return null
   }
 
-  // Check and deduct credits
-  const creditResult = await checkAndDeductQuizCreditsAction(userId)
+  // Check credits without deducting them
+  const creditResult = await checkQuizCreditsAction(userId)
 
   if (!creditResult.isSuccess) {
     // User doesn't have enough credits
@@ -49,12 +49,12 @@ export default async function QuizAccessWrapper() {
     )
   }
 
-  // User has sufficient credits and they have been deducted
+  // User has sufficient credits - they will be charged after quiz completion
   return (
     <>
-      <div className="mb-4 rounded-lg border border-green-300 bg-green-100 p-3 text-center dark:bg-green-900/20">
-        <p className="text-sm font-medium text-green-800 dark:text-green-200">
-          ✓ {creditResult.message}
+      <div className="mb-4 rounded-lg border border-blue-300 bg-blue-100 p-3 text-center dark:bg-blue-900/20">
+        <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+          ℹ️ Credits will be deducted after quiz completion (50 credits)
         </p>
       </div>
       <QuizFetcher />
