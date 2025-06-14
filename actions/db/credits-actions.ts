@@ -136,3 +136,80 @@ export async function checkAndDeductQuizCreditsAction(userId: string): Promise<A
     return { isSuccess: false, message: "Failed to process credits" }
   }
 }
+
+// Check credits for quiz access without deducting them
+export async function checkQuizCreditsAction(userId: string): Promise<ActionState<number>> {
+  const QUIZ_COST = 50 // Quiz costs 50 credits
+  
+  try {
+    const [user] = await db.select().from(creditsTable).where(eq(creditsTable.userId, userId)).limit(1)
+
+    if (!user) {
+      // Initialize credits if user doesn't exist
+      await db.insert(creditsTable).values({
+        userId,
+        credits: 100 // Default initial credits
+      })
+      return { 
+        isSuccess: false, 
+        message: `Insufficient credits. You need ${QUIZ_COST} credits to play the quiz. You have 100 credits.`
+      }
+    }
+
+    if (user.credits < QUIZ_COST) {
+      return { 
+        isSuccess: false, 
+        message: `Insufficient credits. You need ${QUIZ_COST} credits to play the quiz. You have ${user.credits} credits.`
+      }
+    }
+
+    return { 
+      isSuccess: true, 
+      message: `You have ${user.credits} credits. Quiz costs ${QUIZ_COST} credits.`,
+      data: user.credits
+    }
+  } catch (error) {
+    console.error("Error checking quiz credits:", error)
+    return { isSuccess: false, message: "Failed to check credits" }
+  }
+}
+
+// Deduct credits after quiz completion
+export async function deductQuizCreditsAfterCompletionAction(userId: string): Promise<ActionState<number>> {
+  const QUIZ_COST = 50 // Quiz costs 50 credits
+  
+  try {
+    // Start a transaction to ensure atomic operation
+    const result = await db.transaction(async (tx) => {
+      const [user] = await tx.select().from(creditsTable).where(eq(creditsTable.userId, userId)).limit(1)
+
+      if (!user) {
+        throw new Error("User not found")
+      }
+
+      if (user.credits < QUIZ_COST) {
+        throw new Error("Insufficient credits")
+      }
+
+      // Deduct credits
+      const [updated] = await tx.update(creditsTable)
+        .set({
+          credits: sql`${creditsTable.credits} - ${QUIZ_COST}`,
+          updatedAt: new Date()
+        })
+        .where(eq(creditsTable.userId, userId))
+        .returning()
+
+      return updated.credits
+    })
+
+    return { 
+      isSuccess: true, 
+      message: `${QUIZ_COST} credits deducted for quiz completion. You have ${result} credits remaining.`,
+      data: result
+    }
+  } catch (error) {
+    console.error("Error deducting quiz credits:", error)
+    return { isSuccess: false, message: "Failed to deduct credits" }
+  }
+}

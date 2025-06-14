@@ -21,10 +21,12 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
+import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { updateModuleProgressAction } from "@/actions/db/progress-actions"
 import { saveQuizResultAction } from "@/actions/db/quiz-results-actions"
+import { deductQuizCreditsAfterCompletionAction } from "@/actions/db/credits-actions"
 import { KannadaEntry } from "@/types"
 import { cn } from "@/lib/utils"
 import { recordWordAttemptAction } from "@/actions/db/word-stats-actions"
@@ -60,6 +62,9 @@ interface QuizComponentProps {
 }
 
 export default function QuizComponent({ entries }: QuizComponentProps) {
+  // Get user context for credit deduction
+  const { user } = useUser()
+
   // State for quiz configuration
   const [isConfiguring, setIsConfiguring] = useState(true)
 
@@ -92,7 +97,7 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
     // Mark results as ready to save
     setShouldSaveResults(true)
 
-    // Display toast
+    // Display quiz completion toast
     const correctAnswers = results.filter(r => r.isCorrect).length
     const score = Math.round((correctAnswers / results.length) * 100)
 
@@ -101,12 +106,23 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
 
   // Save quiz results to the database when complete
   useEffect(() => {
-    if (shouldSaveResults && results.length > 0) {
+    if (shouldSaveResults && results.length > 0 && user?.id) {
       const saveResults = async () => {
         try {
           // Get score
           const correctAnswers = results.filter(r => r.isCorrect).length
           const score = Math.round((correctAnswers / results.length) * 100)
+
+          // Deduct credits after quiz completion
+          const creditResult = await deductQuizCreditsAfterCompletionAction(
+            user.id
+          )
+          if (!creditResult.isSuccess) {
+            toast.error("Failed to process credits, but quiz results saved")
+            console.error("Credit deduction failed:", creditResult.message)
+          } else {
+            toast.success(creditResult.message)
+          }
 
           // Save overall progress
           await updateModuleProgressAction("quiz", score)
@@ -129,7 +145,7 @@ export default function QuizComponent({ entries }: QuizComponentProps) {
 
       saveResults()
     }
-  }, [shouldSaveResults, results])
+  }, [shouldSaveResults, results, user?.id])
 
   // Timer countdown
   useEffect(() => {
