@@ -41,10 +41,12 @@ export const timeHorizonEnum = pgEnum("time_horizon", [
 ])
 
 export const roleEnum = pgEnum("role", [
+  "myself_adult",
+  "child_13_17",
+  "classroom_group",
   "myself",
   "my_son",
-  "my_daughter",
-  "classroom_group"
+  "my_daughter"
 ])
 
 export const ageBandEnum = pgEnum("age_band", [

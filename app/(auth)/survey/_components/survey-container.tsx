@@ -50,11 +50,27 @@ export default function SurveyContainer({
     isCompleted: existingData?.isCompleted || false
   })
 
+  // Helper function to convert legacy role values
+  const mapLegacyRole = (
+    role: string | null | undefined
+  ): SurveyStep1Data["role"] | undefined => {
+    if (!role) return undefined
+    const roleMap: Record<string, SurveyStep1Data["role"]> = {
+      myself_adult: "myself",
+      child_13_17: "my_son", // Default legacy child to "my_son"
+      classroom_group: "classroom_group",
+      myself: "myself",
+      my_son: "my_son",
+      my_daughter: "my_daughter"
+    }
+    return roleMap[role] || undefined
+  }
+
   const [step1Data, setStep1Data] = useState<Partial<SurveyStep1Data>>({
     goal: existingData?.goal || undefined,
     goalOther: existingData?.goalOther || "",
     timeHorizon: existingData?.timeHorizon || undefined,
-    role: existingData?.role || undefined,
+    role: mapLegacyRole(existingData?.role),
     ageBand: existingData?.ageBand || undefined
   })
 
@@ -228,10 +244,15 @@ export default function SurveyContainer({
       if (progress.currentStep === 1 && isStep1Valid()) {
         let result
         if (!existingData) {
-          result = await createSurveyResponseAction({
+          const surveyData = {
             userId,
-            ...(step1Data as SurveyStep1Data)
-          })
+            goal: step1Data.goal!,
+            goalOther: step1Data.goalOther || null,
+            timeHorizon: step1Data.timeHorizon!,
+            role: step1Data.role!,
+            ageBand: step1Data.ageBand!
+          }
+          result = await createSurveyResponseAction(surveyData)
         } else {
           result = await updateSurveyStepAction(userId, 1, step1Data)
         }
@@ -377,12 +398,29 @@ export default function SurveyContainer({
       }
     } catch (error) {
       console.error("Survey error:", error)
+
+      // More specific error handling
+      let errorMessage = "Failed to save survey data. Please try again."
+
+      if (error instanceof Error) {
+        if (error.message.includes("Database table not found")) {
+          errorMessage =
+            "Database is not properly initialized. Please contact support."
+        } else if (error.message.includes("duplicate key")) {
+          errorMessage = "Survey response already exists. Refreshing page..."
+          // Refresh the page to get existing data
+          setTimeout(() => window.location.reload(), 2000)
+        } else if (error.message.includes("Missing required fields")) {
+          errorMessage =
+            "Please fill out all required fields before continuing."
+        } else {
+          errorMessage = error.message
+        }
+      }
+
       toast({
         title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to save survey data. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       })
     } finally {
@@ -708,7 +746,10 @@ export default function SurveyContainer({
       myself: "Myself",
       my_son: "My son",
       my_daughter: "My daughter",
-      classroom_group: "Classroom/group"
+      classroom_group: "Classroom/group",
+      // Legacy values for backward compatibility
+      myself_adult: "Myself (Adult)",
+      child_13_17: "Child (13-17)"
     }
     return roleTexts[role] || role
   }
