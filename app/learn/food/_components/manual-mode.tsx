@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
+import styles from "../food.module.css"
 
 interface ManualModeProps {
   allFoodItems: Array<{
@@ -27,38 +28,40 @@ export function ManualMode({ allFoodItems }: ManualModeProps) {
     const positions: Record<string, { top: string; left: string }> = {
       // Main dishes positions
       "rice-sambar": { top: "60%", left: "35%" },
-      "rice-rasam": { top: "60%", left: "55%" },
-      "curd-rice": { top: "55%", left: "75%" },
+      "rice-rasam": { top: "53%", left: "21%" },
+      "curd-rice": { top: "57%", left: "53%" },
+      puliyogre: { top: "15%", left: "45%" },
+      "dosa-aloo": { top: "50%", left: "5%" },
 
       // Curries in center
       palya: { top: "40%", left: "35%" },
       "corn-palya": { top: "40%", left: "50%" },
       kosumbari: { top: "40%", left: "65%" },
-
-      // Ice cream position
-      "ice-cream": { top: "3%", left: "10%" },
+      "hurulikayi-palya": { top: "40%", left: "20%" },
 
       // Water position
-      water: { top: "3%", left: "90%" },
+      water: { top: "3%", left: "0%" },
 
       // Sweets
-      obbattu: { top: "50%", left: "15%" },
-      mysorepak: { top: "20%", left: "50%" },
-      payasam: { top: "20%", left: "65%" },
+      obbattu: { top: "20%", left: "65%" },
+      mysorepak: { top: "26%", left: "22%" },
+      payasam: { top: "53%", left: "70%" },
+      jilebi: { top: "30%", left: "74%" },
+      karijikayi: { top: "11%", left: "21%" },
 
       // MANUAL MODE SPECIFIC: Salt in different position
-      salt: { top: "24%", left: "15%" }, // Different position for manual mode
-      pickle: { top: "20%", left: "25%" },
+      salt: { top: "31%", left: "5%" }, // Different position for manual mode
+      pickle: { top: "23%", left: "15%" },
       papad: { top: "20%", left: "35%" },
 
-      banana: { top: "55%", left: "15%" }
+      banana: { top: "0%", left: "80%" }
     }
 
     return positions[foodId] || { top: "50%", left: "50%" }
   }
 
   const addFood = (foodId: string) => {
-    if (!selectedFoods.includes(foodId) && selectedFoods.length < 16) {
+    if (!selectedFoods.includes(foodId) && selectedFoods.length < 19) {
       setSelectedFoods([...selectedFoods, foodId])
     }
   }
@@ -91,7 +94,7 @@ export function ManualMode({ allFoodItems }: ManualModeProps) {
       {/* Progress Info */}
       <div className="mb-3 text-center">
         <p className="text-sm text-gray-600">
-          Words learned: {selectedFoods.length}/16
+          Words learned: {selectedFoods.length}/19
         </p>
       </div>
 
@@ -128,11 +131,12 @@ export function ManualMode({ allFoodItems }: ManualModeProps) {
                   return (
                     <div
                       key={foodId}
-                      className={`absolute -translate-x-1/2 -translate-y-1/2${foodItem.size} cursor-pointer transition-transform duration-200 hover:scale-110`}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 ${foodItem.size} cursor-pointer transition-transform duration-200 hover:scale-110 ${styles.foodSlideIn}`}
                       style={{
                         top: position.top,
                         left: position.left,
-                        zIndex: 10
+                        zIndex: 10,
+                        animationDelay: `${selectedFoods.indexOf(foodId) * 0.1}s`
                       }}
                       onClick={() => removeFood(foodId)}
                       title={`${foodItem.name} - ${foodItem.english} (Click to remove)`}

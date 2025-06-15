@@ -10,14 +10,30 @@ export function FoodSimulation() {
 
   // Food items with real images and combination dishes
   const allFoodItems = [
-    // Essential combination dishes with reduced size
+    // Essential combination dishes with increased size
     {
       id: "rice-sambar",
       name: "ಸಾಂಬಾರ್ ಅನ್ನ (Sambar Anna)",
       english: "Sambar Rice",
       category: "essential",
       imageSrc: "/food-dishes/rice-sambar.png",
-      size: "w-36 h-32 md:w-40 md:h-36" // Decreased from w-48 h-40
+      size: "w-48 h-40 md:w-56 md:h-48" // Increased size
+    },
+    {
+      id: "puliyogre",
+      name: "ಪುಳಿಯೋಗರೆ (Puliyogare)",
+      english: "Tamarind Rice",
+      category: "essential",
+      imageSrc: "/food-dishes/puliyogree.png",
+      size: "w-48 h-40 md:w-56 md:h-48" // Increased size
+    },
+    {
+      id: "dosa-aloo",
+      name: "ಆಲೂ ದೋಸೆ (Aloo Dose)",
+      english: "Potato Dosa",
+      category: "essential",
+      imageSrc: "/food-dishes/DOSE.png",
+      size: "w-52 h-36 md:w-60 md:h-44" // Increased size
     },
     {
       id: "rice-rasam",
@@ -25,7 +41,7 @@ export function FoodSimulation() {
       english: "Rasam Rice",
       category: "essential",
       imageSrc: "/food-dishes/rice-rasam.png",
-      size: "w-36 h-32 md:w-40 md:h-36" // Decreased from w-48 h-40
+      size: "w-48 h-40 md:w-56 md:h-48" // Increased size
     },
     {
       id: "curd-rice",
@@ -33,17 +49,17 @@ export function FoodSimulation() {
       english: "Curd Rice",
       category: "essential",
       imageSrc: "/food-dishes/curd-rice.png",
-      size: "w-36 h-32 md:w-40 md:h-36" // Decreased from w-48 h-40
+      size: "w-48 h-40 md:w-56 md:h-48" // Increased size
     },
 
-    // Vegetable curries with 1.5x increased size
+    // Vegetable curries with increased size
     {
       id: "palya",
       name: "ಪಲ್ಯ (Palya)",
       english: "Vegetable Curry",
       category: "curry",
       imageSrc: "/food-dishes/palya-removebg-preview.png",
-      size: "w-24 h-20 md:w-28 md:h-24" // Increased from w-16 h-14
+      size: "w-32 h-28 md:w-40 md:h-36" // Increased size
     },
     {
       id: "corn-palya",
@@ -51,7 +67,7 @@ export function FoodSimulation() {
       english: "Corn Curry",
       category: "curry",
       imageSrc: "/food-dishes/corn-palya-removebg-preview.png",
-      size: "w-24 h-20 md:w-28 md:h-24" // Increased from w-16 h-14
+      size: "w-32 h-28 md:w-40 md:h-36" // Increased size
     },
     {
       id: "kosumbari",
@@ -59,17 +75,25 @@ export function FoodSimulation() {
       english: "Lentil Salad",
       category: "curry",
       imageSrc: "/food-dishes/kosumbari-removebg-preview.png",
-      size: "w-24 h-20 md:w-28 md:h-24" // Increased from w-16 h-14
+      size: "w-32 h-28 md:w-40 md:h-36" // Increased size
+    },
+    {
+      id: "hurulikayi-palya",
+      name: "ಹುರುಳಿಕಾಯಿ ಪಲ್ಯ (Hurulikayi Palya)",
+      english: "Green Beans Curry",
+      category: "curry",
+      imageSrc: "/food-dishes/beans.png",
+      size: "w-32 h-28 md:w-40 md:h-36" // Increased size
     },
 
-    // Sides and accompaniments
+    // Sides and accompaniments with increased size
     {
       id: "salt",
       name: "ಉಪ್ಪು (Uppu)",
       english: "Salt",
       category: "sides",
       imageSrc: "/food-dishes/salt-removebg-preview.png",
-      size: "w-24 h-24 md:w-12 md:h-12"
+      size: "w-20 h-20 md:w-24 md:h-24" // Increased size
     },
     {
       id: "pickle",
@@ -77,7 +101,7 @@ export function FoodSimulation() {
       english: "Mango Pickle",
       category: "sides",
       imageSrc: "/food-dishes/pickle.png",
-      size: "w-10 h-10 md:w-12 md:h-12"
+      size: "w-16 h-16 md:w-20 md:h-20" // Increased size
     },
     {
       id: "papad",
@@ -85,17 +109,17 @@ export function FoodSimulation() {
       english: "Papadam",
       category: "sides",
       imageSrc: "/food-dishes/papad.png",
-      size: "w-20 h-20 md:w-24 md:h-24" // Increased by 1.5x from w-14 h-14
+      size: "w-28 h-28 md:w-36 md:h-36" // Increased size
     },
 
-    // Sweets
+    // Sweets with increased size
     {
       id: "payasam",
       name: "ಪಾಯಸ (Paayasa)",
       english: "Sweet Pudding",
       category: "sweet",
       imageSrc: "/food-dishes/payasam.png",
-      size: "w-16 h-16 md:w-20 md:h-20"
+      size: "w-32 h-32 md:w-40 md:h-40" // Further increased size
     },
     {
       id: "mysorepak",
@@ -103,7 +127,7 @@ export function FoodSimulation() {
       english: "Mysore Pak",
       category: "sweet",
       imageSrc: "/food-dishes/mysorepak-2.png",
-      size: "w-16 h-16 md:w-20 md:h-20"
+      size: "w-24 h-24 md:w-32 md:h-32" // Increased size
     },
     {
       id: "obbattu",
@@ -111,25 +135,33 @@ export function FoodSimulation() {
       english: "Sweet Flatbread",
       category: "sweet",
       imageSrc: "/food-dishes/obbattu-removebg-preview.png",
-      size: "w-24 h-24 md:w-28 md:h-28" // Decreased further from w-32 h-32
+      size: "w-32 h-32 md:w-40 md:h-40" // Increased size
     },
     {
-      id: "ice-cream",
-      name: "ಐಸ್ ಕ್ರೀಮ್ (Ice Cream)",
-      english: "Ice Cream",
-      category: "extras",
-      imageSrc: "/food-dishes/ice-cream-removebg-preview.png",
-      size: "w-20 h-20 md:w-24 md:h-24" // Doubled from original size
+      id: "jilebi",
+      name: "ಜಿಲೇಬಿ (Jilebi)",
+      english: "Jalebi",
+      category: "sweet",
+      imageSrc: "/food-dishes/JILEBII.png",
+      size: "w-36 h-36 md:w-44 md:h-44" // Much larger size
+    },
+    {
+      id: "karijikayi",
+      name: "ಕರಿಜೀಕಾಯಿ (Karijikayi)",
+      english: "Coconut Sweet",
+      category: "sweet",
+      imageSrc: "/food-dishes/karjikayii.png",
+      size: "w-32 h-28 md:w-40 md:h-36" // Increased size
     },
 
-    // Extras
+    // Extras with increased size
     {
       id: "banana",
       name: "ಬಾಳೆಹಣ್ಣು (Baalehann)",
       english: "Banana",
       category: "extras",
       imageSrc: "/food-dishes/banana-removebg-preview.png",
-      size: "w-32 h-80 md:w-40 md:h-96" // Doubled from previous size
+      size: "w-32 h-48 md:w-40 md:h-60" // Increased size
     },
     {
       id: "water",
@@ -137,7 +169,7 @@ export function FoodSimulation() {
       english: "Water",
       category: "extras",
       imageSrc: "/food-dishes/water.png",
-      size: "w-20 h-32 md:w-24 md:h-40" // Increased by 2.5x from w-8 h-14
+      size: "w-28 h-40 md:w-32 md:h-48" // Reduced size
     }
   ]
 
