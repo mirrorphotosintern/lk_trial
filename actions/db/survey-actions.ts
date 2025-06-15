@@ -9,10 +9,14 @@ export async function createSurveyResponseAction(
   surveyResponse: InsertSurveyResponse
 ): Promise<ActionState<SelectSurveyResponse>> {
   try {
+    console.log("Creating survey response with data:", surveyResponse)
+    
     const [newSurveyResponse] = await db
       .insert(surveyResponsesTable)
       .values(surveyResponse)
       .returning()
+    
+    console.log("Survey response created successfully:", newSurveyResponse.id)
     
     return {
       isSuccess: true,
@@ -30,7 +34,32 @@ export async function createSurveyResponseAction(
       }
     }
     
-    return { isSuccess: false, message: "Failed to create survey response" }
+    // Check for other common database errors
+    if (error instanceof Error) {
+      if (error.message.includes('duplicate key')) {
+        return { 
+          isSuccess: false, 
+          message: "Survey response already exists for this user" 
+        }
+      }
+      if (error.message.includes('invalid input syntax')) {
+        return { 
+          isSuccess: false, 
+          message: "Invalid data format. Please check your input." 
+        }
+      }
+      if (error.message.includes('not-null constraint')) {
+        return { 
+          isSuccess: false, 
+          message: "Missing required fields. Please fill out all required information." 
+        }
+      }
+    }
+    
+    return { 
+      isSuccess: false, 
+      message: `Failed to create survey response: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    }
   }
 }
 
