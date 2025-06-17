@@ -96,7 +96,7 @@ export default function LetterTraceWrapper({
         const res = await fetch("/api/increment-credits", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id, amount: 20 })
+          body: JSON.stringify({ userId: user.id, amount: 1 })
         })
 
         if (!res.ok) throw new Error("Failed to increment credits")
