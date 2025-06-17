@@ -101,7 +101,7 @@ export default function LetterTraceWrapper({
 
         if (!res.ok) throw new Error("Failed to increment credits")
 
-        toast.success("You earned 20 credits!")
+        toast.success("You earned 1 credit!")
         router.refresh()
       } catch (err) {
         console.error("Credit increment error:", err)
