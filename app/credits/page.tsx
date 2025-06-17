@@ -71,19 +71,11 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Learn New Words</p>
               <p className="text-muted-foreground text-sm">
-                Complete Trace on 2 different letters to earn 20 credits
+                Complete Trace on letter to earn 1 credit per letter.
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-1 size-2 rounded-full bg-green-600" />
-            <div>
-              <p className="font-medium">Daily Login</p>
-              <p className="text-muted-foreground text-sm">
-                Log in daily to receive bonus credits
-              </p>
-            </div>
-          </div>
+          
           <div className="flex items-start gap-3">
             <div className="mt-1 size-2 rounded-full bg-green-600" />
             <div>
