@@ -1,44 +1,22 @@
 import { NextResponse } from "next/server"
 import { addCreditsAction } from "@/actions/db/credits-actions"
 
-export async function addCreditsAction(userId: string, amount: number) {
-  const { data: existing, error: fetchError } = await supabase
-    .from("credits")
-    .select("amount")
-    .eq("user_id", userId)
-    .single()
-
-  if (fetchError && fetchError.code !== "PGRST116") { // PGRST116 = no rows
-    console.error("Fetch error:", fetchError)
-    return { isSuccess: false, message: fetchError.message }
-  }
-
-  if (!existing) {
-    const { error: insertError } = await supabase
-      .from("credits")
-      .insert({ user_id: userId, amount })
-
-    if (insertError) {
-      console.error("Insert error:", insertError)
-      return { isSuccess: false, message: insertError.message }
+export async function POST(req: Request) {
+  try {
+    const { userId, amount } = await req.json()
+    if (!userId || !amount) {
+      return new NextResponse("Missing userId or amount", { status: 400 })
     }
 
-    return { isSuccess: true, data: { amount } }
+    const result = await addCreditsAction(userId, amount)
+
+    if (!result.isSuccess) {
+      return new NextResponse(result.message, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, credits: result.data })
+  } catch (error) {
+    console.error("Increment credits API error", error)
+    return new NextResponse("Server error", { status: 500 })
   }
-
-  const newAmount = existing.amount + amount
-
-  const { data, error } = await supabase
-    .from("credits")
-    .update({ amount: newAmount })
-    .eq("user_id", userId)
-    .select()
-
-  if (error) {
-    console.error("Supabase update error", error)
-    return { isSuccess: false, message: error.message }
-  }
-
-  return { isSuccess: true, data }
 }
-
