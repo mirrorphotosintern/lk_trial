@@ -71,7 +71,7 @@ async function CreditsContent({ userId }: { userId: string }) {
             <div>
               <p className="font-medium">Learn New Words</p>
               <p className="text-muted-foreground text-sm">
-                Complete Trace on letter to earn 1 credit per letter.
+                Complete Trace on letters to earn 1 credit per letter
               </p>
             </div>
           </div>
@@ -118,15 +118,7 @@ async function CreditsContent({ userId }: { userId: string }) {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-1 size-2 rounded-full bg-blue-600" />
-            <div>
-              <p className="font-medium">Skip Cooldowns</p>
-              <p className="text-muted-foreground text-sm">
-                Use credits to skip waiting times
-              </p>
-            </div>
-          </div>
+
         </CardContent>
       </Card>
     </div>
