@@ -12,8 +12,38 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-02-24.acacia" // Use the expected API version
+  apiVersion: "2025-02-24.acacia"
 })
+
+// Credit packages with pricing (will create checkout sessions, not use Payment Links)
+const CREDIT_PACKAGES = {
+  100: {
+    credits: 100,
+    amount: 4.99,
+    name: "100 Learning Credits",
+    description: "Perfect for trying out quizzes and games"
+  },
+  300: {
+    credits: 300,
+    amount: 12.99,
+    name: "300 Learning Credits",
+    description: "Great value for regular learners"
+  },
+  600: {
+    credits: 600,
+    amount: 22.99,
+    name: "600 Learning Credits", 
+    description: "Best for dedicated students"
+  },
+  1200: {
+    credits: 1200,
+    amount: 39.99,
+    name: "1200 Learning Credits",
+    description: "Maximum value pack for serious learners"
+  }
+} as const
+
+type CreditAmount = keyof typeof CREDIT_PACKAGES
 
 export async function POST(req: Request) {
   try {
@@ -39,42 +69,28 @@ export async function POST(req: Request) {
     console.log("✅ Authenticated user:", session.userId)
 
     const body = await req.json()
-    const { credits, price } = body
+    const { credits } = body
 
-    // Validate request data
-    if (!credits || !price) {
-      console.error("Missing required fields:", { credits, price })
-      return new NextResponse("Missing required fields: credits and price", {
-        status: 400
-      })
-    }
-
-    if (typeof credits !== "number" || typeof price !== "number") {
-      console.error("Invalid field types:", {
-        credits: typeof credits,
-        price: typeof price
-      })
+    // Validate that credits is a valid package
+    if (!credits || !(credits in CREDIT_PACKAGES)) {
+      const validCredits = Object.keys(CREDIT_PACKAGES).join(', ')
+      console.error("Invalid credit package:", { credits, validCredits })
       return new NextResponse(
-        "Invalid field types: credits and price must be numbers",
+        `Invalid credit package. Valid options: ${validCredits}`,
         { status: 400 }
       )
     }
 
-    if (credits <= 0 || price <= 0) {
-      console.error("Invalid values:", { credits, price })
-      return new NextResponse(
-        "Invalid values: credits and price must be positive",
-        { status: 400 }
-      )
-    }
+    const creditPackage = CREDIT_PACKAGES[credits as CreditAmount]
 
     console.log("Creating checkout session for:", {
       userId: session.userId,
-      credits,
-      price,
-      priceInCents: Math.round(price * 100)
+      credits: creditPackage.credits,
+      amount: creditPackage.amount,
+      packageName: creditPackage.name
     })
 
+    // Create Stripe Checkout Session (not Payment Link) for proper redirect control
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -82,24 +98,24 @@ export async function POST(req: Request) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `${credits.toLocaleString()} Learning Credits`,
-              description:
-                "Credits for learning Kannada - quizzes, games, and premium features",
+              name: creditPackage.name,
+              description: creditPackage.description,
               images: [`${process.env.NEXT_PUBLIC_APP_URL}/icon-512x512.png`]
             },
-            unit_amount: Math.round(price * 100) // Convert to cents and ensure integer
+            unit_amount: Math.round(creditPackage.amount * 100) // Convert to cents
           },
           quantity: 1
         }
       ],
       mode: "payment",
+      // ✅ Redirect to YOUR website after payment
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/credits/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/credits/cancel`,
       metadata: {
         userId: session.userId,
-        credits: credits.toString(),
+        credits: creditPackage.credits.toString(),
         purchaseType: "credits",
-        price: price.toString(),
+        price: creditPackage.amount.toString(),
         timestamp: new Date().toISOString()
       },
       billing_address_collection: "auto",
@@ -107,24 +123,38 @@ export async function POST(req: Request) {
       payment_intent_data: {
         metadata: {
           userId: session.userId,
-          credits: credits.toString(),
+          credits: creditPackage.credits.toString(),
           purchaseType: "credits",
-          price: price.toString()
+          price: creditPackage.amount.toString()
         }
+      },
+      // ✅ Additional options for better UX
+      allow_promotion_codes: true,
+      automatic_tax: {
+        enabled: false // You can enable this if needed
       }
+      // Note: customer_email will be collected during checkout
     })
 
-    console.log("Checkout session created successfully:", {
+    console.log("✅ Checkout session created successfully:", {
       sessionId: checkoutSession.id,
-      url: checkoutSession.url
+      url: checkoutSession.url,
+      credits: creditPackage.credits,
+      amount: creditPackage.amount,
+      willRedirectTo: {
+        success: `${process.env.NEXT_PUBLIC_APP_URL}/credits/success`,
+        cancel: `${process.env.NEXT_PUBLIC_APP_URL}/credits/cancel`
+      }
     })
 
     return NextResponse.json({
       url: checkoutSession.url,
-      sessionId: checkoutSession.id
+      sessionId: checkoutSession.id,
+      credits: creditPackage.credits,
+      amount: creditPackage.amount
     })
   } catch (error) {
-    console.error("Error creating checkout session:", error)
+    console.error("❌ Error creating checkout session:", error)
 
     // Provide more specific error messages
     if (error instanceof Stripe.errors.StripeError) {

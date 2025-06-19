@@ -87,23 +87,32 @@ export default function LetterTraceWrapper({
       learned.push(letterId)
       localStorage.setItem("learned_letters", JSON.stringify(learned))
     }
-    // If 2 new letters learned, increment credits by 2
-    if (learned.length % 2 === 0 && user?.id) {
-      await fetch("/api/increment-credits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, amount: 2 })
-      })
-      router.refresh()
+
+    // 🎮 Game reward: 1 credit per letter traced (learning reward, not payment)
+    if (user?.id) {
+      try {
+        await fetch("/api/increment-credits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, amount: 1 })
+        })
+        // Note: No toast here to avoid interrupting the flow
+        router.refresh()
+      } catch (err) {
+        console.error("Game credit reward error:", err)
+        // Don't show error to user - learning progress still counts
+      }
     }
+
     // Find the current letter's index
     const currentIndex = validLetterIds.indexOf(letterId)
     if (currentIndex === -1) return
+
     if (currentIndex < validLetterIds.length - 1) {
       const nextLetterId = validLetterIds[currentIndex + 1]
-      router.push(`/learn/trace/${nextLetterId}`) // Updated path
+      router.push(`/learn/trace/${nextLetterId}`)
     } else {
-      router.push("/learn/trace") // Updated path
+      router.push("/learn/trace")
     }
   }
 

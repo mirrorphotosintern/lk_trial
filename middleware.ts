@@ -23,7 +23,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/trpc(.*)",
   "/api/stripe/webhooks",
   "/api/clerk-webhook",
-  "/api/debug-env"
+  "/api/debug-env",
+  "/api/admin/payments"
 ])
 
 export default clerkMiddleware(async (auth, req) => {
@@ -32,8 +33,8 @@ export default clerkMiddleware(async (auth, req) => {
   console.log(`🔍 Middleware processing: ${pathname}`)
 
   // ✅ Early exit for ALL webhook endpoints and debug – MUST BE BEFORE auth()
-  if (pathname === "/api/stripe/webhooks" || pathname === "/api/clerk-webhook" || pathname === "/api/debug-env") {
-    console.log(`✅ Allowing webhook/debug: ${pathname}`)
+  if (pathname === "/api/stripe/webhooks" || pathname === "/api/clerk-webhook" || pathname === "/api/debug-env" || pathname === "/api/admin/payments") {
+    console.log(`✅ Allowing webhook/debug/admin: ${pathname}`)
     return NextResponse.next();
   }
 

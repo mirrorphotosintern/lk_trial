@@ -10,7 +10,7 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import Link from "next/link"
-import { CheckCircle, Coins, ArrowRight, XCircle } from "lucide-react"
+import { CheckCircle, Coins, ArrowRight, XCircle, Receipt } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { getUserCreditsAction } from "@/actions/db/credits-actions"
+import { getPaymentBySessionIdAction } from "@/actions/db/payments-actions"
 import { getStripe } from "@/lib/stripe"
 
 export default async function CreditsSuccessPage({
@@ -73,7 +74,7 @@ async function SuccessContent({
           </div>
           <CardTitle className="text-2xl text-red-600">Payment Not Verified</CardTitle>
           <CardDescription className="text-lg">
-            We couldn’t confirm your payment. Please try again or contact support.
+            We couldn't confirm your payment. Please try again or contact support.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -88,6 +89,10 @@ async function SuccessContent({
   // Get current credit balance (already updated via webhook)
   const creditsResult = await getUserCreditsAction(userId)
   const credits = creditsResult.isSuccess ? creditsResult.data : 0
+
+  // Get payment record from database to show payment details
+  const paymentResult = sessionId ? await getPaymentBySessionIdAction(sessionId) : null
+  const paymentRecord = paymentResult?.isSuccess ? paymentResult.data : null
 
   return (
     <Card className="text-center">
@@ -110,6 +115,53 @@ async function SuccessContent({
             <span>Current Balance: {credits.toLocaleString()} Credits</span>
           </div>
         </div>
+
+        {/* Show payment details if available */}
+        {paymentRecord && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg text-blue-900">
+                <Receipt className="size-5" />
+                Payment Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-blue-800">
+              <div className="grid grid-cols-2 gap-2">
+                <span className="font-medium">Credits Purchased:</span>
+                <span>{paymentRecord.credits.toLocaleString()}</span>
+                
+                <span className="font-medium">Amount Paid:</span>
+                <span>${paymentRecord.amountPaid} {paymentRecord.currency.toUpperCase()}</span>
+                
+                <span className="font-medium">Payment Status:</span>
+                <span className="capitalize font-medium text-green-700">{paymentRecord.status}</span>
+                
+                <span className="font-medium">Transaction Date:</span>
+                <span>{new Date(paymentRecord.createdAt).toLocaleDateString()}</span>
+                
+                {paymentRecord.email && (
+                  <>
+                    <span className="font-medium">Email:</span>
+                    <span>{paymentRecord.email}</span>
+                  </>
+                )}
+                
+                {sessionId && (
+                  <>
+                    <span className="font-medium">Session ID:</span>
+                    <span className="font-mono text-xs">{sessionId.substring(0, 20)}...</span>
+                  </>
+                )}
+              </div>
+              
+              <div className="mt-4 rounded bg-blue-100 p-2">
+                <p className="text-xs text-blue-700">
+                  ✅ Payment successfully recorded in database
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="text-muted-foreground text-sm">
           Your credits are now available and ready to use!

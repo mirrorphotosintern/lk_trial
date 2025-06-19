@@ -91,7 +91,8 @@ export default function LetterTraceWrapper({
     localStorage.setItem("learned_letters", JSON.stringify(updated))
     setLearned(updated)
 
-    if (updated.length % 2 === 0 && user?.id) {
+    // 🎮 Game reward: 1 credit per letter traced (learning reward, not payment)
+    if (user?.id) {
       try {
         const res = await fetch("/api/increment-credits", {
           method: "POST",
@@ -99,13 +100,13 @@ export default function LetterTraceWrapper({
           body: JSON.stringify({ userId: user.id, amount: 1 })
         })
 
-        if (!res.ok) throw new Error("Failed to increment credits")
-
-        toast.success("You earned 1 credit!")
-        router.refresh()
+        if (res.ok) {
+          toast.success("🎉 You earned 1 credit for tracing this letter!")
+          router.refresh()
+        }
       } catch (err) {
-        console.error("Credit increment error:", err)
-        toast.error("Could not add credits")
+        console.error("Game credit reward error:", err)
+        // Don't show error to user - learning progress still counts
       }
     }
 
