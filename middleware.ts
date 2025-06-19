@@ -58,9 +58,7 @@ export const config = {
     "/survey/:path*",
     "/credits",
     "/credits/:path*",
-    // ✅ REMOVE /api/:path* — too broad, causes Clerk to guard webhooks
-    "/api/webhook",
-    "/api/webhooks/:path*",
+    // ✅ REMOVE /api/:path* — too broad, causes Clerk to guard webhook
     "/api/trpc/:path*"
   ]
 }
