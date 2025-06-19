@@ -1,7 +1,7 @@
 /*
-Success page for credit purchases - displays confirmation after successful payment.
+Success page for credit purchases - validates Stripe session before confirming payment.
 Shows current credit balance and provides links to use credits.
-Relies solely on webhooks for payment processing (no fallback).
+Relies on Stripe webhook for actual credit addition, but verifies session to avoid false positives.
 */
 
 "use server"
@@ -10,7 +10,7 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import Link from "next/link"
-import { CheckCircle, Coins, ArrowRight } from "lucide-react"
+import { CheckCircle, Coins, ArrowRight, XCircle } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { getUserCreditsAction } from "@/actions/db/credits-actions"
+import { getStripe } from "@/lib/stripe"
 
 export default async function CreditsSuccessPage({
   searchParams
@@ -42,6 +43,18 @@ export default async function CreditsSuccessPage({
   )
 }
 
+async function verifyStripeSession(sessionId?: string): Promise<boolean> {
+  if (!sessionId) return false
+  try {
+    const stripe = getStripe()
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    return session.payment_status === "paid"
+  } catch (err) {
+    console.error("❌ Stripe session verification failed:", err)
+    return false
+  }
+}
+
 async function SuccessContent({
   userId,
   sessionId
@@ -49,13 +62,32 @@ async function SuccessContent({
   userId: string
   sessionId?: string
 }) {
-  // Get current credit balance (updated by webhook)
+  const isVerified = await verifyStripeSession(sessionId)
+
+  if (!isVerified) {
+    return (
+      <Card className="text-center">
+        <CardHeader>
+          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-red-100">
+            <XCircle className="size-8 text-red-600" />
+          </div>
+          <CardTitle className="text-2xl text-red-600">Payment Not Verified</CardTitle>
+          <CardDescription className="text-lg">
+            We couldn’t confirm your payment. Please try again or contact support.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link href="/credits">Return to Dashboard</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Get current credit balance (already updated via webhook)
   const creditsResult = await getUserCreditsAction(userId)
   const credits = creditsResult.isSuccess ? creditsResult.data : 0
-
-  console.log(
-    `💰 Success page displaying ${credits} credits for user ${userId}`
-  )
 
   return (
     <Card className="text-center">
