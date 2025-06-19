@@ -21,27 +21,35 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhook",
   "/api/webhooks(.*)",
   "/api/trpc(.*)",
-  "/api/stripe/webhooks" // ✅ include explicitly in public list
+  "/api/stripe/webhooks",
+  "/api/clerk-webhook",
+  "/api/debug-env"
 ])
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
+  
+  console.log(`🔍 Middleware processing: ${pathname}`)
 
-  // ✅ Early exit for Stripe Webhook – MUST BE BEFORE auth()
-  if (pathname === "/api/stripe/webhooks") {
+  // ✅ Early exit for ALL webhook endpoints and debug – MUST BE BEFORE auth()
+  if (pathname === "/api/stripe/webhooks" || pathname === "/api/clerk-webhook" || pathname === "/api/debug-env") {
+    console.log(`✅ Allowing webhook/debug: ${pathname}`)
     return NextResponse.next();
   }
 
   const { userId, redirectToSignIn } = await auth();
 
   if (isPublicRoute(req)) {
+    console.log(`✅ Public route allowed: ${pathname}`)
     return NextResponse.next();
   }
 
   if (!userId && isProtectedRoute(req)) {
+    console.log(`❌ Protected route blocked: ${pathname}, no userId`)
     return redirectToSignIn({ returnBackUrl: req.url });
   }
 
+  console.log(`✅ Authenticated access: ${pathname}, userId: ${userId}`)
   return NextResponse.next();
 })
 

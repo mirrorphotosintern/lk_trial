@@ -17,11 +17,26 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(req: Request) {
   try {
+    console.log("🔍 Checkout session request received")
+    console.log("🔍 Request headers:", Object.fromEntries(req.headers.entries()))
+    
     const session = await auth()
+    console.log("🔍 Auth session result:", { 
+      hasSession: !!session, 
+      userId: session?.userId,
+      sessionKeys: session ? Object.keys(session) : []
+    })
+    
     if (!session?.userId) {
-      console.error("Unauthorized: No user session found")
+      console.error("❌ Unauthorized: No user session found", {
+        session,
+        hasClerkHeaders: req.headers.get('clerk-session-id') ? 'yes' : 'no',
+        userAgent: req.headers.get('user-agent')
+      })
       return new NextResponse("Unauthorized", { status: 401 })
     }
+
+    console.log("✅ Authenticated user:", session.userId)
 
     const body = await req.json()
     const { credits, price } = body
