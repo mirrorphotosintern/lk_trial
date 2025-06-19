@@ -1,16 +1,16 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
-// Define which routes need auth
+// Routes to protect
 const isProtectedRoute = createRouteMatcher([
   "/parental(.*)",
   "/play/quiz(.*)",
   "/play/game(.*)",
   "/survey(.*)",
-  "/credits(.*)"
+  "/credits(.*)",
+  "/api/(.*)"
 ])
 
-// Define which routes don’t
 const isPublicRoute = createRouteMatcher([
   "/",
   "/learn",
@@ -21,31 +21,30 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhook",
   "/api/webhooks(.*)",
   "/api/trpc(.*)",
-  "/api/stripe/webhooks" // ✅ Explicitly allow Stripe Webhook
+  "/api/stripe/webhooks" // ✅ include explicitly in public list
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  const pathname = req.nextUrl.pathname
+  const pathname = req.nextUrl.pathname;
 
-  // ✅ Allow Stripe Webhook before any auth
+  // ✅ Early exit for Stripe Webhook – MUST BE BEFORE auth()
   if (pathname === "/api/stripe/webhooks") {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
-  const { userId, redirectToSignIn } = await auth()
+  const { userId, redirectToSignIn } = await auth();
 
   if (isPublicRoute(req)) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
   if (!userId && isProtectedRoute(req)) {
-    return redirectToSignIn({ returnBackUrl: req.url })
+    return redirectToSignIn({ returnBackUrl: req.url });
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 })
 
-// ✅ Don't match webhook route at all in middleware
 export const config = {
   matcher: [
     "/parental",
@@ -58,7 +57,7 @@ export const config = {
     "/survey/:path*",
     "/credits",
     "/credits/:path*",
-    // ✅ REMOVE /api/:path* — too broad, causes Clerk to guard webhook
-    "/api/trpc/:path*"
+    "/api/:path*",
+    "/trpc/:path*"
   ]
 }
