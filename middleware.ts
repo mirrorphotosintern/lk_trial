@@ -31,6 +31,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next()
   }
 
+  
   const { userId, redirectToSignIn } = await auth()
 
   if (isPublicRoute(req)) {
