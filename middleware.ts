@@ -1,21 +1,3 @@
-/*
-Contains middleware for protecting routes in KannadaKali.
-Uses Clerk to enforce authentication for specific routes.
-
-Key features:
-- Route protection: Ensures `/cards`, `/quiz`, `/parental`, `/survey` require login.
-- Redirect: Sends unauthenticated users to the sign-in page.
-
-Dependencies:
-- @clerk/nextjs/server: Provides `clerkMiddleware` and `createRouteMatcher`.
-- next/server: Provides `NextResponse` for route handling.
-
-Notes:
-- Uses async/await for Clerk's auth helper per auth rules.
-- Config matcher excludes static files and Next.js internals.
-- Assumes Clerk env vars are set in `.env.local`.
-*/
-
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
@@ -25,6 +7,7 @@ const isProtectedRoute = createRouteMatcher([
   "/play/quiz(.*)",
   "/play/game(.*)",
   "/survey(.*)",
+  "/credits(.*)",
   "/api/(.*)"
 ])
 
@@ -41,14 +24,19 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
+  const pathname = req.nextUrl.pathname
+
+  // ✅ Bypass Clerk for Stripe Webhooks
+  if (pathname === "/api/stripe/webhooks") {
+    return NextResponse.next()
+  }
+
   const { userId, redirectToSignIn } = await auth()
 
-  // Allow public routes
   if (isPublicRoute(req)) {
     return NextResponse.next()
   }
 
-  // Handle protected routes
   if (!userId && isProtectedRoute(req)) {
     return redirectToSignIn({ returnBackUrl: req.url })
   }
@@ -57,5 +45,18 @@ export default clerkMiddleware(async (auth, req) => {
 })
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"]
+  matcher: [
+    "/parental",
+    "/parental/:path*",
+    "/play/quiz",
+    "/play/quiz/:path*",
+    "/play/game",
+    "/play/game/:path*",
+    "/survey",
+    "/survey/:path*",
+    "/credits",
+    "/credits/:path*",
+    "/api/:path*",
+    "/trpc/:path*"
+  ]
 }

@@ -88,6 +88,7 @@ export async function POST(req: Request) {
         timestamp: new Date().toISOString()
       },
       billing_address_collection: "auto",
+      customer_creation: "always",
       payment_intent_data: {
         metadata: {
           userId: session.userId,

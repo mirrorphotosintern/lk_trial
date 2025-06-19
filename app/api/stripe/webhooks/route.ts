@@ -74,101 +74,75 @@ async function handleSubscriptionChange(event: Stripe.Event) {
 }
 
 async function handleCheckoutSession(event: Stripe.Event) {
+  const stripe = getStripe()
   const checkoutSession = event.data.object as Stripe.Checkout.Session
 
   console.log("🔍 Processing checkout session:", {
     sessionId: checkoutSession.id,
-    mode: checkoutSession.mode,
-    paymentStatus: checkoutSession.payment_status,
-    metadata: checkoutSession.metadata
+    paymentStatus: checkoutSession.payment_status
   })
 
+  // Get credits from checkout session metadata (not price metadata)
   const userId = checkoutSession.metadata?.userId
   const creditsFromMeta = checkoutSession.metadata?.credits
+  const credits = creditsFromMeta ? parseInt(creditsFromMeta, 10) : 0
+  const amountPaid = (checkoutSession.amount_total || 0) / 100
 
-  // Handle credit purchases (one-time payments)
+  console.log("🔍 Extracted from session metadata:", {
+    userId,
+    credits,
+    amountPaid,
+    sessionMetadata: checkoutSession.metadata
+  })
+
   if (
     checkoutSession.mode === "payment" &&
-    checkoutSession.payment_status === "paid"
+    checkoutSession.payment_status === "paid" &&
+    userId
   ) {
-    if (userId && creditsFromMeta) {
-      const credits = parseInt(creditsFromMeta)
-      const amountPaid = (checkoutSession.amount_total || 0) / 100 // Convert cents to dollars
+    try {
+      const email = checkoutSession.customer_details?.email || "unknown@example.com"
+      const name = checkoutSession.customer_details?.name || null
 
-      try {
-        console.log(
-          `💳 Processing payment: ${credits} credits for $${amountPaid} (user: ${userId})`
-        )
-
-        // Store payment record in database
-        const paymentResult = await createPaymentAction({
-          id: checkoutSession.id,
-          userId,
-          stripeSessionId: checkoutSession.id,
-          stripePaymentIntentId: checkoutSession.payment_intent as string,
-          stripeCustomerId: checkoutSession.customer as string,
-          credits,
-          amountPaid: amountPaid.toString(),
-          currency: checkoutSession.currency || "usd",
-          status: "completed",
-          metadata: JSON.stringify({
-            purchaseType: "credits",
-            paymentStatus: checkoutSession.payment_status,
-            customerEmail: checkoutSession.customer_details?.email
-          })
-        })
-
-        if (paymentResult.isSuccess) {
-          console.log(`✅ Payment record created: ${paymentResult.data.id}`)
-        } else {
-          console.error(
-            `❌ Failed to create payment record: ${paymentResult.message}`
-          )
-        }
-
-        // Add credits to user account
-        const creditResult = await addCreditsAction(userId, credits)
-        if (creditResult.isSuccess) {
-          console.log(
-            `✅ Credits added: ${credits} credits to user ${userId}. New balance: ${creditResult.data}`
-          )
-        } else {
-          console.error(`❌ Failed to add credits: ${creditResult.message}`)
-        }
-      } catch (error) {
-        console.error("❌ Error processing payment:", error)
-      }
-    } else {
-      console.error("❌ Missing userId or credits in metadata:", {
+      const paymentResult = await createPaymentAction({
+        id: checkoutSession.id,
         userId,
-        creditsFromMeta
+        stripeSessionId: checkoutSession.id,
+        stripePaymentIntentId: checkoutSession.payment_intent as string,
+        stripeCustomerId: checkoutSession.customer as string,
+        credits: credits,
+        amountPaid: amountPaid.toString(),
+        currency: checkoutSession.currency || "usd",
+        email,
+        name,
+        status: "completed",
+        metadata: JSON.stringify({
+          purchaseType: "credits",
+          paymentStatus: checkoutSession.payment_status,
+          customerEmail: email
+        })
       })
+
+      if (paymentResult.isSuccess) {
+        console.log(`✅ Payment record created: ${paymentResult.data.id}`)
+      }
+
+      // Add credits to user account
+      const creditResult = await addCreditsAction(userId, credits)
+      
+      if (creditResult.isSuccess) {
+        console.log(`✅ Credits added: ${credits} credits to user ${userId}. New balance: ${creditResult.data}`)
+      } else {
+        console.error(`❌ Failed to add credits: ${creditResult.message}`)
+      }
+
+    } catch (error) {
+      console.error("❌ Error processing Stripe webhook payment:", error)
     }
-    return
-  }
-
-  // Handle subscriptions if needed
-  if (checkoutSession.mode === "subscription") {
-    console.log("🔄 Processing subscription checkout")
-    const subscriptionId = checkoutSession.subscription as string
-
-    await updateStripeCustomer(
-      checkoutSession.client_reference_id as string,
-      subscriptionId,
-      checkoutSession.customer as string
-    )
-
-    const subscription = await getStripe().subscriptions.retrieve(
-      subscriptionId,
-      { expand: ["default_payment_method"] }
-    )
-
-    const productId = subscription.items.data[0].price.product as string
-
-    await manageSubscriptionStatusChange(
-      subscription.id,
-      subscription.customer as string,
-      productId
-    )
+  } else {
+    console.log("⚠️ Session not paid or not a payment:", {
+      mode: checkoutSession.mode,
+      status: checkoutSession.payment_status
+    })
   }
 }

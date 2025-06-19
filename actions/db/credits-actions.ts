@@ -43,18 +43,34 @@ export async function getUserCreditsAction(userId: string): Promise<ActionState<
   }
 }
 
-// Add credits
+// Add credits (handles both existing and new users)
 export async function addCreditsAction(userId: string, amount: number): Promise<ActionState<number>> {
   try {
-    const [updated] = await db.update(creditsTable)
-      .set({
-        credits: sql`${creditsTable.credits} + ${amount}`,
-        updatedAt: new Date()
-      })
-      .where(eq(creditsTable.userId, userId))
-      .returning()
+    // First, check if user exists in credits table
+    const existing = await db.select().from(creditsTable).where(eq(creditsTable.userId, userId)).limit(1)
+    
+    if (existing.length === 0) {
+      // User doesn't exist - create new record with initial credits + amount
+      const [newRecord] = await db.insert(creditsTable).values({
+        userId,
+        credits: 100 + amount // Default 100 + purchased amount
+      }).returning()
+      
+      console.log(`✅ User credits initialized and added: ${amount} credits. Total: ${newRecord.credits}`)
+      return { isSuccess: true, message: "Credits initialized and added", data: newRecord.credits }
+    } else {
+      // User exists - update existing record
+      const [updated] = await db.update(creditsTable)
+        .set({
+          credits: sql`${creditsTable.credits} + ${amount}`,
+          updatedAt: new Date()
+        })
+        .where(eq(creditsTable.userId, userId))
+        .returning()
 
-    return { isSuccess: true, message: "Credits added", data: updated.credits }
+      console.log(`✅ Credits added: ${amount}. New balance: ${updated.credits}`)
+      return { isSuccess: true, message: "Credits added", data: updated.credits }
+    }
   } catch (error) {
     console.error("Error adding credits:", error)
     return { isSuccess: false, message: "Failed to add credits" }

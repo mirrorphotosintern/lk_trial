@@ -1,3 +1,8 @@
+/*
+Database schema for payment records.
+Stores transaction details when users purchase credits via Stripe.
+*/
+
 import {
   pgTable,
   text,
@@ -25,6 +30,10 @@ export const paymentsTable = pgTable("payments", {
   credits: integer("credits").notNull(),
   amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).notNull(), // Amount in dollars
   currency: text("currency").notNull().default("usd"),
+
+  // Customer info
+  email: text("email").notNull(),
+  name: text("name"),
 
   // Status and metadata
   status: paymentStatusEnum("status").notNull().default("pending"),

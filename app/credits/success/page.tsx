@@ -1,3 +1,9 @@
+/*
+Success page for credit purchases - displays confirmation after successful payment.
+Shows current credit balance and provides links to use credits.
+Relies solely on webhooks for payment processing (no fallback).
+*/
+
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
@@ -14,7 +20,6 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { getUserCreditsAction } from "@/actions/db/credits-actions"
-import { processPaymentFromSession } from "@/actions/db/payments-actions"
 
 export default async function CreditsSuccessPage({
   searchParams
@@ -44,23 +49,7 @@ async function SuccessContent({
   userId: string
   sessionId?: string
 }) {
-  // Automatically process payment if session_id is provided
-  if (sessionId) {
-    try {
-      console.log(`🔄 Auto-processing payment for session: ${sessionId}`)
-      const result = await processPaymentFromSession(sessionId, userId)
-      if (result.isSuccess) {
-        console.log(
-          `✅ Payment auto-processed: ${result.data?.credits} credits added`
-        )
-      } else {
-        console.log(`ℹ️ Payment processing: ${result.message}`)
-      }
-    } catch (error) {
-      console.error("Error auto-processing payment:", error)
-    }
-  }
-
+  // Get current credit balance (updated by webhook)
   const creditsResult = await getUserCreditsAction(userId)
   const credits = creditsResult.isSuccess ? creditsResult.data : 0
 
