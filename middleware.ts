@@ -22,6 +22,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks(.*)",
   "/api/trpc(.*)",
   "/api/stripe/webhooks",
+  "/api/stripe-prices", // ✅ Allow public access to pricing data
   "/api/clerk-webhook",
   "/api/debug-env",
   "/api/admin/payments"
