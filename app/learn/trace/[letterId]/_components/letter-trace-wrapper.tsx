@@ -91,13 +91,13 @@ export default function LetterTraceWrapper({
     // 🎮 Game reward: 1 credit per letter traced (learning reward, not payment)
     if (user?.id) {
       try {
-        await fetch("/api/increment-credits", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+      await fetch("/api/increment-credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user.id, amount: 1 })
-        })
+      })
         // Note: No toast here to avoid interrupting the flow
-        router.refresh()
+      router.refresh()
       } catch (err) {
         console.error("Game credit reward error:", err)
         // Don't show error to user - learning progress still counts

@@ -1,3 +1,8 @@
+/*
+API route to create Stripe checkout sessions using real Stripe product catalog.
+Fetches actual prices from Stripe and creates checkout sessions with proper metadata.
+*/
+
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
@@ -14,36 +19,6 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-02-24.acacia"
 })
-
-// Credit packages with pricing (will create checkout sessions, not use Payment Links)
-const CREDIT_PACKAGES = {
-  100: {
-    credits: 100,
-    amount: 4.99,
-    name: "100 Learning Credits",
-    description: "Perfect for trying out quizzes and games"
-  },
-  300: {
-    credits: 300,
-    amount: 12.99,
-    name: "300 Learning Credits",
-    description: "Great value for regular learners"
-  },
-  600: {
-    credits: 600,
-    amount: 22.99,
-    name: "600 Learning Credits", 
-    description: "Best for dedicated students"
-  },
-  1200: {
-    credits: 1200,
-    amount: 39.99,
-    name: "1200 Learning Credits",
-    description: "Maximum value pack for serious learners"
-  }
-} as const
-
-type CreditAmount = keyof typeof CREDIT_PACKAGES
 
 export async function POST(req: Request) {
   try {
@@ -69,41 +44,56 @@ export async function POST(req: Request) {
     console.log("✅ Authenticated user:", session.userId)
 
     const body = await req.json()
-    const { credits } = body
+    const { priceId } = body
 
-    // Validate that credits is a valid package
-    if (!credits || !(credits in CREDIT_PACKAGES)) {
-      const validCredits = Object.keys(CREDIT_PACKAGES).join(', ')
-      console.error("Invalid credit package:", { credits, validCredits })
-      return new NextResponse(
-        `Invalid credit package. Valid options: ${validCredits}`,
-        { status: 400 }
-      )
+    // Validate that priceId is provided
+    if (!priceId) {
+      console.error("Missing priceId in request body")
+      return new NextResponse("Missing priceId", { status: 400 })
     }
 
-    const creditPackage = CREDIT_PACKAGES[credits as CreditAmount]
+    console.log("🔍 Fetching price from Stripe catalog:", priceId)
+
+    // Fetch the actual price from Stripe
+    const price = await stripe.prices.retrieve(priceId, {
+      expand: ['product']
+    })
+
+    if (!price.active) {
+      console.error("Inactive price:", priceId)
+      return new NextResponse("Price is not active", { status: 400 })
+    }
+
+    const product = price.product as Stripe.Product
+    if (!product.active) {
+      console.error("Inactive product:", product.id)
+      return new NextResponse("Product is not active", { status: 400 })
+    }
+
+    // Extract credits from price metadata (you'll need to set this in Stripe)
+    const credits = parseInt(price.metadata?.credits || "0", 10)
+    if (credits === 0) {
+      console.error("No credits metadata found for price:", priceId)
+      return new NextResponse("Invalid price configuration", { status: 400 })
+    }
+
+    const amount = (price.unit_amount || 0) / 100 // Convert from cents to dollars
 
     console.log("Creating checkout session for:", {
       userId: session.userId,
-      credits: creditPackage.credits,
-      amount: creditPackage.amount,
-      packageName: creditPackage.name
+      priceId: price.id,
+      productId: product.id,
+      credits,
+      amount,
+      productName: product.name
     })
 
-    // Create Stripe Checkout Session (not Payment Link) for proper redirect control
+    // Create Stripe Checkout Session using the real price
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: creditPackage.name,
-              description: creditPackage.description,
-              images: [`${process.env.NEXT_PUBLIC_APP_URL}/icon-512x512.png`]
-            },
-            unit_amount: Math.round(creditPackage.amount * 100) // Convert to cents
-          },
+          price: priceId, // Use the actual Stripe price ID
           quantity: 1
         }
       ],
@@ -113,9 +103,11 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/credits/cancel`,
       metadata: {
         userId: session.userId,
-        credits: creditPackage.credits.toString(),
+        credits: credits.toString(),
         purchaseType: "credits",
-        price: creditPackage.amount.toString(),
+        price: amount.toString(),
+        productId: product.id,
+        priceId: price.id,
         timestamp: new Date().toISOString()
       },
       billing_address_collection: "auto",
@@ -123,9 +115,11 @@ export async function POST(req: Request) {
       payment_intent_data: {
         metadata: {
           userId: session.userId,
-          credits: creditPackage.credits.toString(),
+          credits: credits.toString(),
           purchaseType: "credits",
-          price: creditPackage.amount.toString()
+          price: amount.toString(),
+          productId: product.id,
+          priceId: price.id
         }
       },
       // ✅ Additional options for better UX
@@ -139,8 +133,9 @@ export async function POST(req: Request) {
     console.log("✅ Checkout session created successfully:", {
       sessionId: checkoutSession.id,
       url: checkoutSession.url,
-      credits: creditPackage.credits,
-      amount: creditPackage.amount,
+      credits,
+      amount,
+      productName: product.name,
       willRedirectTo: {
         success: `${process.env.NEXT_PUBLIC_APP_URL}/credits/success`,
         cancel: `${process.env.NEXT_PUBLIC_APP_URL}/credits/cancel`
@@ -150,8 +145,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       url: checkoutSession.url,
       sessionId: checkoutSession.id,
-      credits: creditPackage.credits,
-      amount: creditPackage.amount
+      credits,
+      amount,
+      productName: product.name
     })
   } catch (error) {
     console.error("❌ Error creating checkout session:", error)

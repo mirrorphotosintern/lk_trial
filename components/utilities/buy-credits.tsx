@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,67 +11,68 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Coins, CreditCard, Star, Zap, Crown, Loader2 } from "lucide-react"
+import { Coins, CreditCard, Star, Zap, Crown, Loader2, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 
-// Credit packages with pricing
-const creditPackages = [
-  {
-    id: "starter",
-    name: "Starter Pack",
-    credits: 100,
-    price: 4.99,
-    pricePerCredit: 0.0499,
-    description: "Perfect for trying out premium features",
-    icon: Coins,
-    popular: false
-  },
-  {
-    id: "value",
-    name: "Value Pack",
-    credits: 300,
-    price: 12.99,
-    pricePerCredit: 0.0433,
-    description: "Best value for regular learners",
-    icon: Star,
-    popular: true,
-    savings: "Save 13%"
-  },
-  {
-    id: "power",
-    name: "Power Pack",
-    credits: 600,
-    price: 22.99,
-    pricePerCredit: 0.0383,
-    description: "For serious language learners",
-    icon: Zap,
-    popular: false,
-    savings: "Save 23%"
-  },
-  {
-    id: "ultimate",
-    name: "Ultimate Pack",
-    credits: 1200,
-    price: 39.99,
-    pricePerCredit: 0.0333,
-    description: "Maximum credits for unlimited learning",
-    icon: Crown,
-    popular: false,
-    savings: "Save 33%"
-  }
-]
+// Type for Stripe price data
+interface StripePrice {
+  id: string
+  productId: string
+  name: string
+  description: string
+  credits: number
+  price: number
+  currency: string
+  pricePerCredit: number
+  metadata: Record<string, string>
+  savings: string | null
+}
 
 export default function BuyCredits() {
   const { user } = useUser()
   const [loadingPackage, setLoadingPackage] = useState<string | null>(null)
+  const [creditPrices, setCreditPrices] = useState<StripePrice[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handlePurchase = async (packageData: (typeof creditPackages)[0]) => {
+  // Fetch Stripe prices on component mount
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/stripe-prices")
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch prices")
+        }
+
+        const data = await response.json()
+        
+        if (data.success) {
+          setCreditPrices(data.prices)
+          console.log("✅ Loaded Stripe prices:", data.prices)
+        } else {
+          throw new Error(data.error || "Failed to load prices")
+        }
+      } catch (err) {
+        console.error("❌ Error fetching prices:", err)
+        setError(err instanceof Error ? err.message : "Failed to load pricing")
+        toast.error("Failed to load pricing. Please refresh the page.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPrices()
+  }, [])
+
+  const handlePurchase = async (priceData: StripePrice) => {
     if (!user) {
       toast.error("Please sign in to purchase credits")
       return
     }
 
-    setLoadingPackage(packageData.id)
+    setLoadingPackage(priceData.id)
 
     try {
       const response = await fetch("/api/create-checkout-session", {
@@ -80,13 +81,13 @@ export default function BuyCredits() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          credits: packageData.credits,
-          price: packageData.price
+          priceId: priceData.id // Send the actual Stripe price ID
         })
       })
 
       if (!response.ok) {
-        throw new Error("Failed to create checkout session")
+        const errorText = await response.text()
+        throw new Error(errorText || "Failed to create checkout session")
       }
 
       const { url } = await response.json()
@@ -104,6 +105,77 @@ export default function BuyCredits() {
     }
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="size-6 text-blue-600" />
+            Buy Credits
+          </CardTitle>
+          <CardDescription>
+            Loading pricing options...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-8 animate-spin text-blue-600" />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="size-6 text-blue-600" />
+            Buy Credits
+          </CardTitle>
+          <CardDescription>
+            Unable to load pricing options
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center gap-2 py-8 text-red-600">
+            <AlertCircle className="size-6" />
+            <p>{error}</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Show empty state if no prices found
+  if (creditPrices.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="size-6 text-blue-600" />
+            Buy Credits
+          </CardTitle>
+          <CardDescription>
+            No pricing options available
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center gap-2 py-8 text-gray-600">
+            <AlertCircle className="size-6" />
+            <p>Pricing options are currently unavailable. Please try again later.</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Determine which package is most popular (middle one or marked as popular)
+  const popularIndex = Math.floor(creditPrices.length / 2)
+
   return (
     <Card>
       <CardHeader>
@@ -118,20 +190,30 @@ export default function BuyCredits() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {creditPackages.map(pkg => {
-            const Icon = pkg.icon
+          {creditPrices.map((pkg, index) => {
+            const isPopular = index === popularIndex
             const isLoading = loadingPackage === pkg.id
+
+            // Choose icon based on credit amount
+            const getIcon = (credits: number) => {
+              if (credits <= 100) return Coins
+              if (credits <= 300) return Star
+              if (credits <= 600) return Zap
+              return Crown
+            }
+
+            const Icon = getIcon(pkg.credits)
 
             return (
               <div
                 key={pkg.id}
                 className={`relative rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
-                  pkg.popular
+                  isPopular
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200 hover:border-blue-300"
                 }`}
               >
-                {pkg.popular && (
+                {isPopular && (
                   <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-blue-500">
                     Most Popular
                   </Badge>
@@ -150,13 +232,13 @@ export default function BuyCredits() {
                   <div className="text-center">
                     <div
                       className={`mx-auto mb-2 flex size-12 items-center justify-center rounded-full ${
-                        pkg.popular ? "bg-blue-100" : "bg-gray-100"
+                        isPopular ? "bg-blue-100" : "bg-gray-100"
                       }`}
                     >
                       <Icon
                         size={24}
                         className={
-                          pkg.popular ? "text-blue-600" : "text-gray-600"
+                          isPopular ? "text-blue-600" : "text-gray-600"
                         }
                       />
                     </div>
@@ -187,7 +269,7 @@ export default function BuyCredits() {
                     onClick={() => handlePurchase(pkg)}
                     disabled={isLoading || !user}
                     className={`w-full ${
-                      pkg.popular
+                      isPopular
                         ? "bg-blue-600 hover:bg-blue-700"
                         : "bg-green-600 hover:bg-green-700"
                     }`}
@@ -219,6 +301,12 @@ export default function BuyCredits() {
             <li>• Support continued development of new features</li>
           </ul>
         </div>
+
+        {creditPrices.length > 0 && (
+          <div className="mt-4 text-center text-xs text-gray-500">
+            Prices loaded from Stripe • {creditPrices.length} options available
+          </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -115,13 +115,47 @@ async function handleCheckoutSession(event: Stripe.Event) {
     eventType: event.type
   })
 
-  // Get credits from checkout session metadata (not price metadata)
+  // Get credits from checkout session metadata (should be set when creating session)
   const userId = checkoutSession.metadata?.userId
+  let credits = 0
+  
+  // First try to get credits from session metadata
   const creditsFromMeta = checkoutSession.metadata?.credits
-  const credits = creditsFromMeta ? parseInt(creditsFromMeta, 10) : 0
+  if (creditsFromMeta) {
+    credits = parseInt(creditsFromMeta, 10)
+    console.log("✅ Credits found in session metadata:", credits)
+  } else {
+    // Fallback: fetch from line items if metadata is missing
+    console.log("⚠️ No credits in session metadata, fetching from line items...")
+    try {
+      const lineItems = await stripe.checkout.sessions.listLineItems(checkoutSession.id, {
+        expand: ['data.price.product']
+      })
+      
+      if (lineItems.data.length > 0) {
+        const lineItem = lineItems.data[0]
+        const price = lineItem.price
+        
+        if (price && price.metadata?.credits) {
+          credits = parseInt(price.metadata.credits, 10)
+          console.log("✅ Credits found in price metadata:", credits)
+        } else {
+          // Final fallback: map by amount
+          const amountPaid = (checkoutSession.amount_total || 0) / 100
+          credits = mapAmountToCredits(amountPaid)
+          console.log("⚠️ Using amount mapping fallback:", { amountPaid, credits })
+        }
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch line items, using amount mapping:", error)
+      const amountPaid = (checkoutSession.amount_total || 0) / 100
+      credits = mapAmountToCredits(amountPaid)
+    }
+  }
+  
   const amountPaid = (checkoutSession.amount_total || 0) / 100
 
-  console.log("🔍 Extracted from session metadata:", {
+  console.log("🔍 Extracted payment data:", {
     objectId,
     userId,
     credits,
@@ -174,9 +208,20 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
                  paymentIntent.metadata?.user_id ||
                  null
 
-  // Map amount to credits (since Payment Links don't have credit metadata by default)
+  // Try to get credits from payment intent metadata first
+  let credits = 0
+  const creditsFromMeta = paymentIntent.metadata?.credits
+  if (creditsFromMeta) {
+    credits = parseInt(creditsFromMeta, 10)
+    console.log("✅ Credits found in payment intent metadata:", credits)
+  } else {
+    // Fallback: map amount to credits (for older Payment Links without metadata)
+    const amountPaid = paymentIntent.amount / 100
+    credits = mapAmountToCredits(amountPaid)
+    console.log("⚠️ Using amount mapping fallback for payment intent:", { amountPaid, credits })
+  }
+
   const amountPaid = paymentIntent.amount / 100
-  const credits = mapAmountToCredits(amountPaid)
 
   console.log("🔍 Extracted from payment intent:", {
     objectId,
