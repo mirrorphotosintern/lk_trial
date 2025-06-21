@@ -1,0 +1,9 @@
+{
+    "output": {
+      "style": "markdown",
+      "filePath": "custom-output.md",
+      "removeComments": true,
+      "showLineNumbers": true,
+      "topFilesLength": 10
+    }
+  }
